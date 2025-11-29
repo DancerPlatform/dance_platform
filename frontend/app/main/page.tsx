@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { Card } from "@/components/ui/card"
 import { ArtistCard } from "@/components/artist-card";
 import { Artist } from "@/types/artist"
 
@@ -12,7 +11,7 @@ export default function MainPage() {
   // const popularArtists = [1, 2, 3, 4];
   // const risingArtists = [1, 2];
   const [artists, setArtists] = useState<Artist[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
   
     useEffect(() => {
       async function fetchArtists() {
