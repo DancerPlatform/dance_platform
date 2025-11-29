@@ -1,12 +1,35 @@
+'use client'
+
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { ArtistCard } from "@/components/artist-card";
+import { Artist } from "@/types/artist"
 
 export default function MainPage() {
-  const popularArtists = [1, 2, 3, 4];
-  const risingArtists = [1, 2];
+  // const popularArtists = [1, 2, 3, 4];
+  // const risingArtists = [1, 2];
+  const [artists, setArtists] = useState<Artist[]>([]);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      async function fetchArtists() {
+        try {
+          const response = await fetch('/api/artists?limit=10');
+          const data = await response.json();
+          console.log(data)
+          setArtists(data.artists || []);
+        } catch (error) {
+          console.error('Failed to fetch artists:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+  
+      fetchArtists();
+    }, []);
 
 
   return (
@@ -48,42 +71,18 @@ export default function MainPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {popularArtists.map((artist) => (
-              <Card
-                key={artist}
-                className="aspect-square bg-zinc-800 border-0 rounded-3xl hover:bg-zinc-700 transition-colors cursor-pointer"
+            {artists.map((artist) => (
+              <ArtistCard
+                key={artist.artist_id}
+                nameEN={artist.artist_name_eng}
+                nameKR={artist.artist_name}
+                imageUrl={artist.photo}
+                className="max-w-sm"
               />
             ))}
           </div>
         </section>
-
-        {/* Rising Artists Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-normal">Rising Artists</h3>
-            <Link
-              href="/artists/rising"
-              className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <ArtistCard
-                    nameEN="Renan"
-                    nameKR="레난"
-                    genre="Hiphop"
-                    imageUrl="/artists/renan.jpg"
-                    className="max-w-sm"
-                  />
-          </div>
-        </section>
       </main>
-
-      {/* Bottom Navigation */}
-      {/* <BottomNav /> */}
     </div>
   )
 

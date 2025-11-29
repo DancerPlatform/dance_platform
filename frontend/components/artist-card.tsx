@@ -4,29 +4,27 @@ import { cn } from "@/lib/utils";
 interface ArtistCardProps {
   nameEN: string;
   nameKR: string;
-  genre: string;
-  imageUrl: string;
+  imageUrl: string | null;
   className?: string;
 }
 
 export function ArtistCard({
   nameEN,
   nameKR,
-  genre,
   imageUrl,
   className,
 }: ArtistCardProps) {
   return (
     <div
       className={cn(
-        "relative w-full aspect-[3/4] overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-blue-700 via-purple-700 to-purple-900",
+        "relative w-full aspect-3/4 overflow-hidden rounded-[1.6rem] bg-linear-to-br from-blue-700 via-purple-700 to-purple-900 border border-gray-400",
         className
       )}
     >
       {/* Artist Image */}
       <div className="absolute inset-0">
         <Image
-          src={imageUrl}
+          src={imageUrl ? imageUrl : ""}
           alt={nameEN}
           fill
           className="object-cover"
@@ -35,7 +33,7 @@ export function ArtistCard({
       </div>
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
