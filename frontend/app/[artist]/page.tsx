@@ -102,18 +102,19 @@ function YouTubeThumbnail({ url, title }: { url: string; title?: string }) {
   if (!videoId) return null;
 
   return (
-    <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+    <div className="relative w-full aspect-video bg-black overflow-hidden">
       <Image
         src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
         alt={title || 'Video thumbnail'}
-        fill
+        width={320}
+        height={150}
         className="object-cover"
       />
-      <div className="absolute inset-0 flex items-center justify-center">
+      {/* <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity">
           <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-white border-b-8 border-b-transparent ml-1"></div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -161,7 +162,7 @@ export default async function ArtistPage({
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
+            <div className="absolute inset-0 bg-linear-to-b from-transparent via-black/50 to-black"></div>
           </>
         )}
 
@@ -253,26 +254,36 @@ export default async function ArtistPage({
               <h2 className="text-3xl font-bold">Highlights</h2>
               <button className="text-green-400 text-sm hover:underline">View All →</button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {highlights.slice(0, 3).map((item, index) => (
-                <a
-                  key={index}
-                  href={item.song?.youtube_link || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group"
-                >
-                  <div className="relative aspect-video bg-gradient-to-br from-green-900/50 to-green-600/30 rounded-lg overflow-hidden">
-                    {item.song?.youtube_link && (
-                      <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
-                    )}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                      <p className="text-sm font-medium">{item.song?.singer} - {item.song?.title}</p>
-                      <p className="text-xs text-gray-400">{item.role?.join(', ')}</p>
+            <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
+              <div className="flex gap-4 min-w-max">
+                {highlights.map((item, index) => (
+                  <a
+                    key={index}
+                    href={item.song?.youtube_link || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group w-[320px] flex-shrink-0"
+                  >
+                    {/* Thumbnail */}
+                    <div className="overflow-hidden rounded-2xl bg-zinc-900">
+                      {item.song?.youtube_link && (
+                        <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
+                      )}
                     </div>
-                  </div>
-                </a>
-              ))}
+
+                    {/* Content - Below the thumbnail */}
+                    <div className="mt-3 px-1">
+                      <h3 className="text-base font-bold leading-tight text-white group-hover:text-green-400 transition-colors">
+                        {item.song?.singer} - {item.song?.title}
+                      </h3>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        {item.role?.join(', ')}
+                        {item.song?.date && ` · ${new Date(item.song.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
+                      </p>
+                    </div>
+                  </a>
+                ))}
+              </div>
             </div>
           </section>
         )}
@@ -291,9 +302,9 @@ export default async function ArtistPage({
                   href={item.song?.youtube_link || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group"
+                  className="flex gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
                 >
-                  <div className="w-32 h-20 flex-shrink-0 rounded overflow-hidden bg-gray-800">
+                  <div className="w-36 h-20 shrink-0">
                     {item.song?.youtube_link && (
                       <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
                     )}
