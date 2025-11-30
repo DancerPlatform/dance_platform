@@ -3,12 +3,20 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Instagram, Twitter, Youtube, Upload, X, GripVertical, Star, Plus, Trash2, ArrowLeft, Save } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Upload, GripVertical, Star, Plus, Trash2, ArrowLeft, Save } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { ArtistPortfolio } from './ArtistPortfolioClient';
 import { supabase } from '@/lib/supabase';
+import {
+  AddChoreographyModal,
+  AddMediaModal,
+  AddPerformanceModal,
+  AddDirectingModal,
+  AddWorkshopModal,
+  AddAwardModal,
+} from './portfolio/AddModals';
 
 interface Song {
   song_id?: string;
@@ -25,7 +33,7 @@ interface MediaItem {
   is_highlight: boolean;
   display_order: number;
   title: string;
-  video_date: Date;
+  video_date: Date | string;
 }
 
 interface ChoreographyItem {
@@ -33,6 +41,40 @@ interface ChoreographyItem {
   role?: string[];
   is_highlight: boolean;
   display_order: number;
+}
+
+interface Performance {
+  performance_title: string;
+  date: string;
+  category?: string;
+}
+
+interface PerformanceItem {
+  performance_id?: string;
+  performance?: Performance;
+}
+
+interface Directing {
+  title: string;
+  date: string;
+}
+
+interface DirectingItem {
+  directing_id?: string;
+  directing?: Directing;
+}
+
+interface Workshop {
+  class_name: string;
+  class_role?: string[];
+  country: string;
+  class_date: string;
+}
+
+interface Award {
+  award_title: string;
+  issuing_org: string;
+  received_date: string;
 }
 
 function extractYouTubeId(url: string): string | null {
@@ -183,6 +225,14 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Modal states
+  const [showChoreographyModal, setShowChoreographyModal] = useState(false);
+  const [showMediaModal, setShowMediaModal] = useState(false);
+  const [showPerformanceModal, setShowPerformanceModal] = useState(false);
+  const [showDirectingModal, setShowDirectingModal] = useState(false);
+  const [showWorkshopModal, setShowWorkshopModal] = useState(false);
+  const [showAwardModal, setShowAwardModal] = useState(false);
+
   // Local state for all editable fields
   const [profileImage, setProfileImage] = useState(portfolio.photo || '');
   const [artistName, setArtistName] = useState(portfolio.artist_name);
@@ -191,8 +241,13 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
   const [instagram, setInstagram] = useState(portfolio.instagram || '');
   const [twitter, setTwitter] = useState(portfolio.twitter || '');
   const [youtube, setYoutube] = useState(portfolio.youtube || '');
+
   const [choreography, setChoreography] = useState<ChoreographyItem[]>(portfolio.choreography || []);
   const [media, setMedia] = useState<MediaItem[]>(portfolio.media || []);
+  const [performances, setPerformances] = useState<PerformanceItem[]>(portfolio.performances || []);
+  const [directing, setDirecting] = useState<DirectingItem[]>(portfolio.directing || []);
+  const [workshops, setWorkshops] = useState<Workshop[]>(portfolio.workshops || []);
+  const [awards, setAwards] = useState<Award[]>(portfolio.awards || []);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -206,7 +261,6 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
     if (!file) return;
 
     try {
-      // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${artistId}-${Date.now()}.${fileExt}`;
       const filePath = `artist-profiles/${fileName}`;
@@ -224,7 +278,6 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
         return;
       }
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('artist-images')
         .getPublicUrl(filePath);
@@ -236,37 +289,18 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
     }
   };
 
+  // Choreography handlers
   const handleChoreographyDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
     if (over && active.id !== over.id) {
       const oldIndex = choreography.findIndex((_, i) => `choreo-${i}` === active.id);
       const newIndex = choreography.findIndex((_, i) => `choreo-${i}` === over.id);
-
       const newChoreography = arrayMove(choreography, oldIndex, newIndex);
-      // Update display_order
       const updatedChoreography = newChoreography.map((item, index) => ({
         ...item,
         display_order: index,
       }));
       setChoreography(updatedChoreography);
-    }
-  };
-
-  const handleMediaDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = media.findIndex((_, i) => `media-${i}` === active.id);
-      const newIndex = media.findIndex((_, i) => `media-${i}` === over.id);
-
-      const newMedia = arrayMove(media, oldIndex, newIndex);
-      // Update display_order
-      const updatedMedia = newMedia.map((item, index) => ({
-        ...item,
-        display_order: index,
-      }));
-      setMedia(updatedMedia);
     }
   };
 
@@ -276,31 +310,125 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
     setChoreography(updated);
   };
 
+  const removeChoreography = (index: number) => {
+    const updated = choreography.filter((_, i) => i !== index);
+    const reordered = updated.map((item, i) => ({ ...item, display_order: i }));
+    setChoreography(reordered);
+  };
+
+  const addChoreography = (data: { song: Song; role: string[] }) => {
+    const newItem: ChoreographyItem = {
+      song: data.song,
+      role: data.role,
+      is_highlight: false,
+      display_order: choreography.length,
+    };
+    setChoreography([...choreography, newItem]);
+  };
+
+  // Media handlers
+  const handleMediaDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = media.findIndex((_, i) => `media-${i}` === active.id);
+      const newIndex = media.findIndex((_, i) => `media-${i}` === over.id);
+      const newMedia = arrayMove(media, oldIndex, newIndex);
+      const updatedMedia = newMedia.map((item, index) => ({
+        ...item,
+        display_order: index,
+      }));
+      setMedia(updatedMedia);
+    }
+  };
+
   const toggleMediaHighlight = (index: number) => {
     const updated = [...media];
     updated[index] = { ...updated[index], is_highlight: !updated[index].is_highlight };
     setMedia(updated);
   };
 
-  const removeChoreography = (index: number) => {
-    const updated = choreography.filter((_, i) => i !== index);
-    // Recalculate display_order
-    const reordered = updated.map((item, i) => ({ ...item, display_order: i }));
-    setChoreography(reordered);
-  };
-
   const removeMedia = (index: number) => {
     const updated = media.filter((_, i) => i !== index);
-    // Recalculate display_order
     const reordered = updated.map((item, i) => ({ ...item, display_order: i }));
     setMedia(reordered);
+  };
+
+  const addMedia = (data: { youtube_link: string; title: string; role?: string; video_date?: string }) => {
+    const newItem: MediaItem = {
+      youtube_link: data.youtube_link,
+      title: data.title,
+      role: data.role,
+      is_highlight: false,
+      display_order: media.length,
+      video_date: data.video_date || new Date().toISOString().split('T')[0],
+    };
+    setMedia([...media, newItem]);
+  };
+
+  // Performance handlers
+  const removePerformance = (index: number) => {
+    setPerformances(performances.filter((_, i) => i !== index));
+  };
+
+  const addPerformance = (data: { performance_title: string; date: string; category?: string }) => {
+    const newItem: PerformanceItem = {
+      performance: {
+        performance_title: data.performance_title,
+        date: data.date,
+        category: data.category,
+      },
+    };
+    setPerformances([...performances, newItem]);
+  };
+
+  // Directing handlers
+  const removeDirecting = (index: number) => {
+    setDirecting(directing.filter((_, i) => i !== index));
+  };
+
+  const addDirecting = (data: { title: string; date: string }) => {
+    const newItem: DirectingItem = {
+      directing: {
+        title: data.title,
+        date: data.date,
+      },
+    };
+    setDirecting([...directing, newItem]);
+  };
+
+  // Workshop handlers
+  const removeWorkshop = (index: number) => {
+    setWorkshops(workshops.filter((_, i) => i !== index));
+  };
+
+  const addWorkshop = (data: { class_name: string; class_date: string; country: string; class_role?: string[] }) => {
+    const newItem: Workshop = {
+      class_name: data.class_name,
+      class_date: data.class_date,
+      country: data.country,
+      class_role: data.class_role,
+    };
+    setWorkshops([...workshops, newItem]);
+  };
+
+  // Award handlers
+  const removeAward = (index: number) => {
+    setAwards(awards.filter((_, i) => i !== index));
+  };
+
+  const addAward = (data: { award_title: string; issuing_org: string; received_date: string }) => {
+    const newItem: Award = {
+      award_title: data.award_title,
+      issuing_org: data.issuing_org,
+      received_date: data.received_date,
+    };
+    setAwards([...awards, newItem]);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
 
     try {
-      // Get current session for auth token
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
@@ -309,7 +437,6 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
         return;
       }
 
-      // Prepare the data to save
       const portfolioData = {
         artist_name: artistName,
         artist_name_eng: artistNameEng,
@@ -320,9 +447,12 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
         youtube,
         choreography,
         media,
+        performances,
+        directing,
+        workshops,
+        awards,
       };
 
-      // Call the API to save changes
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio`,
         {
@@ -385,7 +515,7 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
         </div>
       </div>
 
-      {/* Hero Section - Editable */}
+      {/* Hero Section */}
       <div className="relative h-[400px] overflow-hidden">
         {profileImage && (
           <>
@@ -399,9 +529,7 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
           </>
         )}
 
-        {/* Artist Info Section */}
         <div className="absolute bottom-0 left-0 right-0 text-center flex flex-col items-center">
-          {/* Profile Image Upload */}
           <div className="relative group">
             <div className="w-32 h-32 rounded-full overflow-hidden border border-white shadow-2xl mb-4">
               {profileImage ? (
@@ -453,7 +581,7 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
 
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-16">
-        {/* Social Links - Editable */}
+        {/* Social Links */}
         <section>
           <h2 className="text-2xl font-bold mb-4">소셜 미디어</h2>
           <div className="space-y-3">
@@ -490,7 +618,7 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
           </div>
         </section>
 
-        {/* Introduction - Editable */}
+        {/* Introduction */}
         <section>
           <h2 className="text-2xl font-bold mb-4">소개</h2>
           <textarea
@@ -501,11 +629,14 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
           />
         </section>
 
-        {/* Choreographies - Sortable */}
+        {/* Choreographies */}
         <section>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold">Choreographies</h2>
-            <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+            <button
+              onClick={() => setShowChoreographyModal(true)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors"
+            >
               <Plus className="w-5 h-5" />
               <span>추가</span>
             </button>
@@ -535,11 +666,14 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
           </DndContext>
         </section>
 
-        {/* Media - Sortable Grid */}
+        {/* Media */}
         <section>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold">Media</h2>
-            <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+            <button
+              onClick={() => setShowMediaModal(true)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors"
+            >
               <Plus className="w-5 h-5" />
               <span>추가</span>
             </button>
@@ -568,7 +702,173 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
             </SortableContext>
           </DndContext>
         </section>
+
+        {/* Performances */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Performances</h2>
+            <button
+              onClick={() => setShowPerformanceModal(true)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>추가</span>
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {performances.map((item, index) => (
+              <div
+                key={index}
+                className="p-6 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors"
+              >
+                <button
+                  onClick={() => removePerformance(index)}
+                  className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <h3 className="font-semibold text-lg mb-2">{item.performance?.performance_title}</h3>
+                {item.performance?.date && (
+                  <p className="text-sm text-gray-400">
+                    {new Date(item.performance.date).toLocaleDateString()}
+                  </p>
+                )}
+                {item.performance?.category && (
+                  <p className="text-xs text-gray-500 mt-1">{item.performance.category}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Directing */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Directing</h2>
+            <button
+              onClick={() => setShowDirectingModal(true)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>추가</span>
+            </button>
+          </div>
+          <div className="space-y-3">
+            {directing.map((item, index) => (
+              <div key={index} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors">
+                <button
+                  onClick={() => removeDirecting(index)}
+                  className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <h3 className="font-semibold">{item.directing?.title}</h3>
+                {item.directing?.date && (
+                  <p className="text-sm text-gray-400 mt-1">
+                    {new Date(item.directing.date).getFullYear()}.{String(new Date(item.directing.date).getMonth() + 1).padStart(2, '0')}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Workshops */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Classes & Workshops</h2>
+            <button
+              onClick={() => setShowWorkshopModal(true)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>추가</span>
+            </button>
+          </div>
+          <div className="space-y-3">
+            {workshops.map((workshop, index) => (
+              <div key={index} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors">
+                <button
+                  onClick={() => removeWorkshop(index)}
+                  className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <h3 className="font-semibold">{workshop.class_name}</h3>
+                <p className="text-sm text-gray-400 mt-1">
+                  {workshop.class_role?.join(', ')} • {workshop.country}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(workshop.class_date).getFullYear()}.{String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Awards */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Awards</h2>
+            <button
+              onClick={() => setShowAwardModal(true)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>추가</span>
+            </button>
+          </div>
+          <div className="space-y-3">
+            {awards.map((award, index) => (
+              <div key={index} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors">
+                <button
+                  onClick={() => removeAward(index)}
+                  className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <h3 className="font-semibold">{award.award_title}</h3>
+                <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(award.received_date).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
+
+      {/* Modals */}
+      <AddChoreographyModal
+        isOpen={showChoreographyModal}
+        onClose={() => setShowChoreographyModal(false)}
+        onAdd={addChoreography}
+      />
+      <AddMediaModal
+        isOpen={showMediaModal}
+        onClose={() => setShowMediaModal(false)}
+        onAdd={addMedia}
+      />
+      <AddPerformanceModal
+        isOpen={showPerformanceModal}
+        onClose={() => setShowPerformanceModal(false)}
+        onAdd={addPerformance}
+      />
+      <AddDirectingModal
+        isOpen={showDirectingModal}
+        onClose={() => setShowDirectingModal(false)}
+        onAdd={addDirecting}
+      />
+      <AddWorkshopModal
+        isOpen={showWorkshopModal}
+        onClose={() => setShowWorkshopModal(false)}
+        onAdd={addWorkshop}
+      />
+      <AddAwardModal
+        isOpen={showAwardModal}
+        onClose={() => setShowAwardModal(false)}
+        onAdd={addAward}
+      />
     </div>
   );
 }
