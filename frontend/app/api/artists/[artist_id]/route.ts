@@ -150,17 +150,6 @@ export async function GET(
 
     if (teamError) console.error('Team error:', teamError);
 
-    // Log data counts for debugging
-    console.log('Data counts:', {
-      workshops: workshops?.length || 0,
-      awards: awards?.length || 0,
-      choreography: choreography?.length || 0,
-      media: enrichedMedia?.length || 0,
-      performances: performances?.length || 0,
-      directing: directing?.length || 0,
-      teams: teamMemberships?.length || 0,
-    });
-
     // Combine all portfolio data
     const portfolio = {
       ...artistData,

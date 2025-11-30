@@ -18,7 +18,6 @@ export default function MainPage() {
         try {
           const response = await fetch('/api/artists?limit=10');
           const data = await response.json();
-          console.log(data)
           setArtists(data.artists || []);
         } catch (error) {
           console.error('Failed to fetch artists:', error);
