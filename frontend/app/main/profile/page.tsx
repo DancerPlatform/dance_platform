@@ -84,9 +84,12 @@ export default function ProfilePage() {
         {/* Menu Items */}
         <div className="mt-8">
           {/* Edit Portfolio Button */}
-          <button className="w-full px-6 py-6 text-left text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors">
+          <Link
+            href="/main/profile/edit-portfolio"
+            className="block w-full px-6 py-6 text-left text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+          >
             포트폴리오 수정
-          </button>
+          </Link>
 
           {/* Logout Button */}
           <button
