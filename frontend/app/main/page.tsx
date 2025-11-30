@@ -69,7 +69,7 @@ export default function MainPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:flex gap-4">
             {artists.map((artist) => (
               <ArtistCard
                 key={artist.artist_id}
@@ -77,7 +77,7 @@ export default function MainPage() {
                 nameEN={artist.artist_name_eng}
                 nameKR={artist.artist_name}
                 imageUrl={artist.photo}
-                className="max-w-sm"
+                className="max-w-xs"
               />
             ))}
           </div>
