@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { fetchYouTubeMetadata } from '@/lib/youtube';
 
 export async function GET(
   request: NextRequest,
@@ -68,6 +69,36 @@ export async function GET(
 
     if (mediaError) console.error('Media error:', mediaError);
 
+    // Enrich media with YouTube metadata if title or video_date is missing
+    const enrichedMedia = await Promise.all(
+      (media || []).map(async (item) => {
+        // Only fetch metadata if title or video_date is missing
+        if ((!item.title || !item.video_date) && item.youtube_link) {
+          const metadata = await fetchYouTubeMetadata(item.youtube_link);
+          if (metadata) {
+            // Update the database with the fetched metadata
+            const updates: any = {};
+            if (!item.title && metadata.title) {
+              updates.title = metadata.title;
+            }
+            if (!item.video_date && metadata.publishDate) {
+              updates.video_date = metadata.publishDate;
+            }
+
+            if (Object.keys(updates).length > 0) {
+              await supabase
+                .from('dancer_media')
+                .update(updates)
+                .eq('media_id', item.media_id);
+
+              return { ...item, ...updates };
+            }
+          }
+        }
+        return item;
+      })
+    );
+
     // Fetch performances
     const { data: performances, error: performancesError } = await supabase
       .from('dancer_performance')
@@ -124,7 +155,7 @@ export async function GET(
       workshops: workshops?.length || 0,
       awards: awards?.length || 0,
       choreography: choreography?.length || 0,
-      media: media?.length || 0,
+      media: enrichedMedia?.length || 0,
       performances: performances?.length || 0,
       directing: directing?.length || 0,
       teams: teamMemberships?.length || 0,
@@ -136,7 +167,7 @@ export async function GET(
       workshops: workshops || [],
       awards: awards || [],
       choreography: choreography || [],
-      media: media || [],
+      media: enrichedMedia || [],
       performances: performances || [],
       directing: directing || [],
       teams: teamMemberships || [],

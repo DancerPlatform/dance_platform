@@ -23,10 +23,12 @@ interface Directing {
 
 interface MediaItem {
   youtube_link: string;
-  category?: string[];
+  role?: string;
   is_highlight: boolean;
   display_order: number;
   highlight_display_order?: number;
+  title: string;
+  video_date: Date;
 }
 
 interface ChoreographyItem {
@@ -371,9 +373,13 @@ export default async function ArtistPage({
                   <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
                     <YouTubeThumbnail url={item.youtube_link} />
                   </div>
-                  {item.category && item.category.length > 0 && (
-                    <p className="text-xs text-gray-400 mt-2 truncate">{item.category.join(', ')}</p>
-                  )}
+                  <p className="text-sm text-white mt-1 truncate">{item.title}</p>
+                  <p className="text-xs text-gray-400 truncate">
+                    {item.role}
+                    {item.video_date && (
+                      <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
+                    )}
+                  </p>
                   {item.is_highlight && (
                     <div className="absolute top-2 right-2">
                       <span className="text-yellow-400 text-xl">★</span>
@@ -401,7 +407,7 @@ export default async function ArtistPage({
                   <h3 className="font-semibold">{item.directing?.title}</h3>
                   {item.directing?.date && (
                     <p className="text-sm text-gray-400 mt-1">
-                      {new Date(item.directing.date).toLocaleDateString()}
+                      {new Date(item.directing.date).getFullYear()}.{String(new Date(item.directing.date).getMonth() + 1).padStart(2, '0')}
                     </p>
                   )}
                 </div>
@@ -456,7 +462,7 @@ export default async function ArtistPage({
                     {workshop.class_role?.join(', ')} • {workshop.country}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {new Date(workshop.class_date).toLocaleDateString()}
+                    {new Date(workshop.class_date).getFullYear()}.{String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
                   </p>
                 </div>
               ))}
