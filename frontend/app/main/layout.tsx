@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/bottom-nav";
+import { Footer } from "@/components/footer";
 
 
 export default function MainLayout({
@@ -10,6 +11,7 @@ export default function MainLayout({
     <div>
       {children}
       <BottomNav />
+      <Footer /> 
     </div>
   )
 }
