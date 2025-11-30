@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
-import { Music } from 'lucide-react'
+import { User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
-export default function ArtistLoginPage() {
+export default function UserLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -31,15 +31,15 @@ export default function ArtistLoginPage() {
       return
     }
 
-    // Check if user is an artist
-    if (profile?.user_type !== 'artist') {
-      setError('This account is not registered as an artist')
+    // Check if user is a normal user
+    if (profile?.user_type !== 'user') {
+      setError('This account is not registered as a regular user')
       setIsLoading(false)
       return
     }
 
-    // Redirect to artist dashboard or profile
-    router.push('/main/profile')
+    // Redirect to user dashboard
+    router.push('/main')
   }
 
   return (
@@ -48,11 +48,11 @@ export default function ArtistLoginPage() {
       <Card className="w-full max-w-md bg-black/80 px-4 py-20 border-white/20">
         <CardHeader className="text-center text-white space-y-2">
           <div className="flex justify-center mb-2">
-            <Music className="h-12 w-12 text-white" />
+            <User className="h-12 w-12 text-white" />
           </div>
-          <CardTitle className="text-3xl">Dancer Login</CardTitle>
+          <CardTitle className="text-3xl">User Login</CardTitle>
           <CardDescription className="text-gray-400">
-            Sign in to your dancer account
+            Sign in to your account
           </CardDescription>
         </CardHeader>
 
@@ -106,7 +106,7 @@ export default function ArtistLoginPage() {
           </form>
 
           <div className="mt-4 text-center">
-            <a href="/signup/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <a href="/signup/user" className="text-sm text-gray-400 hover:text-white transition-colors">
               Don&apos;t have an account? Sign up
             </a>
           </div>
