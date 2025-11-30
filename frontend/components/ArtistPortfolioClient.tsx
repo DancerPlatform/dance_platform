@@ -182,6 +182,34 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     }));
   };
 
+  const getHighlightsData = () => {
+    // Combine both choreography highlights (as media items) and media highlights
+    const choreoHighlights = portfolio.choreography
+      .filter(item => item.is_highlight)
+      .map(item => ({
+        youtube_link: item.song?.youtube_link || '',
+        role: item.role || [],
+        is_highlight: true,
+        display_order: item.display_order,
+        title: item.song ? `${item.song.singer} - ${item.song.title}` : 'Untitled',
+        video_date: item.song?.date || null,
+      }));
+
+    const mediaHighlights = portfolio.media
+      .filter(item => item.is_highlight)
+      .map(item => ({
+        youtube_link: item.youtube_link,
+        role: item.role ? [item.role] : [],
+        is_highlight: item.is_highlight,
+        display_order: item.display_order,
+        title: item.title,
+        video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
+      }));
+
+    // Combine and sort by display_order
+    return [...choreoHighlights, ...mediaHighlights].sort((a, b) => a.display_order - b.display_order);
+  };
+
   const getDirectingData = () => {
     return portfolio.directing
       .filter(item => item.directing)
@@ -335,7 +363,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold">Highlights</h2>
               <button
-                onClick={() => openModal('highlights', 'Highlights', getMediaData().filter(item => item.is_highlight))}
+                onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
                 className="text-green-400 text-sm hover:underline"
               >
                 View All →
