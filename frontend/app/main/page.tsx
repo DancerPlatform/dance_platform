@@ -73,6 +73,7 @@ export default function MainPage() {
             {artists.map((artist) => (
               <ArtistCard
                 key={artist.artist_id}
+                artistId={artist.artist_id}
                 nameEN={artist.artist_name_eng}
                 nameKR={artist.artist_name}
                 imageUrl={artist.photo}

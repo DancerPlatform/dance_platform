@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface ArtistCardProps {
+  artistId: string;
   nameEN: string;
   nameKR: string;
   imageUrl: string | null;
@@ -9,13 +11,15 @@ interface ArtistCardProps {
 }
 
 export function ArtistCard({
+  artistId,
   nameEN,
   nameKR,
   imageUrl,
   className,
 }: ArtistCardProps) {
   return (
-    <div
+    <Link
+      href={`/${artistId}`}
       className={cn(
         "relative w-full aspect-3/4 overflow-hidden rounded-[1.6rem] bg-linear-to-br from-blue-700 via-purple-700 to-purple-900 border border-gray-400",
         className
@@ -43,6 +47,6 @@ export function ArtistCard({
           <h2 className="text-2xl font-bold tracking-tight">{nameKR}</h2>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

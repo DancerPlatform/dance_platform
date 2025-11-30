@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import { Instagram, Twitter, Youtube, Mail, Phone, Globe } from 'lucide-react';
+import Link from 'next/link';
+import { Header } from '@/components/header';
 
 interface Song {
   title: string;
@@ -139,6 +141,9 @@ export default async function ArtistPage({
         <div className="text-center">
           <h1 className="text-3xl font-bold text-red-600 mb-4">Artist not found</h1>
           <p className="text-gray-400">Could not load portfolio for artist ID: {artistId}</p>
+          <Link href="main" className='bg-white text-black p-3'>
+          Back To Home
+          </Link>
         </div>
       </div>
     );
@@ -152,64 +157,71 @@ export default async function ArtistPage({
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <div className="relative h-screen">
+      <div className="relative h-[400px] overflow-hidden">
+        <Header />
         {portfolio.photo && (
           <>
             <Image
               src={portfolio.photo}
               alt={portfolio.artist_name}
               fill
-              className="object-cover"
+              className="object-cover object-top blur-sm"
               priority
             />
-            <div className="absolute inset-0 bg-linear-to-b from-transparent via-black/50 to-black"></div>
+            <div className="absolute bottom-0 inset-0 bg-linear-to-b from-transparent via-black/50 to-black"></div>
           </>
         )}
 
-        <div className="absolute bottom-32 left-0 right-0 text-center">
-          <h1 className="text-6xl font-bold mb-2">{portfolio.artist_name}</h1>
+        {/* Artist Info Section */}
+        <div className="absolute bottom-0 left-0 right-0 text-center flex flex-col items-center">
+          {portfolio.photo && (
+            <div className="w-32 h-32 rounded-full overflow-hidden border border-white shadow-2xl mb-4">
+              <Image
+                src={portfolio.photo}
+                alt={portfolio.artist_name}
+                width={128}
+                height={128}
+                className="object-cover object-top w-full h-full"
+                priority
+              />
+            </div>
+          )}
+          <h1 className="text-4xl font-bold mb-2">{portfolio.artist_name}</h1>
           {portfolio.artist_name_eng && (
-            <p className="text-2xl text-gray-300">{portfolio.artist_name_eng}</p>
+            <p className="text-xl text-gray-300">{portfolio.artist_name_eng}</p>
           )}
         </div>
 
-        {/* Team Info */}
-        {portfolio.teams && portfolio.teams.length > 0 && (
-          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2">
-            <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-4 py-2">
-              <div className="flex -space-x-2">
-                {portfolio.teams.map((membership, idx) => (
-                  <div key={idx} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden">
-                    {membership.team?.leader?.photo?.photo && (
-                      <Image
-                        src={membership.team.leader.photo.photo}
-                        alt={membership.team.leader.name || 'Team member'}
-                        width={40}
-                        height={40}
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-              <span className="text-sm font-medium">
-                {portfolio.teams[0]?.team?.team_name}
-              </span>
-            </div>
-          </div>
-        )}
       </div>
 
+      {/* Team Info */}
+      {portfolio.teams && portfolio.teams.length > 0 && (
+        <div className="">
+          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-4 py-2">
+            <div className="flex -space-x-2">
+              {portfolio.teams.map((membership, idx) => (
+                <div key={idx} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden">
+                  {membership.team?.leader?.photo?.photo && (
+                    <Image
+                      src={membership.team.leader.photo.photo}
+                      alt={membership.team.leader.name || 'Team member'}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+            <span className="text-sm font-medium">
+              {portfolio.teams[0]?.team?.team_name}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Content Container */}
-      <div className="max-w-6xl mx-auto px-6 py-12 space-y-16">
-        {/* Introduction */}
-        {portfolio.introduction && (
-          <section>
-            <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-              {portfolio.introduction}
-            </p>
-          </section>
-        )}
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-16">
 
         {/* Social Links */}
         <section>
@@ -246,6 +258,15 @@ export default async function ArtistPage({
             )}
           </div>
         </section>
+
+        {/* Introduction */}
+        {portfolio.introduction && (
+          <section>
+            <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+              {portfolio.introduction}
+            </p>
+          </section>
+        )}
 
         {/* Highlights */}
         {(highlights.length > 0 || highlightMedia.length > 0) && (
