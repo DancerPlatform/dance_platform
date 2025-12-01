@@ -8,7 +8,7 @@ import { Artist } from "@/types/artist"
 
 export default function MainPage() {
   const fetcher = (url: string) => fetch(url).then(res => res.json())
-  const { data, error, isLoading } = useSWR<{ artists: Artist[] }>('/api/artists?limit=10', fetcher)
+  const { data, error, isLoading } = useSWR<{ artists: Artist[] }>('/api/artists?limit=4', fetcher)
 
   const artists = data?.artists || [];
 
@@ -33,7 +33,7 @@ export default function MainPage() {
       {/* Header */}
       <header className="flex items-center justify-between p-6">
         <h1 className="text-3xl font-bold">dee&apos;tz</h1>
-        <div className="w-12 h-12 bg-zinc-700 rounded-full" />
+        {/* <div className="w-12 h-12 bg-zinc-700 rounded-full" /> */}
       </header>
 
       <main className="px-6 space-y-8">
