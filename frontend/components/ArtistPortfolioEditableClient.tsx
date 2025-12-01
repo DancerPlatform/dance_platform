@@ -165,6 +165,8 @@ export function ArtistPortfolioEditableClient({
       return;
     }
 
+    console.log('Saving media:', media.map(m => ({ media_id: m.media_id, title: m.title, display_order: m.display_order })));
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/media`,
       {
@@ -626,7 +628,7 @@ export function ArtistPortfolioEditableClient({
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {portfolio.media.slice(0, 8).map((item, index) => (
+              {[...portfolio.media].sort((a, b) => a.display_order - b.display_order).slice(0, 8).map((item, index) => (
                 <a
                   key={index}
                   href={item.youtube_link}

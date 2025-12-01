@@ -32,10 +32,14 @@ export async function PUT(
 
     // Update media items
     if (media && Array.isArray(media)) {
+      console.log('API received media:', media.map(m => ({ media_id: m.media_id, title: m.title, display_order: m.display_order })));
+
       const { data: existingMedia } = await authClient
         .from('dancer_media')
         .select('*')
         .eq('artist_id', artist_id);
+
+      console.log('Existing media in DB:', existingMedia?.map(m => ({ media_id: m.media_id, title: m.title, display_order: m.display_order })));
 
       if (existingMedia) {
         const existingMediaMap = new Map(
@@ -49,7 +53,8 @@ export async function PUT(
           if (item.media_id && existingMediaMap.has(item.media_id)) {
             // Update existing item
             updatedMediaIds.add(item.media_id);
-            await authClient
+            console.log(`Updating media_id ${item.media_id} with display_order ${i}`);
+            const { data: updateData, error: updateError } = await authClient
               .from('dancer_media')
               .update({
                 youtube_link: item.youtube_link,
@@ -59,7 +64,13 @@ export async function PUT(
                 title: item.title || null,
                 video_date: item.video_date || null,
               })
-              .eq('media_id', item.media_id);
+              .eq('media_id', item.media_id)
+              .select();
+            if (updateError) {
+              console.error(`Error updating media_id ${item.media_id}:`, updateError);
+            } else {
+              console.log(`Successfully updated media_id ${item.media_id}, returned:`, updateData);
+            }
           } else if (!item.media_id) {
             // New media item
             await authClient.from('dancer_media').insert({

@@ -133,8 +133,20 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     data: [],
   });
 
-  const highlights = portfolio.choreography?.filter(item => item.is_highlight) || [];
-  const highlightMedia = portfolio.media?.filter(item => item.is_highlight) || [];
+  const highlights = portfolio.choreography?.filter(item => item.is_highlight).map((item) => ({
+  youtube_link: `${item.song?.youtube_link}`,
+  title: `${item.song?.singer} - ${item.song?.title}`,
+  role: `${item.role}`,
+  date: `${item.song?.date}`
+})) || [];
+
+  const highlightMedia = portfolio.media?.filter(item => item.is_highlight).map((item) => ({
+    youtube_link: `${item.youtube_link}`,
+    title: item.title,
+    role: `${item.role}`,
+    date: `${item.video_date}`
+  })) || [];
+  const joinedHighlights = [...highlights, ...highlightMedia];
 
   const openModal = (
     sectionType: PortfolioSectionType,
@@ -360,7 +372,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         )}
 
         {/* Highlights */}
-        {(highlights.length > 0 || highlightMedia.length > 0) && (
+        {(joinedHighlights.length > 0) && (
           <section>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold">Highlights</h2>
@@ -373,26 +385,26 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </div>
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
-                {highlights.slice(0, 5).map((item, index) => (
+                {joinedHighlights.slice(0, 5).map((item, index) => (
                   <a
                     key={index}
-                    href={item.song?.youtube_link || '#'}
+                    href={item.youtube_link || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group w-[320px] shrink-0"
                   >
                     <div className="overflow-hidden rounded-2xl bg-zinc-900">
-                      {item.song?.youtube_link && (
-                        <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
+                      {item.youtube_link && (
+                        <YouTubeThumbnail url={item.youtube_link} title={item.title} />
                       )}
                     </div>
                     <div className="mt-3 px-1">
                       <h3 className="text-base font-bold leading-tight text-white group-hover:text-green-400 transition-colors">
-                        {item.song?.singer} - {item.song?.title}
+                        {item.title}
                       </h3>
                       <p className="text-xs text-zinc-400 mt-1">
-                        {item.role?.join(', ')}
-                        {item.song?.date && ` · ${new Date(item.song.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
+                        {item.role}
+                        {item.date && ` · ${new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
                       </p>
                     </div>
                   </a>
@@ -439,11 +451,6 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                       </p>
                     )}
                   </div>
-                  {item.is_highlight && (
-                    <div className="flex items-center">
-                      <span className="text-yellow-400 text-2xl">★</span>
-                    </div>
-                  )}
                 </a>
               ))}
             </div>
@@ -463,7 +470,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {portfolio.media.slice(0, 8).map((item, index) => (
+              {[...portfolio.media].sort((a, b) => a.display_order - b.display_order).slice(0, 8).map((item, index) => (
                 <a
                   key={index}
                   href={item.youtube_link}
@@ -481,11 +488,6 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                       <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
                     )}
                   </p>
-                  {item.is_highlight && (
-                    <div className="absolute top-2 right-2">
-                      <span className="text-yellow-400 text-xl">★</span>
-                    </div>
-                  )}
                 </a>
               ))}
             </div>

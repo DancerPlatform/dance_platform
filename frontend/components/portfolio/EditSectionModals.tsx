@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -345,14 +345,14 @@ function ChoreographySortableItem({
         <GripVertical className="w-5 h-5 text-zinc-400" />
       </button>
 
-      <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
+      {/* <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
         {item.song?.youtube_link && (
           <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
         )}
-      </div>
+      </div> */}
 
       <div className="flex-1 min-w-0">
-        <h3 className="font-semibold truncate">
+        <h3 className="font-semibold truncate max-w-[200px]">
           {item.song?.singer} - {item.song?.title}
         </h3>
         <p className="text-sm text-gray-400">{item.role?.join(', ')}</p>
@@ -627,21 +627,17 @@ function MediaSortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group">
+    <div ref={setNodeRef} style={style} className="relative group flex w-full items-center gap-2">
       <button
         {...attributes}
         {...listeners}
-        className="absolute top-2 left-2 z-10 cursor-grab active:cursor-grabbing p-2 bg-black/50 hover:bg-black/70 rounded"
+        className=" z-10 cursor-grab active:cursor-grabbing p-2 bg-black/50 hover:bg-black/70 rounded"
       >
         <GripVertical className="w-5 h-5 text-white" />
       </button>
 
-      <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-        <YouTubeThumbnail url={item.youtube_link} />
-      </div>
-
-      <p className="text-sm text-white mt-1 truncate">{item.title}</p>
-      <p className="text-xs text-gray-400 truncate">
+      <p className="text-sm text-white mt-1 truncate max-w-[100px]">{item.title}</p>
+      <p className="text-xs text-gray-400 truncate text-center">
         {item.role}
         {item.video_date && (
           <span>
@@ -670,6 +666,11 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
   const [media, setMedia] = useState<MediaItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Update local state when initialData changes
+  useEffect(() => {
+    setMedia(initialData);
+  }, [initialData]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -746,7 +747,7 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
                 items={media.map((_, i) => `media-${i}`)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="flex flex-col gap-4">
                   {media.map((item, index) => (
                     <MediaSortableItem
                       key={`media-${index}`}
