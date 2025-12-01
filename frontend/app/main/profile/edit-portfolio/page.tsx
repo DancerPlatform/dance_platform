@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { EditPortfolioClient } from '@/components/EditPortfolioClient';
+import { ArtistPortfolioEditableClient } from '@/components/ArtistPortfolioEditableClient';
 import type { ArtistPortfolio } from '@/components/ArtistPortfolioClient';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
 
 export default function EditPortfolioPage() {
   const { user, profile, artistUser, loading } = useAuth();
@@ -77,7 +79,9 @@ export default function EditPortfolioPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <EditPortfolioClient portfolio={portfolio} artistId={artistUser.artist_id} />
+      <Header />
+      <ArtistPortfolioEditableClient portfolio={portfolio} artistId={artistUser.artist_id} />
+      <Footer />
     </div>
   );
 }

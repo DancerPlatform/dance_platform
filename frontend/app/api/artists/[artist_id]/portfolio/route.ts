@@ -81,16 +81,17 @@ export async function PUT(
       // Track processed songs
       const processedSongs = new Set<string>();
 
-      for (const item of choreography) {
+      for (let i = 0; i < choreography.length; i++) {
+        const item = choreography[i];
         if (item.song?.song_id && existingSongIds.has(item.song.song_id)) {
-          // Update existing item
+          // Update existing item with correct order
           processedSongs.add(item.song.song_id);
           await authClient
             .from('dancer_choreo')
             .update({
               role: item.role || [],
               is_highlight: item.is_highlight || false,
-              display_order: item.display_order,
+              display_order: i,
             })
             .eq('artist_id', artist_id)
             .eq('song_id', item.song.song_id);
@@ -110,7 +111,7 @@ export async function PUT(
             song_id: songId,
             role: item.role || [],
             is_highlight: item.is_highlight || false,
-            display_order: item.display_order,
+            display_order: i,
           });
           processedSongs.add(songId);
         }
@@ -186,19 +187,27 @@ export async function PUT(
 
     // Update performances
     if (performances && Array.isArray(performances)) {
-      // Delete all existing performance relationships
-      await authClient
+      // Get existing performance relationships
+      const { data: existingPerformances } = await authClient
         .from('dancer_performance')
-        .delete()
+        .select('performance_id')
         .eq('artist_id', artist_id);
 
-      // Insert new performances
+      const existingPerfIds = new Set(
+        existingPerformances?.map((item) => item.performance_id) || []
+      );
+      const processedPerfIds = new Set<string>();
+
+      // Insert or reuse performances
       for (const item of performances) {
         if (item.performance) {
-          // Check if performance exists or create new
           let perfId = item.performance_id;
 
-          if (!perfId) {
+          // If this performance already exists in the relationship, keep it
+          if (perfId && existingPerfIds.has(perfId)) {
+            processedPerfIds.add(perfId);
+          } else if (!perfId) {
+            // Create new performance
             perfId = `perf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             await authClient.from('performance').insert({
               performance_id: perfId,
@@ -206,43 +215,77 @@ export async function PUT(
               date: item.performance.date,
               category: item.performance.category || null,
             });
-          }
 
-          // Create relationship
-          await authClient.from('dancer_performance').insert({
-            artist_id,
-            performance_id: perfId,
-          });
+            // Create relationship
+            await authClient.from('dancer_performance').insert({
+              artist_id,
+              performance_id: perfId,
+            });
+            processedPerfIds.add(perfId);
+          }
+        }
+      }
+
+      // Delete relationships that were removed
+      for (const existing of existingPerformances || []) {
+        if (!processedPerfIds.has(existing.performance_id)) {
+          await authClient
+            .from('dancer_performance')
+            .delete()
+            .eq('artist_id', artist_id)
+            .eq('performance_id', existing.performance_id);
         }
       }
     }
 
     // Update directing
     if (directing && Array.isArray(directing)) {
-      // Delete all existing directing relationships
-      await authClient
+      // Get existing directing relationships
+      const { data: existingDirecting } = await authClient
         .from('dancer_directing')
-        .delete()
+        .select('directing_id')
         .eq('artist_id', artist_id);
 
-      // Insert new directing
+      const existingDirIds = new Set(
+        existingDirecting?.map((item) => item.directing_id) || []
+      );
+      const processedDirIds = new Set<string>();
+
+      // Insert or reuse directing
       for (const item of directing) {
         if (item.directing) {
           let dirId = item.directing_id;
 
-          if (!dirId) {
+          // If this directing already exists in the relationship, keep it
+          if (dirId && existingDirIds.has(dirId)) {
+            processedDirIds.add(dirId);
+          } else if (!dirId) {
+            // Create new directing
             dirId = `dir_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             await authClient.from('directing').insert({
               directing_id: dirId,
               title: item.directing.title,
               date: item.directing.date,
             });
-          }
 
-          await authClient.from('dancer_directing').insert({
-            artist_id,
-            directing_id: dirId,
-          });
+            // Create relationship
+            await authClient.from('dancer_directing').insert({
+              artist_id,
+              directing_id: dirId,
+            });
+            processedDirIds.add(dirId);
+          }
+        }
+      }
+
+      // Delete relationships that were removed
+      for (const existing of existingDirecting || []) {
+        if (!processedDirIds.has(existing.directing_id)) {
+          await authClient
+            .from('dancer_directing')
+            .delete()
+            .eq('artist_id', artist_id)
+            .eq('directing_id', existing.directing_id);
         }
       }
     }
