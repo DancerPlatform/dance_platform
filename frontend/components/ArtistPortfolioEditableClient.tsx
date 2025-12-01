@@ -520,26 +520,26 @@ export function ArtistPortfolioEditableClient({
             </div>
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
-                {highlights.slice(0, 5).map((item, index) => (
+                {getHighlightsData().slice(0, 5).map((item, index) => (
                   <a
                     key={index}
-                    href={item.song?.youtube_link || '#'}
+                    href={item.youtube_link || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group w-[320px] shrink-0"
                   >
                     <div className="overflow-hidden rounded-2xl bg-zinc-900">
-                      {item.song?.youtube_link && (
-                        <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
+                      {item.youtube_link && (
+                        <YouTubeThumbnail url={item.youtube_link} title={item.title} />
                       )}
                     </div>
                     <div className="mt-3 px-1">
                       <h3 className="text-base font-bold leading-tight text-white group-hover:text-green-400 transition-colors">
-                        {item.song?.singer} - {item.song?.title}
+                        {item.title}
                       </h3>
                       <p className="text-xs text-zinc-400 mt-1">
                         {item.role?.join(', ')}
-                        {item.song?.date && ` · ${new Date(item.song.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
+                        {item.video_date && ` · ${new Date(item.video_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
                       </p>
                     </div>
                   </a>
