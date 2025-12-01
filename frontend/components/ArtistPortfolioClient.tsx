@@ -6,6 +6,7 @@ import { Instagram, Twitter, Youtube } from 'lucide-react';
 import { PortfolioModal, PortfolioSectionType } from './PortfolioModal';
 
 interface Song {
+  song_id?: string;
   title: string;
   singer: string;
   youtube_link?: string;
@@ -24,6 +25,7 @@ interface Directing {
 }
 
 interface MediaItem {
+  media_id?: string;
   youtube_link: string;
   role?: string;
   is_highlight: boolean;
