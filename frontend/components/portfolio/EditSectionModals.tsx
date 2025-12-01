@@ -88,6 +88,7 @@ function YouTubeThumbnail({ url, title }: { url: string; title?: string }) {
       <Image
         src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
         alt={title || 'Video thumbnail'}
+        sizes=''
         fill
         className="object-cover object-center"
       />
@@ -345,11 +346,11 @@ function ChoreographySortableItem({
         <GripVertical className="w-5 h-5 text-zinc-400" />
       </button>
 
-      {/* <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
+      <div className="w-14 shrink-0 rounded-sm overflow-hidden">
         {item.song?.youtube_link && (
           <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
         )}
-      </div> */}
+      </div>
 
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold truncate max-w-[200px]">
