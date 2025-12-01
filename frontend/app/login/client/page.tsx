@@ -15,7 +15,7 @@ export default function ClientLoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { signIn, profile } = useAuth()
+  const { signIn } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ export default function ClientLoginPage() {
     setIsLoading(true)
     setError(null)
 
-    const { error: signInError } = await signIn(email, password)
+    const { error: signInError, profile: userProfile } = await signIn(email, password)
 
     if (signInError) {
       setError(signInError.message)
@@ -32,7 +32,7 @@ export default function ClientLoginPage() {
     }
 
     // Check if user is a client
-    if (profile?.user_type !== 'client') {
+    if (userProfile?.user_type !== 'client') {
       setError('This account is not registered as a client')
       setIsLoading(false)
       return

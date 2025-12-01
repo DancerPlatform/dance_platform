@@ -9,13 +9,14 @@ import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
 import { Music } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import Link from 'next/link'
 
 export default function ArtistLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { signIn, profile } = useAuth()
+  const { signIn } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +24,7 @@ export default function ArtistLoginPage() {
     setIsLoading(true)
     setError(null)
 
-    const { error: signInError } = await signIn(email, password)
+    const { error: signInError, profile: userProfile } = await signIn(email, password)
 
     if (signInError) {
       setError(signInError.message)
@@ -32,7 +33,7 @@ export default function ArtistLoginPage() {
     }
 
     // Check if user is an artist
-    if (profile?.user_type !== 'artist') {
+    if (userProfile?.user_type !== 'artist') {
       setError('This account is not registered as an artist')
       setIsLoading(false)
       return
@@ -106,9 +107,9 @@ export default function ArtistLoginPage() {
           </form>
 
           <div className="mt-4 text-center">
-            <a href="/signup/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/signup/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
               Don&apos;t have an account? Sign up
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>

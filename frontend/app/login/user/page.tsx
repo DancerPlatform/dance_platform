@@ -15,7 +15,7 @@ export default function UserLoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { signIn, profile } = useAuth()
+  const { signIn } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ export default function UserLoginPage() {
     setIsLoading(true)
     setError(null)
 
-    const { error: signInError } = await signIn(email, password)
+    const { error: signInError, profile: userProfile } = await signIn(email, password)
 
     if (signInError) {
       setError(signInError.message)
@@ -32,7 +32,7 @@ export default function UserLoginPage() {
     }
 
     // Check if user is a normal user
-    if (profile?.user_type !== 'user') {
+    if (userProfile?.user_type !== 'user') {
       setError('This account is not registered as a regular user')
       setIsLoading(false)
       return
