@@ -471,7 +471,7 @@ export function EditPortfolioClient({ portfolio, artistId }: { portfolio: Artist
       }
 
       alert('포트폴리오가 성공적으로 저장되었습니다.');
-      router.push('/main/profile');
+      router.refresh();
     } catch (error) {
       console.error('Save error:', error);
       alert('저장 중 오류가 발생했습니다.');

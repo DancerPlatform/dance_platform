@@ -3,7 +3,6 @@
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, loading, signOut } = useAuth();
