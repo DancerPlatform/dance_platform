@@ -1,6 +1,5 @@
 'use client'
-
-import { useState, useEffect } from "react"
+import useSWR from 'swr'
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
@@ -8,34 +7,33 @@ import { ArtistCard } from "@/components/artist-card";
 import { Artist } from "@/types/artist"
 
 export default function MainPage() {
-  // const popularArtists = [1, 2, 3, 4];
-  // const risingArtists = [1, 2];
-  const [artists, setArtists] = useState<Artist[]>([]);
-    const [, setLoading] = useState(true);
-  
-    useEffect(() => {
-      async function fetchArtists() {
-        try {
-          const response = await fetch('/api/artists?limit=10');
-          const data = await response.json();
-          setArtists(data.artists || []);
-        } catch (error) {
-          console.error('Failed to fetch artists:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-  
-      fetchArtists();
-    }, []);
+  const fetcher = (url: string) => fetch(url).then(res => res.json())
+  const { data, error, isLoading } = useSWR<{ artists: Artist[] }>('/api/artists?limit=4', fetcher)
 
+  const artists = data?.artists || [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div>Loading artists...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div>Failed to load artists</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-black text-white pb-32">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
         <h1 className="text-3xl font-bold">dee&apos;tz</h1>
-        <div className="w-12 h-12 bg-zinc-700 rounded-full" />
+        {/* <div className="w-12 h-12 bg-zinc-700 rounded-full" /> */}
       </header>
 
       <main className="px-6 space-y-8">

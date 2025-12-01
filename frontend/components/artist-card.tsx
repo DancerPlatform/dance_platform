@@ -31,8 +31,10 @@ export function ArtistCard({
           src={imageUrl ? imageUrl : ""}
           alt={nameEN}
           fill
+          quality={75}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover"
-          priority
+          preload
         />
       </div>
 

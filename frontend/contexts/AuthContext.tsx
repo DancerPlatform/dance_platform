@@ -7,7 +7,7 @@ import type { AuthState, UserProfile, ClientUser, ArtistUser, NormalUser } from 
 import type { User } from '@supabase/supabase-js'
 
 interface AuthContextType extends AuthState {
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; profile?: UserProfile | null }>
   signOut: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -132,7 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (data.user) {
+      const { profile } = await getCompleteUserData(data.user.id)
       await loadUserData(data.user)
+      return { error: null, profile }
     }
 
     return { error: null }
@@ -140,16 +142,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     setState(prev => ({ ...prev, loading: true }))
-    await supabase.auth.signOut()
-    setState({
-      user: null,
-      profile: null,
-      clientUser: null,
-      artistUser: null,
-      normalUser: null,
-      loading: false,
-      error: null,
-    })
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Sign out error:', error)
+      setState(prev => ({ ...prev, loading: false, error }))
+      return
+    }
+    // The onAuthStateChange listener will handle clearing the state
   }
 
   return (

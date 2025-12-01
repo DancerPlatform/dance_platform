@@ -3,7 +3,6 @@
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, loading, signOut } = useAuth();
@@ -85,7 +84,7 @@ export default function ProfilePage() {
         <div className="mt-8">
           {/* Edit Portfolio Button */}
           <Link
-            href="/main/profile/edit-portfolio"
+            href="/edit-portfolio"
             className="block w-full px-6 py-6 text-left text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
             포트폴리오 수정
