@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Instagram, Twitter, Youtube } from 'lucide-react';
-import { PortfolioModal, PortfolioSectionType } from './PortfolioModal';
+import { PortfolioModal, PortfolioSectionType, PortfolioData } from './PortfolioModal';
 
 interface Song {
   song_id?: string;
@@ -125,7 +125,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     isOpen: boolean;
     sectionType: PortfolioSectionType | null;
     sectionTitle: string;
-    data: any[];
+    data: PortfolioData;
   }>({
     isOpen: false,
     sectionType: null,
@@ -133,25 +133,25 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     data: [],
   });
 
-  const highlights = portfolio.choreography?.filter(item => item.is_highlight).map((item) => ({
-  youtube_link: `${item.song?.youtube_link}`,
-  title: `${item.song?.singer} - ${item.song?.title}`,
-  role: `${item.role}`,
-  date: `${item.song?.date}`
-})) || [];
+//   const highlights = portfolio.choreography?.filter(item => item.is_highlight).map((item) => ({
+//   youtube_link: `${item.song?.youtube_link}`,
+//   title: `${item.song?.singer} - ${item.song?.title}`,
+//   role: `${item.role}`,
+//   date: `${item.song?.date}`
+// })) || [];
 
-  const highlightMedia = portfolio.media?.filter(item => item.is_highlight).map((item) => ({
-    youtube_link: `${item.youtube_link}`,
-    title: item.title,
-    role: `${item.role}`,
-    date: `${item.video_date}`
-  })) || [];
-  const joinedHighlights = [...highlights, ...highlightMedia];
+//   const highlightMedia = portfolio.media?.filter(item => item.is_highlight).map((item) => ({
+//     youtube_link: `${item.youtube_link}`,
+//     title: item.title,
+//     role: `${item.role}`,
+//     date: `${item.video_date}`
+//   })) || [];
+//   const joinedHighlights = [...highlights, ...highlightMedia];
 
   const openModal = (
     sectionType: PortfolioSectionType,
     sectionTitle: string,
-    data: any[]
+    data: PortfolioData
   ) => {
     setModalState({
       isOpen: true,
@@ -372,7 +372,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         )}
 
         {/* Highlights */}
-        {(joinedHighlights.length > 0) && (
+        {(getHighlightsData().length > 0) && (
           <section>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold">Highlights</h2>
@@ -385,7 +385,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </div>
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
-                {joinedHighlights.slice(0, 5).map((item, index) => (
+                {getHighlightsData().slice(0, 5).map((item, index) => (
                   <a
                     key={index}
                     href={item.youtube_link || '#'}
@@ -404,7 +404,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                       </h3>
                       <p className="text-xs text-zinc-400 mt-1">
                         {item.role}
-                        {item.date && ` · ${new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
+                        {item.video_date && ` · ${new Date(item.video_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
                       </p>
                     </div>
                   </a>
