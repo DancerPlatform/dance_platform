@@ -4,82 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Instagram, Twitter, Youtube } from 'lucide-react';
 import { PortfolioModal, PortfolioSectionType, PortfolioData } from './PortfolioModal';
-
-interface Song {
-  song_id?: string;
-  title: string;
-  singer: string;
-  youtube_link?: string;
-  date: string;
-}
-
-interface Performance {
-  performance_title: string;
-  date: string;
-  category?: string;
-}
-
-interface Directing {
-  title: string;
-  date: string;
-}
-
-interface MediaItem {
-  media_id?: string;
-  youtube_link: string;
-  role?: string;
-  is_highlight: boolean;
-  display_order: number;
-  highlight_display_order?: number;
-  title: string;
-  video_date: Date;
-}
-
-interface ChoreographyItem {
-  song?: Song;
-  role?: string[];
-  is_highlight: boolean;
-  display_order: number;
-}
-
-interface PerformanceItem {
-  performance?: Performance;
-}
-
-interface Award {
-  award_title: string;
-  issuing_org: string;
-  received_date: string;
-}
-
-interface Workshop {
-  class_name: string;
-  class_role?: string[];
-  country: string;
-  class_date: string;
-}
-
-interface DirectingItem {
-  directing?: Directing;
-}
-
-interface TeamMember {
-  artist_id: string;
-  name: string;
-  photo?: { photo?: string };
-}
-
-interface Team {
-  team_id: string;
-  team_name: string;
-  team_introduction?: string;
-  leader?: TeamMember;
-  subleader?: TeamMember;
-}
-
-interface TeamMembership {
-  team?: Team;
-}
+import YouTubeThumbnail from './YoutubeThumbnail';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -97,27 +23,6 @@ export interface ArtistPortfolio {
   performances: PerformanceItem[];
   directing: DirectingItem[];
   teams: TeamMembership[];
-}
-
-function extractYouTubeId(url: string): string | null {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-}
-
-function YouTubeThumbnail({ url, title }: { url: string; title?: string }) {
-  const videoId = extractYouTubeId(url);
-  if (!videoId) return null;
-  return (
-    <div className="relative w-full aspect-video bg-black overflow-hidden">
-      <Image
-        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-        alt={title || 'Video thumbnail'}
-        fill
-        className="object-cover object-center"
-      />
-    </div>
-  );
 }
 
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {

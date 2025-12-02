@@ -16,27 +16,8 @@ import {
 } from './portfolio/EditSectionModals';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-
-function extractYouTubeId(url: string): string | null {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-}
-
-function YouTubeThumbnail({ url, title }: { url: string; title?: string }) {
-  const videoId = extractYouTubeId(url);
-  if (!videoId) return null;
-  return (
-    <div className="relative w-full aspect-video bg-black overflow-hidden">
-      <Image
-        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-        alt={title || 'Video thumbnail'}
-        fill
-        className="object-cover object-center"
-      />
-    </div>
-  );
-}
+import YouTubeThumbnail from './YoutubeThumbnail';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
 
 export function ArtistPortfolioEditableClient({
   portfolio: initialPortfolio,
@@ -70,19 +51,6 @@ export function ArtistPortfolioEditableClient({
 
   const highlights = portfolio.choreography?.filter(item => item.is_highlight) || [];
   const highlightMedia = portfolio.media?.filter(item => item.is_highlight) || [];
-
-  const openModal = (
-    sectionType: PortfolioSectionType,
-    sectionTitle: string,
-    data: any[]
-  ) => {
-    setModalState({
-      isOpen: true,
-      sectionType,
-      sectionTitle,
-      data,
-    });
-  };
 
   const closeModal = () => {
     setModalState({
@@ -130,7 +98,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveChoreography = async (choreography: any[]) => {
+  const handleSaveChoreography = async (choreography: ChoreographyItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -188,7 +156,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSavePerformances = async (performances: any[]) => {
+  const handleSavePerformances = async (performances: PerformanceItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -216,7 +184,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveDirecting = async (directing: any[]) => {
+  const handleSaveDirecting = async (directing: DirectingItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -244,7 +212,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveWorkshops = async (workshops: any[]) => {
+  const handleSaveWorkshops = async (workshops: Workshop[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -272,7 +240,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveAwards = async (awards: any[]) => {
+  const handleSaveAwards = async (awards: Award[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
