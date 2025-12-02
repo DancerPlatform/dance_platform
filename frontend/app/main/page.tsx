@@ -2,12 +2,14 @@
 import useSWR from 'swr'
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Search } from "lucide-react"
 import { ArtistCard } from "@/components/artist-card";
 import { Artist } from "@/types/artist"
+import { useRouter } from 'next/navigation'
 
 export default function MainPage() {
   const fetcher = (url: string) => fetch(url).then(res => res.json())
+  const router = useRouter();
   const { data, error, isLoading } = useSWR<{ artists: Artist[] }>('/api/artists?limit=4', fetcher)
 
   const artists = data?.artists || [];
@@ -33,7 +35,9 @@ export default function MainPage() {
       {/* Header */}
       <header className="flex items-center justify-between p-6">
         <h1 className="text-3xl font-bold">dee&apos;tz</h1>
-        {/* <div className="w-12 h-12 bg-zinc-700 rounded-full" /> */}
+        <button className="rounded-full" onClick={() => {router.push("/main/search")}}>
+          <Search className='size-8'/>
+        </button>
       </header>
 
       <main className="px-6 space-y-8">
@@ -45,12 +49,12 @@ export default function MainPage() {
           </h2>
 
           {/* Search Bar */}
-          <div className="relative">
+          {/* <div className="relative">
             <Input
               placeholder="Search artists..."
               className="w-full h-16 bg-zinc-800 border-2 border-white rounded-full px-6 text-white placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
             />
-          </div>
+          </div> */}
         </section>
 
         {/* Popular Artists Section */}

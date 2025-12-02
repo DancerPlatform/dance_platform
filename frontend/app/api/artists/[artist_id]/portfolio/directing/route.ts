@@ -35,11 +35,11 @@ export async function PUT(
       // Get existing directing relationships
       const { data: existingDirecting } = await authClient
         .from('dancer_directing')
-        .select('directing_id')
+        .select('directing_id, directing:directing_id(title)')
         .eq('artist_id', artist_id);
 
       const existingDirIds = new Set(
-        existingDirecting?.map((item) => item.directing_id) || []
+        existingDirecting?.map((item) => (item.directing as any)?.title) || []
       );
       const processedDirIds = new Set<string>();
 
@@ -49,8 +49,8 @@ export async function PUT(
           let dirId = item.directing_id;
 
           // If this directing already exists in the relationship, keep it
-          if (dirId && existingDirIds.has(dirId)) {
-            processedDirIds.add(dirId);
+          if (item.directing.title && existingDirIds.has(item.directing.title)) {
+            processedDirIds.add(item.directing.title);
           } else if (!dirId) {
             // Create new directing
             dirId = `dir_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -65,14 +65,14 @@ export async function PUT(
               artist_id,
               directing_id: dirId,
             });
-            processedDirIds.add(dirId);
+            processedDirIds.add(item.directing.title);
           }
         }
       }
 
       // Delete relationships that were removed
       for (const existing of existingDirecting || []) {
-        if (!processedDirIds.has(existing.directing_id)) {
+        if (!processedDirIds.has(existing.directing.title)) {
           await authClient
             .from('dancer_directing')
             .delete()

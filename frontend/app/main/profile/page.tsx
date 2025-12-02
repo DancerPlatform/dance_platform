@@ -5,7 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
 export default function ProfilePage() {
-  const { user, profile, artistUser, loading, signOut } = useAuth();
+  const { user, profile, artistUser, signOut, loading } = useAuth();
+
 
   // Show loading state
   if (loading) {
@@ -19,7 +20,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Show login prompt if not authenticated
   if (!user || !profile) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-6">

@@ -120,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         if (mounted) {
           setInitialized(true)
+          setState(prev => ({ ...prev, loading: false }))
         }
       }
     }
@@ -182,6 +183,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Sign out error:', error)
       setState(prev => ({ ...prev, loading: false, error }))
       return
+    } else {
+      setState(prev => ({ ...prev, loading: false, error }))
     }
     // The onAuthStateChange listener will handle clearing the state
   }
