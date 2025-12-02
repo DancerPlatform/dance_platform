@@ -325,7 +325,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
       )}
 
       {/* Content Container */}
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-16">
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         {/* Social Links */}
         <section>
           <div className="flex gap-6 justify-center">
@@ -393,7 +393,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                     rel="noopener noreferrer"
                     className="group w-[320px] shrink-0"
                   >
-                    <div className="overflow-hidden rounded-2xl bg-zinc-900">
+                    <div className="overflow-hidden rounded-xl bg-zinc-900">
                       {item.youtube_link && (
                         <YouTubeThumbnail url={item.youtube_link} title={item.title} />
                       )}
