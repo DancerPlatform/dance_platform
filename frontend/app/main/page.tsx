@@ -1,6 +1,5 @@
 'use client'
 import useSWR from 'swr'
-import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { ArrowRight, Search } from "lucide-react"
 import { ArtistCard } from "@/components/artist-card";
@@ -25,13 +24,13 @@ export default function MainPage() {
   const artists = artistData?.artists || [];
   const groups = groupData?.groups || [];
 
-  if (artistLoading || groupLoading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
-  }
+  // if (artistLoading || groupLoading) {
+  //   return (
+  //     <div className="min-h-screen bg-black text-white flex items-center justify-center">
+  //       <div>Loading...</div>
+  //     </div>
+  //   )
+  // }
 
   if (artistError || groupError) {
     return (
@@ -42,7 +41,7 @@ export default function MainPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32">
+    <div className="min-h-screen bg-black text-white pb-32 select-none">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
         <h1 className="text-3xl font-bold">dee&apos;tz</h1>
@@ -58,14 +57,6 @@ export default function MainPage() {
             Discover<br />
             Our <span className="font-bold">Artists</span>
           </h2>
-
-          {/* Search Bar */}
-          {/* <div className="relative">
-            <Input
-              placeholder="Search artists..."
-              className="w-full h-16 bg-zinc-800 border-2 border-white rounded-full px-6 text-white placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div> */}
         </section>
 
         {/* Popular Artists Section */}
@@ -82,7 +73,13 @@ export default function MainPage() {
           </div>
 
           <div className="grid grid-cols-2 md:flex gap-4">
-            {artists.map((artist) => (
+            {
+              artistLoading ?
+              Array(4).fill(0).map((_, index) => (
+                <div key={index} className='w-full bg-gray-950 animate-pulse aspect-3/4 rounded-lg'></div>
+              ))
+            :
+            artists.map((artist) => (
               <ArtistCard
                 key={artist.artist_id}
                 artistId={artist.artist_id}
@@ -91,7 +88,8 @@ export default function MainPage() {
                 imageUrl={artist.photo}
                 className="max-w-xs"
               />
-            ))}
+            ))
+            }
           </div>
         </section>
 
@@ -110,7 +108,13 @@ export default function MainPage() {
             </div>
 
             <div className="grid grid-cols-2 md:flex gap-4">
-              {groups.map((group) => (
+              {
+              groupLoading ?
+              Array(4).fill(0).map((_, index) => (
+                <div key={index} className='w-full bg-gray-950 animate-pulse aspect-3/4 rounded-lg'></div>
+              ))
+              :
+              groups.map((group) => (
                 <GroupCard
                   key={group.group_id}
                   groupId={group.group_id}
@@ -120,7 +124,8 @@ export default function MainPage() {
                   memberCount={group.member_count}
                   className="max-w-xs"
                 />
-              ))}
+              ))
+              }
             </div>
           </section>
         )}

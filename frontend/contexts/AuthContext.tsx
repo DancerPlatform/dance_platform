@@ -24,7 +24,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
     error: null,
   })
-  const [initialized, setInitialized] = useState(false)
 
   const loadUserData = async (user: User) => {
     try {
@@ -71,19 +70,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const refreshUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      await loadUserData(user)
-    } else {
-      setState({
-        user: null,
-        profile: null,
-        clientUser: null,
-        artistUser: null,
-        normalUser: null,
-        loading: false,
-        error: null,
-      })
+    setState(prev => ({ ...prev, loading: true }))
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await loadUserData(user)
+      } else {
+        setState({
+          user: null,
+          profile: null,
+          clientUser: null,
+          artistUser: null,
+          normalUser: null,
+          loading: false,
+          error: null,
+        })
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error)
+      setState(prev => ({ ...prev, loading: false, error: error as Error }))
     }
   }
 
@@ -100,7 +105,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Error getting session:', error)
           if (mounted) {
             setState(prev => ({ ...prev, loading: false, error }))
-            setInitialized(true)
           }
           return
         }
@@ -117,21 +121,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (mounted) {
           setState(prev => ({ ...prev, loading: false, error: error as Error }))
         }
-      } finally {
-        if (mounted) {
-          setInitialized(true)
-          setState(prev => ({ ...prev, loading: false }))
-        }
       }
     }
 
     initializeAuth()
 
-    // Listen for changes on auth state (only after initialization)
+    // Listen for changes on auth state (after initialization)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return
+
+      setState(prev => ({ ...prev, loading: true }))
 
       if (session?.user) {
         await loadUserData(session.user)
