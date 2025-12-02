@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { ArtistCard } from "@/components/artist-card";
 import { GroupCard } from "@/components/group-card";
+import { useSearch } from "@/hooks/useSearch";
 
 interface ArtistResult {
   artist_id: string;
@@ -30,66 +31,38 @@ interface CrewResult {
   } | null;
 }
 
-type SearchResult = ArtistResult | CrewResult;
-
-interface SearchResponse {
-  results: SearchResult[];
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
-}
-
 export default function SearchPage() {
-  const [searchWord, setSearchWord] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [activeTab, setActiveTab] = useState('dancer');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
   const limit = 10;
 
-  const performSearch = useCallback(async (keyword: string, type: string, currentOffset: number) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `/api/search?type=${type}&keyword=${encodeURIComponent(keyword)}&limit=${limit}&offset=${currentOffset}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Search failed');
-      }
-
-      const data: SearchResponse = await response.json();
-      setSearchResults(data.results);
-      setTotal(data.total);
-      setHasMore(data.hasMore);
-    } catch (error) {
-      console.error('Search error:', error);
-      setSearchResults([]);
-      setTotal(0);
-      setHasMore(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [limit]);
+  // Use SWR hook for caching and optimized fetching
+  const { data, isLoading, isError } = useSearch({
+    type: activeTab,
+    keyword: searchKeyword,
+    limit,
+    offset,
+  });
 
   const handleSearch = () => {
     setOffset(0);
-    performSearch(searchWord, activeTab, 0);
+    setSearchKeyword(searchInput);
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setOffset(0);
   };
 
   const handleLoadMore = () => {
-    const newOffset = offset + limit;
-    setOffset(newOffset);
-    performSearch(searchWord, activeTab, newOffset);
+    setOffset(offset + limit);
   };
 
-  useEffect(() => {
-    setOffset(0);
-    performSearch(searchWord, activeTab, 0);
-  }, [activeTab, searchWord, performSearch]);
+  const searchResults = data?.results || [];
+  const total = data?.total || 0;
+  const hasMore = data?.hasMore || false;
 
   return (
     <div>
@@ -101,8 +74,8 @@ export default function SearchPage() {
           </Link>
           <Input
             placeholder="키워드를 입력하세요"
-            value={searchWord}
-            onChange={(e) => setSearchWord(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             className="w-full h-10 bg-zinc-800 border-none rounded-sm px-4 text-white placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
@@ -112,11 +85,10 @@ export default function SearchPage() {
         </div>
       </div>
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full px-2">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full px-2">
         <TabsList className="w-full grid grid-cols-3 bg-zinc-900 border-white/20 rounded-sm p-1">
           <TabsTrigger
             value="dancer"
-            onClick={() => {console.log(activeTab)}}
             className="data-[state=active]:bg-white/20 rounded-sm"
           >
             댄서
