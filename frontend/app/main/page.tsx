@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowRight, Search } from "lucide-react"
 import { ArtistCard } from "@/components/artist-card";
 import { GroupCard } from "@/components/group-card";
+import { SlidingBanner, BannerItem } from "@/components/sliding-banner";
 import { Artist } from "@/types/artist"
 import { useRouter } from 'next/navigation'
 
@@ -24,6 +25,31 @@ export default function MainPage() {
   const artists = artistData?.artists || [];
   const groups = groupData?.groups || [];
 
+  // Sample banner data - replace with your actual banner images
+  const bannerItems: BannerItem[] = [
+    {
+      id: 1,
+      image: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=1200&h=400&fit=crop",
+      title: "Featured Artists",
+      description: "Discover the best dancers in the industry",
+      link: "/artists/featured"
+    },
+    {
+      id: 2,
+      image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1200&h=400&fit=crop",
+      title: "New Workshops",
+      description: "Join our latest dance workshops and classes",
+      link: "/workshops"
+    },
+    {
+      id: 3,
+      image: "https://images.unsplash.com/photo-1534329539061-64caeb388c42?w=1200&h=400&fit=crop",
+      title: "Upcoming Events",
+      description: "Don't miss out on exclusive dance events",
+      link: "/events"
+    }
+  ];
+
   if (artistError || groupError) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -42,9 +68,26 @@ export default function MainPage() {
         </button>
       </header>
 
-      <main className="px-6 space-y-8">
+      <main className="space-y-8">
+        {/* Banner Section - Full width on mobile, constrained on desktop */}
+        <section className="w-full">
+          <div className="md:px-6 lg:px-8 px-6">
+            <SlidingBanner
+              items={bannerItems}
+              autoplay={true}
+              autoplayDelay={4000}
+              showControls={false}
+              showPagination={true}
+              aspectRatio="banner"
+              className="w-full"
+              effect="slide"
+              loop={true}
+            />
+          </div>
+        </section>
+
         {/* Hero Section */}
-        <section className="space-y-4">
+        <section className="space-y-4 px-6">
           <h2 className="text-4xl font-normal">
             Discover<br />
             Our <span className="font-bold">Artists</span>
@@ -52,7 +95,7 @@ export default function MainPage() {
         </section>
 
         {/* Popular Artists Section */}
-        <section className="space-y-4">
+        <section className="space-y-4 px-6">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-normal">Popular Artists</h3>
             <Link
@@ -64,7 +107,7 @@ export default function MainPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:flex gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:flex gap-4">
             {
               artistLoading ?
               Array(4).fill(0).map((_, index) => (
@@ -87,7 +130,7 @@ export default function MainPage() {
 
         {/* Groups Section */}
         {groups.length > 0 && (
-          <section className="space-y-4">
+          <section className="space-y-4 px-6">
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-normal">Groups & Crews</h3>
               <Link
@@ -99,7 +142,7 @@ export default function MainPage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 md:flex gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:flex gap-4">
               {
               groupLoading ?
               Array(4).fill(0).map((_, index) => (
