@@ -21,7 +21,7 @@ export function ArtistCard({
     <Link
       href={`/${artistId}`}
       className={cn(
-        "relative w-full aspect-3/4 overflow-hidden rounded-lg bg-linear-to-br from-blue-700 via-purple-700 to-purple-900 border border-gray-400",
+        "relative w-full aspect-3/4 overflow-hidden rounded-lg bg-gray-950 border-gray-400",
         className
       )}
     >
