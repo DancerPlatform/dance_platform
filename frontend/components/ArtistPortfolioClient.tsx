@@ -38,21 +38,6 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     data: [],
   });
 
-//   const highlights = portfolio.choreography?.filter(item => item.is_highlight).map((item) => ({
-//   youtube_link: `${item.song?.youtube_link}`,
-//   title: `${item.song?.singer} - ${item.song?.title}`,
-//   role: `${item.role}`,
-//   date: `${item.song?.date}`
-// })) || [];
-
-//   const highlightMedia = portfolio.media?.filter(item => item.is_highlight).map((item) => ({
-//     youtube_link: `${item.youtube_link}`,
-//     title: item.title,
-//     role: `${item.role}`,
-//     date: `${item.video_date}`
-//   })) || [];
-//   const joinedHighlights = [...highlights, ...highlightMedia];
-
   const openModal = (
     sectionType: PortfolioSectionType,
     sectionTitle: string,
@@ -210,10 +195,10 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             <div className="flex -space-x-2">
               {portfolio.teams.map((membership, idx) => (
                 <div key={idx} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden">
-                  {membership.team?.leader?.photo?.photo && (
+                  {membership.team?.photo && (
                     <Image
-                      src={membership.team.leader.photo.photo}
-                      alt={membership.team.leader.name || 'Team member'}
+                      src={membership.team.photo}
+                      alt={membership.team.team_name}
                       width={40}
                       height={40}
                       className="object-cover"

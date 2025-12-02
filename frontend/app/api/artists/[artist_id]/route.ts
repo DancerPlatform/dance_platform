@@ -143,7 +143,8 @@ export async function GET(
           subleader:subleader_id (
             artist_id,
             name
-          )
+          ),
+          photo
         )
       `)
       .eq('artist_id', artist_id);
