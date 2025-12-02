@@ -1,6 +1,5 @@
 'use client'
 import useSWR from 'swr'
-import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { ArrowRight, Search } from "lucide-react"
 import { ArtistCard } from "@/components/artist-card";
@@ -42,7 +41,7 @@ export default function MainPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32">
+    <div className="min-h-screen bg-black text-white pb-32 select-none">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
         <h1 className="text-3xl font-bold">dee&apos;tz</h1>
@@ -58,14 +57,6 @@ export default function MainPage() {
             Discover<br />
             Our <span className="font-bold">Artists</span>
           </h2>
-
-          {/* Search Bar */}
-          {/* <div className="relative">
-            <Input
-              placeholder="Search artists..."
-              className="w-full h-16 bg-zinc-800 border-2 border-white rounded-full px-6 text-white placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div> */}
         </section>
 
         {/* Popular Artists Section */}
