@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
     error: null,
   })
+  const [initialized, setInitialized] = useState(false)
 
   const loadUserData = async (user: User) => {
     try {
@@ -87,19 +88,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadUserData(session.user)
-      } else {
-        setState(prev => ({ ...prev, loading: false }))
-      }
-    })
+    let mounted = true
 
-    // Listen for changes on auth state
+    // Initialize auth state
+    const initializeAuth = async () => {
+      try {
+        // Get the current session
+        const { data: { session }, error } = await supabase.auth.getSession()
+
+        if (error) {
+          console.error('Error getting session:', error)
+          if (mounted) {
+            setState(prev => ({ ...prev, loading: false, error }))
+            setInitialized(true)
+          }
+          return
+        }
+
+        if (session?.user) {
+          await loadUserData(session.user)
+        } else {
+          if (mounted) {
+            setState(prev => ({ ...prev, loading: false }))
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error)
+        if (mounted) {
+          setState(prev => ({ ...prev, loading: false, error: error as Error }))
+        }
+      } finally {
+        if (mounted) {
+          setInitialized(true)
+        }
+      }
+    }
+
+    initializeAuth()
+
+    // Listen for changes on auth state (only after initialization)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return
+
       if (session?.user) {
         await loadUserData(session.user)
       } else {
@@ -115,7 +147,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
