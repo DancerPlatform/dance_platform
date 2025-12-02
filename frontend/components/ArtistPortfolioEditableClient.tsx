@@ -511,12 +511,6 @@ export function ArtistPortfolioEditableClient({
           <section>
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="text-2xl sm:text-3xl font-bold">Highlights</h2>
-              <button
-                onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
-                className="text-green-400 text-xs sm:text-sm hover:underline shrink-0"
-              >
-                View All →
-              </button>
             </div>
             <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
               <div className="flex gap-3 sm:gap-4 min-w-max">
@@ -560,13 +554,7 @@ export function ArtistPortfolioEditableClient({
                   className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">Edit</span>
-                </button>
-                <button
-                  onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData())}
-                  className="text-green-400 text-xs sm:text-sm hover:underline"
-                >
-                  View All →
+                  <span className="text-xs sm:text-sm">편집</span>
                 </button>
               </div>
             </div>
@@ -617,13 +605,7 @@ export function ArtistPortfolioEditableClient({
                   className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">Edit</span>
-                </button>
-                <button
-                  onClick={() => openModal('media', 'Media', getMediaData())}
-                  className="text-green-400 text-xs sm:text-sm hover:underline"
-                >
-                  View All →
+                  <span className="text-xs sm:text-sm">편집</span>
                 </button>
               </div>
             </div>
@@ -668,13 +650,7 @@ export function ArtistPortfolioEditableClient({
                   className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">Edit</span>
-                </button>
-                <button
-                  onClick={() => openModal('directing', 'Directing', getDirectingData())}
-                  className="text-green-400 text-xs sm:text-sm hover:underline"
-                >
-                  View All →
+                  <span className="text-xs sm:text-sm">편집</span>
                 </button>
               </div>
             </div>
@@ -704,13 +680,7 @@ export function ArtistPortfolioEditableClient({
                   className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">Edit</span>
-                </button>
-                <button
-                  onClick={() => openModal('performances', 'Performances', getPerformancesData())}
-                  className="text-green-400 text-xs sm:text-sm hover:underline"
-                >
-                  View All →
+                  <span className="text-xs sm:text-sm">편집</span>
                 </button>
               </div>
             </div>
@@ -746,13 +716,7 @@ export function ArtistPortfolioEditableClient({
                   className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">Edit</span>
-                </button>
-                <button
-                  onClick={() => openModal('workshops', 'Classes & Workshops', getWorkshopsData())}
-                  className="text-green-400 text-xs sm:text-sm hover:underline"
-                >
-                  View All →
+                  <span className="text-xs sm:text-sm">편집</span>
                 </button>
               </div>
             </div>
@@ -782,7 +746,7 @@ export function ArtistPortfolioEditableClient({
                 className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
               >
                 <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="text-xs sm:text-sm">Edit</span>
+                <span className="text-xs sm:text-sm">편집</span>
               </button>
             </div>
             <div className="space-y-2 sm:space-y-3">
