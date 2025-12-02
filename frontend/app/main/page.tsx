@@ -99,7 +99,7 @@ export default function MainPage() {
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-normal">Popular Artists</h3>
             <Link
-              href="/artists/popular"
+              href="/main/search"
               className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
             >
               <span>View All</span>
@@ -134,7 +134,7 @@ export default function MainPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-normal">Groups & Crews</h3>
               <Link
-                href="/groups"
+                href="/main/search"
                 className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
               >
                 <span>View All</span>
