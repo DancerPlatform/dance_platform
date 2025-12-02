@@ -24,13 +24,13 @@ export default function MainPage() {
   const artists = artistData?.artists || [];
   const groups = groupData?.groups || [];
 
-  if (artistLoading || groupLoading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
-  }
+  // if (artistLoading || groupLoading) {
+  //   return (
+  //     <div className="min-h-screen bg-black text-white flex items-center justify-center">
+  //       <div>Loading...</div>
+  //     </div>
+  //   )
+  // }
 
   if (artistError || groupError) {
     return (
@@ -73,7 +73,13 @@ export default function MainPage() {
           </div>
 
           <div className="grid grid-cols-2 md:flex gap-4">
-            {artists.map((artist) => (
+            {
+              artistLoading ?
+              Array(4).fill(0).map((_, index) => (
+                <div key={index} className='w-full bg-gray-950 animate-pulse aspect-3/4 rounded-lg'></div>
+              ))
+            :
+            artists.map((artist) => (
               <ArtistCard
                 key={artist.artist_id}
                 artistId={artist.artist_id}
@@ -82,7 +88,8 @@ export default function MainPage() {
                 imageUrl={artist.photo}
                 className="max-w-xs"
               />
-            ))}
+            ))
+            }
           </div>
         </section>
 
@@ -101,7 +108,13 @@ export default function MainPage() {
             </div>
 
             <div className="grid grid-cols-2 md:flex gap-4">
-              {groups.map((group) => (
+              {
+              groupLoading ?
+              Array(4).fill(0).map((_, index) => (
+                <div key={index} className='w-full bg-gray-950 animate-pulse aspect-3/4 rounded-lg'></div>
+              ))
+              :
+              groups.map((group) => (
                 <GroupCard
                   key={group.group_id}
                   groupId={group.group_id}
@@ -111,7 +124,8 @@ export default function MainPage() {
                   memberCount={group.member_count}
                   className="max-w-xs"
                 />
-              ))}
+              ))
+              }
             </div>
           </section>
         )}
