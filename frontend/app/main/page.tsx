@@ -24,14 +24,6 @@ export default function MainPage() {
   const artists = artistData?.artists || [];
   const groups = groupData?.groups || [];
 
-  // if (artistLoading || groupLoading) {
-  //   return (
-  //     <div className="min-h-screen bg-black text-white flex items-center justify-center">
-  //       <div>Loading...</div>
-  //     </div>
-  //   )
-  // }
-
   if (artistError || groupError) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -41,7 +33,7 @@ export default function MainPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-32 select-none">
+    <div className="min-h-screen bg-black text-white pb-10 select-none">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
         <h1 className="text-3xl font-bold">dee&apos;tz</h1>
