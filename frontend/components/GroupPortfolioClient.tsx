@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram, Twitter, Youtube, Crown } from 'lucide-react';
 import { ArtistCard } from './artist-card';
+import SocialSection from './portfolio/SocialSection';
 
 interface ArtistInfo {
   artist_id: string;
@@ -89,40 +90,11 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         {/* Social Links */}
         {(group.instagram || group.twitter || group.youtube) && (
-          <section>
-            <div className="flex gap-6 justify-center">
-              {group.instagram && (
-                <a
-                  href={group.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-                >
-                  <Instagram className="w-6 h-6" />
-                </a>
-              )}
-              {group.twitter && (
-                <a
-                  href={group.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-                >
-                  <Twitter className="w-6 h-6" />
-                </a>
-              )}
-              {group.youtube && (
-                <a
-                  href={group.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-                >
-                  <Youtube className="w-6 h-6" />
-                </a>
-              )}
-            </div>
-          </section>
+          <SocialSection 
+            instagram={group.instagram}
+            twitter={group.twitter}
+            youtube={group.youtube}
+          />
         )}
 
         {/* Introduction */}
