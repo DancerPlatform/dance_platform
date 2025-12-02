@@ -6,6 +6,7 @@ import { Instagram, Twitter, Youtube } from 'lucide-react';
 import { PortfolioModal, PortfolioSectionType, PortfolioData } from './PortfolioModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
+import SocialSection from './portfolio/SocialSection';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -37,21 +38,6 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     sectionTitle: '',
     data: [],
   });
-
-//   const highlights = portfolio.choreography?.filter(item => item.is_highlight).map((item) => ({
-//   youtube_link: `${item.song?.youtube_link}`,
-//   title: `${item.song?.singer} - ${item.song?.title}`,
-//   role: `${item.role}`,
-//   date: `${item.song?.date}`
-// })) || [];
-
-//   const highlightMedia = portfolio.media?.filter(item => item.is_highlight).map((item) => ({
-//     youtube_link: `${item.youtube_link}`,
-//     title: item.title,
-//     role: `${item.role}`,
-//     date: `${item.video_date}`
-//   })) || [];
-//   const joinedHighlights = [...highlights, ...highlightMedia];
 
   const openModal = (
     sectionType: PortfolioSectionType,
@@ -203,69 +189,33 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         </div>
       </div>
 
-      {/* Team Info */}
-      {portfolio.teams && portfolio.teams.length > 0 && (
-        <div className="">
-          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-4 py-2">
-            <div className="flex -space-x-2">
-              {portfolio.teams.map((membership, idx) => (
-                <div key={idx} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden">
-                  {membership.team?.leader?.photo?.photo && (
-                    <Image
-                      src={membership.team.leader.photo.photo}
-                      alt={membership.team.leader.name || 'Team member'}
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            <span className="text-sm font-medium">
-              {portfolio.teams[0]?.team?.team_name}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Content Container */}
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-        {/* Social Links */}
-        <section>
-          <div className="flex gap-6 justify-center">
-            {portfolio.instagram && (
-              <a
-                href={portfolio.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Instagram className="w-6 h-6" />
-              </a>
-            )}
-            {portfolio.twitter && (
-              <a
-                href={portfolio.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Twitter className="w-6 h-6" />
-              </a>
-            )}
-            {portfolio.youtube && (
-              <a
-                href={portfolio.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Youtube className="w-6 h-6" />
-              </a>
-            )}
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+        {/* Team Info */}
+        {portfolio.teams && portfolio.teams.length > 0 && (
+          <div className="flex w-full items-center gap-3">
+            <div className="size-20 rounded-sm overflow-hidden shrink-0">
+              {portfolio.teams[0]?.team?.photo && (
+                <Image
+                  src={portfolio.teams[0].team.photo}
+                  alt={portfolio.teams[0].team.team_name}
+                  width={100}
+                  height={100}
+                  className="object-cover w-full h-full"
+                />
+              )}
+            </div>
+            <div className="flex flex-col justify-between h-20">
+              <p className="text-xs bg-gray-400 text-black w-fit px-1 rounded-xs font-bold">Team</p>
+              <p className="text-md text-white">
+                {portfolio.teams[0]?.team?.team_name}
+              </p>
+              <p className="text-sm text-gray-400">
+                {portfolio.teams[0]?.team?.leader?.artist_id == portfolio.artist_id ? "리더" : "멤버"}
+              </p>
+            </div>
           </div>
-        </section>
+        )}
 
         {/* Introduction */}
         {portfolio.introduction && (
@@ -275,6 +225,13 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </p>
           </section>
         )}
+
+        {/* Social Links */}
+        <SocialSection 
+          instagram={portfolio.instagram}
+          twitter={portfolio.twitter}
+          youtube={portfolio.youtube}
+        />
 
         {/* Highlights */}
         {(getHighlightsData().length > 0) && (

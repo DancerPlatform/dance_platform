@@ -67,6 +67,7 @@ export interface Team {
   team_introduction?: string;
   leader?: TeamMember;
   subleader?: TeamMember;
+  photo?: string;
 }
 
 export interface TeamMembership {

@@ -36,7 +36,7 @@ export async function PUT(
       const { data: existingDirecting } = await authClient
         .from('dancer_directing')
         .select('directing_id, directing:directing_id(title)')
-        .eq('artist_id', artist_id);
+        .eq('artist_id', artist_id) as { data: Array<{ directing_id: string; directing: { title: string } }> | null };
 
       const existingDirIds = new Set(
         existingDirecting?.map((item) => (item.directing as any)?.title) || []
