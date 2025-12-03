@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 
 export async function PUT(
   request: NextRequest,
@@ -38,21 +39,30 @@ export async function PUT(
         .select('performance_id')
         .eq('artist_id', artist_id);
 
+      console.log("Initial call of existing performances", existingPerformances)
+
       const existingPerfIds = new Set(
         existingPerformances?.map((item) => item.performance_id) || []
       );
       const processedPerfIds = new Set<string>();
 
-      // Insert or reuse performances
+      // Process each performance item
       for (const item of performances) {
-        if (item.performance) {
-          let perfId = item.performance_id;
+        if (item.performance && item.performance.performance_title) {
+          // Check if this performance title already exists in the performance table
+          const { data: existingPerfInTable } = await authClient
+            .from('performance')
+            .select('performance_id')
+            .eq('performance_title', item.performance.performance_title)
+            .single();
 
-          // If this performance already exists in the relationship, keep it
-          if (perfId && existingPerfIds.has(perfId)) {
-            processedPerfIds.add(perfId);
-          } else if (!perfId) {
-            // Create new performance
+          let perfId: string;
+
+          if (existingPerfInTable) {
+            // Use the existing performance_id from the performance table
+            perfId = existingPerfInTable.performance_id;
+          } else {
+            // Create new performance entry
             perfId = `perf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             await authClient.from('performance').insert({
               performance_id: perfId,
@@ -60,16 +70,22 @@ export async function PUT(
               date: item.performance.date,
               category: item.performance.category || null,
             });
+          }
 
-            // Create relationship
+          // Create relationship if it doesn't exist for this artist
+          if (!existingPerfIds.has(perfId)) {
             await authClient.from('dancer_performance').insert({
               artist_id,
               performance_id: perfId,
             });
-            processedPerfIds.add(perfId);
           }
+
+          processedPerfIds.add(perfId);
         }
       }
+
+      console.log("Processed perf ids", processedPerfIds)
+      console.log("Existing performances", existingPerformances)
 
       // Delete relationships that were removed
       for (const existing of existingPerformances || []) {
