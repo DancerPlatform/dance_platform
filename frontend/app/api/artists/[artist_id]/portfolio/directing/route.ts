@@ -29,6 +29,7 @@ export async function PUT(
         },
       },
     });
+    // console.log(directing)
 
     // Update directing
     if (directing && Array.isArray(directing)) {
@@ -37,6 +38,8 @@ export async function PUT(
         .from('dancer_directing')
         .select('directing_id')
         .eq('artist_id', artist_id) as { data: Array<{ directing_id: string }> | null };
+
+      // console.log("Existing directing", existingDirecting)
 
       const existingDirIds = new Set(
         existingDirecting?.map((item) => item.directing_id) || []
@@ -79,6 +82,9 @@ export async function PUT(
           processedDirIds.add(dirId);
         }
       }
+
+      // console.log(`Processed dir ids (after processing): ${JSON.stringify([...processedDirIds])}`)
+      // console.log("Existing directing", existingDirecting)
 
       // Delete relationships that were removed (only from dancer_directing)
       for (const existing of existingDirecting || []) {
