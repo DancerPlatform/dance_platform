@@ -7,6 +7,7 @@ import { PortfolioModal, PortfolioSectionType, PortfolioData } from './Portfolio
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
+import { SectionHeaders } from './SectionHeaders';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -326,42 +327,14 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         {/* Highlights */}
         {(getHighlightsData().length > 0) && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-bold">Highlights</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleSortOrder('highlights')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.highlights === 'display_order'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Order
-                  </button>
-                  <button
-                    onClick={() => toggleSortOrder('highlights')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.highlights === 'date'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Date
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Highlights"
+              sortOrder={sortOrders.highlights}
+              onToggleSort={() => toggleSortOrder('highlights')}
+            />
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
-                {getHighlightsData().slice(0, 5).map((item, index) => (
+                {getHighlightsData().slice(0, 4).map((item, index) => (
                   <a
                     key={index}
                     href={item.youtube_link || '#'}
@@ -387,47 +360,29 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 ))}
               </div>
             </div>
+            {getHighlightsData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Choreographies */}
         {portfolio.choreography && portfolio.choreography.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-bold">Choreographies</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleSortOrder('choreographies')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.choreographies === 'display_order'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Order
-                  </button>
-                  <button
-                    onClick={() => toggleSortOrder('choreographies')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.choreographies === 'date'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Date
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Choreographies"
+              sortOrder={sortOrders.choreographies}
+              onToggleSort={() => toggleSortOrder('choreographies')}
+            />
             <div className="space-y-4">
-              {getChoreographyData().slice(0, 5).map((item, index) => (
+              {getChoreographyData().slice(0, 4).map((item, index) => (
                 <a
                   key={index}
                   href={item.song.youtube_link || '#'}
@@ -454,47 +409,29 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </a>
               ))}
             </div>
+            {getChoreographyData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Media */}
         {portfolio.media && portfolio.media.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-bold">Media</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleSortOrder('media')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.media === 'display_order'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Order
-                  </button>
-                  <button
-                    onClick={() => toggleSortOrder('media')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.media === 'date'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Date
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => openModal('media', 'Media', getMediaData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Media"
+              sortOrder={sortOrders.media}
+              onToggleSort={() => toggleSortOrder('media')}
+            />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {getMediaData().slice(0, 8).map((item, index) => (
+              {getMediaData().slice(0, 4).map((item, index) => (
                 <a
                   key={index}
                   href={item.youtube_link}
@@ -515,47 +452,29 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </a>
               ))}
             </div>
+            {getMediaData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('media', 'Media', getMediaData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Directing */}
         {portfolio.directing && portfolio.directing.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-bold">Directing</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleSortOrder('directing')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.directing === 'display_order'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Order
-                  </button>
-                  <button
-                    onClick={() => toggleSortOrder('directing')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.directing === 'date'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Date
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => openModal('directing', 'Directing', getDirectingData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Directing"
+              sortOrder={sortOrders.directing}
+              onToggleSort={() => toggleSortOrder('directing')}
+            />
             <div className="space-y-3">
-              {getDirectingData().slice(0, 5).map((item, index) => (
+              {getDirectingData().slice(0, 4).map((item, index) => (
                 <div key={index} className="p-4 bg-white/5 rounded-lg">
                   <h3 className="font-semibold">{item.title}</h3>
                   {item.date && (
@@ -566,45 +485,27 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </div>
               ))}
             </div>
+            {getDirectingData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('directing', 'Directing', getDirectingData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Performances */}
         {portfolio.performances && portfolio.performances.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-bold">Performances</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleSortOrder('performances')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.performances === 'display_order'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Order
-                  </button>
-                  <button
-                    onClick={() => toggleSortOrder('performances')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.performances === 'date'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Date
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => openModal('performances', 'Performances', getPerformancesData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Performances"
+              sortOrder={sortOrders.performances}
+              onToggleSort={() => toggleSortOrder('performances')}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {getPerformancesData().slice(0, 4).map((item, index) => (
                 <div
@@ -623,47 +524,29 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </div>
               ))}
             </div>
+            {getPerformancesData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('performances', 'Performances', getPerformancesData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Classes/Workshops */}
         {portfolio.workshops && portfolio.workshops.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-bold">Classes</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleSortOrder('workshops')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.workshops === 'display_order'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Order
-                  </button>
-                  <button
-                    onClick={() => toggleSortOrder('workshops')}
-                    className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                      sortOrders.workshops === 'date'
-                        ? 'bg-green-400 text-black font-semibold'
-                        : 'bg-white/10 text-gray-400 hover:bg-white/20'
-                    }`}
-                  >
-                    Date
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => openModal('workshops', 'Classes & Workshops', getWorkshopsData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Classes"
+              sortOrder={sortOrders.workshops}
+              onToggleSort={() => toggleSortOrder('workshops')}
+            />
             <div className="space-y-3">
-              {getWorkshopsData().slice(0, 5).map((workshop, index) => (
+              {getWorkshopsData().slice(0, 4).map((workshop, index) => (
                 <div key={index} className="p-4 bg-white/5 rounded-lg">
                   <h3 className="font-semibold">{workshop.class_name}</h3>
                   <p className="text-sm text-gray-400 mt-1">
@@ -677,6 +560,16 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </div>
               ))}
             </div>
+            {getWorkshopsData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('workshops', 'Classes & Workshops', getWorkshopsData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
       </div>
