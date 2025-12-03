@@ -38,9 +38,7 @@ export async function PUT(
         .from('dancer_performance')
         .select('performance_id')
         .eq('artist_id', artist_id);
-
-      console.log("Initial call of existing performances", existingPerformances)
-
+        
       const existingPerfIds = new Set(
         existingPerformances?.map((item) => item.performance_id) || []
       );
@@ -83,9 +81,6 @@ export async function PUT(
           processedPerfIds.add(perfId);
         }
       }
-
-      console.log("Processed perf ids", processedPerfIds)
-      console.log("Existing performances", existingPerformances)
 
       // Delete relationships that were removed
       for (const existing of existingPerformances || []) {
