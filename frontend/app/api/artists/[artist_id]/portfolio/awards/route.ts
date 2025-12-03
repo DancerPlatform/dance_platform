@@ -38,13 +38,15 @@ export async function PUT(
         .delete()
         .eq('artist_id', artist_id);
 
-      // Insert new awards
-      for (const award of awards) {
+      // Insert new awards with display_order
+      for (let index = 0; index < awards.length; index++) {
+        const award = awards[index];
         await authClient.from('dancer_award').insert({
           artist_id,
           award_title: award.award_title,
           issuing_org: award.issuing_org,
           received_date: award.received_date,
+          display_order: index,
         });
       }
     }

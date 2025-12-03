@@ -44,8 +44,9 @@ export async function PUT(
       );
       const processedPerfIds = new Set<string>();
 
-      // Process each performance item
-      for (const item of performances) {
+      // Process each performance item with display_order
+      for (let index = 0; index < performances.length; index++) {
+        const item = performances[index];
         if (item.performance && item.performance.performance_title) {
           // Check if this performance title already exists in the performance table
           const { data: existingPerfInTable } = await authClient
@@ -70,12 +71,20 @@ export async function PUT(
             });
           }
 
-          // Create relationship if it doesn't exist for this artist
+          // Create or update relationship with display_order
           if (!existingPerfIds.has(perfId)) {
             await authClient.from('dancer_performance').insert({
               artist_id,
               performance_id: perfId,
+              display_order: index,
             });
+          } else {
+            // Update display_order if relationship already exists
+            await authClient
+              .from('dancer_performance')
+              .update({ display_order: index })
+              .eq('artist_id', artist_id)
+              .eq('performance_id', perfId);
           }
 
           processedPerfIds.add(perfId);
