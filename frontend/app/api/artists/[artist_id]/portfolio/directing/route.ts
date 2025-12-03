@@ -32,47 +32,57 @@ export async function PUT(
 
     // Update directing
     if (directing && Array.isArray(directing)) {
-      // Get existing directing relationships
+      // Get existing directing relationships for this artist
       const { data: existingDirecting } = await authClient
         .from('dancer_directing')
-        .select('directing_id, directing:directing_id(title)')
-        .eq('artist_id', artist_id) as { data: Array<{ directing_id: string; directing: { title: string } }> | null };
+        .select('directing_id')
+        .eq('artist_id', artist_id) as { data: Array<{ directing_id: string }> | null };
 
       const existingDirIds = new Set(
-        existingDirecting?.map((item) => (item.directing as any)?.title) || []
+        existingDirecting?.map((item) => item.directing_id) || []
       );
       const processedDirIds = new Set<string>();
 
-      // Insert or reuse directing
+      // Process each directing item
       for (const item of directing) {
-        if (item.directing) {
-          let dirId = item.directing_id;
+        if (item.directing && item.directing.title) {
+          // Check if this directing title already exists in the directing table
+          const { data: existingDirInTable } = await authClient
+            .from('directing')
+            .select('directing_id')
+            .eq('title', item.directing.title)
+            .single();
 
-          // If this directing already exists in the relationship, keep it
-          if (item.directing.title && existingDirIds.has(item.directing.title)) {
-            processedDirIds.add(item.directing.title);
-          } else if (!dirId) {
-            // Create new directing
+          let dirId: string;
+
+          if (existingDirInTable) {
+            // Use the existing directing_id from the directing table
+            dirId = existingDirInTable.directing_id;
+          } else {
+            // Create new directing entry
             dirId = `dir_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             await authClient.from('directing').insert({
               directing_id: dirId,
               title: item.directing.title,
               date: item.directing.date,
             });
+          }
 
-            // Create relationship
+          // Create relationship if it doesn't exist for this artist
+          if (!existingDirIds.has(dirId)) {
             await authClient.from('dancer_directing').insert({
               artist_id,
               directing_id: dirId,
             });
-            processedDirIds.add(item.directing.title);
           }
+
+          processedDirIds.add(dirId);
         }
       }
 
-      // Delete relationships that were removed
+      // Delete relationships that were removed (only from dancer_directing)
       for (const existing of existingDirecting || []) {
-        if (!processedDirIds.has(existing.directing.title)) {
+        if (!processedDirIds.has(existing.directing_id)) {
           await authClient
             .from('dancer_directing')
             .delete()
