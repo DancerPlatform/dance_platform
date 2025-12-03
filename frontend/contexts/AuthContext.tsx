@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    let mounted = true
+    const mounted = true
 
     // Initialize auth state
     const initializeAuth = async () => {
@@ -127,32 +127,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth()
 
     // Listen for changes on auth state (after initialization)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!mounted) return
+    // const {
+    //   data: { subscription },
+    // } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    //   if (!mounted) return
 
-      setState(prev => ({ ...prev, loading: true }))
+    //   setState(prev => ({ ...prev, loading: true }))
 
-      if (session?.user) {
-        await loadUserData(session.user)
-      } else {
-        setState({
-          user: null,
-          profile: null,
-          clientUser: null,
-          artistUser: null,
-          normalUser: null,
-          loading: false,
-          error: null,
-        })
-      }
-    })
+    //   if (session?.user) {
+    //     await loadUserData(session.user)
+    //   } else {
+    //     setState({
+    //       user: null,
+    //       profile: null,
+    //       clientUser: null,
+    //       artistUser: null,
+    //       normalUser: null,
+    //       loading: false,
+    //       error: null,
+    //     })
+    //   }
+    // })
 
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
+    // return () => {
+    //   mounted = false
+    //   subscription.unsubscribe()
+    // }
   }, [])
 
   const signIn = async (email: string, password: string) => {
@@ -185,7 +185,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState(prev => ({ ...prev, loading: false, error }))
       return
     } else {
-      setState(prev => ({ ...prev, loading: false, error }))
+      setState({
+        user: null,
+        profile: null,
+        clientUser: null,
+        artistUser: null,
+        normalUser: null,
+        loading: false,
+        error: null,
+      })
+      
     }
     // The onAuthStateChange listener will handle clearing the state
   }

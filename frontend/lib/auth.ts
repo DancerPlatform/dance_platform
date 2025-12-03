@@ -110,6 +110,7 @@ export async function signOut() {
  * Get the current user's profile
  */
 export async function getUserProfile(authId: string): Promise<UserProfile | null> {
+  console.log("Received Auth Id", authId)
   const { data, error } = await supabase
     .from('user_profiles')
     .select('*')
@@ -183,6 +184,7 @@ export async function getNormalUser(authId: string): Promise<NormalUser | null> 
  */
 export async function getCompleteUserData(authId: string) {
   const profile = await getUserProfile(authId)
+  console.log("Profile")
 
   if (!profile) {
     return { profile: null, userData: null }
