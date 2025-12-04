@@ -149,7 +149,10 @@ export async function getClientUser(authId: string): Promise<ClientUser | null> 
 export async function getArtistUser(authId: string): Promise<ArtistUser | null> {
   const { data, error } = await supabase
     .from('artist_user')
-    .select('*')
+    .select(`
+      *,
+      portfolio:artist_portfolio(photo)
+    `)
     .eq('auth_id', authId)
     .single()
 
@@ -158,7 +161,13 @@ export async function getArtistUser(authId: string): Promise<ArtistUser | null> 
     return null
   }
 
-  return data
+  // Extract the photo from the portfolio join
+  const portfolioPhoto = (data as any)?.portfolio?.photo || null
+
+  return {
+    ...data,
+    portfolio_photo: portfolioPhoto
+  }
 }
 
 /**

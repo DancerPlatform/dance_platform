@@ -38,16 +38,15 @@ export async function PUT(
         .from('dancer_performance')
         .select('performance_id')
         .eq('artist_id', artist_id);
-
-      console.log("Initial call of existing performances", existingPerformances)
-
+        
       const existingPerfIds = new Set(
         existingPerformances?.map((item) => item.performance_id) || []
       );
       const processedPerfIds = new Set<string>();
 
-      // Process each performance item
-      for (const item of performances) {
+      // Process each performance item with display_order
+      for (let index = 0; index < performances.length; index++) {
+        const item = performances[index];
         if (item.performance && item.performance.performance_title) {
           // Check if this performance title already exists in the performance table
           const { data: existingPerfInTable } = await authClient
@@ -72,20 +71,25 @@ export async function PUT(
             });
           }
 
-          // Create relationship if it doesn't exist for this artist
+          // Create or update relationship with display_order
           if (!existingPerfIds.has(perfId)) {
             await authClient.from('dancer_performance').insert({
               artist_id,
               performance_id: perfId,
+              display_order: index,
             });
+          } else {
+            // Update display_order if relationship already exists
+            await authClient
+              .from('dancer_performance')
+              .update({ display_order: index })
+              .eq('artist_id', artist_id)
+              .eq('performance_id', perfId);
           }
 
           processedPerfIds.add(perfId);
         }
       }
-
-      console.log("Processed perf ids", processedPerfIds)
-      console.log("Existing performances", existingPerformances)
 
       // Delete relationships that were removed
       for (const existing of existingPerformances || []) {

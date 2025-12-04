@@ -46,8 +46,9 @@ export async function PUT(
       );
       const processedDirIds = new Set<string>();
 
-      // Process each directing item
-      for (const item of directing) {
+      // Process each directing item with display_order
+      for (let index = 0; index < directing.length; index++) {
+        const item = directing[index];
         if (item.directing && item.directing.title) {
           // Check if this directing title already exists in the directing table
           const { data: existingDirInTable } = await authClient
@@ -71,12 +72,20 @@ export async function PUT(
             });
           }
 
-          // Create relationship if it doesn't exist for this artist
+          // Create or update relationship with display_order
           if (!existingDirIds.has(dirId)) {
             await authClient.from('dancer_directing').insert({
               artist_id,
               directing_id: dirId,
+              display_order: index,
             });
+          } else {
+            // Update display_order if relationship already exists
+            await authClient
+              .from('dancer_directing')
+              .update({ display_order: index })
+              .eq('artist_id', artist_id)
+              .eq('directing_id', dirId);
           }
 
           processedDirIds.add(dirId);

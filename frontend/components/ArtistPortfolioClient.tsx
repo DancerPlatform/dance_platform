@@ -7,6 +7,7 @@ import { PortfolioModal, PortfolioSectionType, PortfolioData } from './Portfolio
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
+import { SectionHeaders } from './SectionHeaders';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -26,6 +27,8 @@ export interface ArtistPortfolio {
   teams: TeamMembership[];
 }
 
+type SortOrder = 'display_order' | 'date';
+
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -38,6 +41,23 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     sectionTitle: '',
     data: [],
   });
+
+  // Sort order state for each section
+  const [sortOrders, setSortOrders] = useState<Record<string, SortOrder>>({
+    highlights: 'display_order',
+    choreographies: 'display_order',
+    media: 'display_order',
+    directing: 'display_order',
+    performances: 'display_order',
+    workshops: 'display_order',
+  });
+
+  const toggleSortOrder = (section: string) => {
+    setSortOrders(prev => ({
+      ...prev,
+      [section]: prev[section] === 'display_order' ? 'date' : 'display_order'
+    }));
+  };
 
   const openModal = (
     sectionType: PortfolioSectionType,
@@ -61,9 +81,50 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     });
   };
 
+  // Sorting helper functions
+  const sortChoreographyByDate = (items: { song: { title: string; singer: string; youtube_link: string | null; date: string | null }; role: string[]; is_highlight: boolean; display_order: number }[]) => {
+    return [...items].sort((a, b) => {
+      const dateA = a.song?.date ? new Date(a.song.date).getTime() : 0;
+      const dateB = b.song?.date ? new Date(b.song.date).getTime() : 0;
+      return dateB - dateA; // Most recent first
+    });
+  };
+
+  const sortMediaByDate = (items: { youtube_link: string; role: string[]; is_highlight: boolean; display_order: number; title: string; video_date: string | null }[]) => {
+    return [...items].sort((a, b) => {
+      const dateA = a.video_date ? new Date(a.video_date).getTime() : 0;
+      const dateB = b.video_date ? new Date(b.video_date).getTime() : 0;
+      return dateB - dateA; // Most recent first
+    });
+  };
+
+  const sortDirectingByDate = (items: { title: string; date: string | null }[]) => {
+    return [...items].sort((a, b) => {
+      const dateA = a.date ? new Date(a.date).getTime() : 0;
+      const dateB = b.date ? new Date(b.date).getTime() : 0;
+      return dateB - dateA;
+    });
+  };
+
+  const sortPerformancesByDate = (items: { performance_title: string; date: string | null; category: string | null }[]) => {
+    return [...items].sort((a, b) => {
+      const dateA = a.date ? new Date(a.date).getTime() : 0;
+      const dateB = b.date ? new Date(b.date).getTime() : 0;
+      return dateB - dateA;
+    });
+  };
+
+  const sortWorkshopsByDate = (items: { class_name: string; class_role: string[]; country: string | null; class_date: string | null }[]) => {
+    return [...items].sort((a, b) => {
+      const dateA = a.class_date ? new Date(a.class_date).getTime() : 0;
+      const dateB = b.class_date ? new Date(b.class_date).getTime() : 0;
+      return dateB - dateA;
+    });
+  };
+
   // Transform data for modal
   const getChoreographyData = () => {
-    return portfolio.choreography.map(item => ({
+    const data = portfolio.choreography.map(item => ({
       song: {
         title: item.song?.title || '',
         singer: item.song?.singer || '',
@@ -74,10 +135,15 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
       is_highlight: item.is_highlight,
       display_order: item.display_order,
     }));
+
+    if (sortOrders.choreographies === 'date') {
+      return sortChoreographyByDate(data);
+    }
+    return data.sort((a, b) => a.display_order - b.display_order);
   };
 
   const getMediaData = () => {
-    return portfolio.media.map(item => ({
+    const data = portfolio.media.map(item => ({
       youtube_link: item.youtube_link,
       role: item.role ? [item.role] : [],
       is_highlight: item.is_highlight,
@@ -85,6 +151,11 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
       title: item.title,
       video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
     }));
+
+    if (sortOrders.media === 'date') {
+      return sortMediaByDate(data);
+    }
+    return data.sort((a, b) => a.display_order - b.display_order);
   };
 
   const getHighlightsData = () => {
@@ -111,36 +182,56 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
       }));
 
-    // Combine and sort by display_order
-    return [...choreoHighlights, ...mediaHighlights].sort((a, b) => a.display_order - b.display_order);
+    // Combine and sort
+    const combined = [...choreoHighlights, ...mediaHighlights];
+
+    if (sortOrders.highlights === 'date') {
+      return sortMediaByDate(combined);
+    }
+    return combined.sort((a, b) => a.display_order - b.display_order);
   };
 
   const getDirectingData = () => {
-    return portfolio.directing
+    const data = portfolio.directing
       .filter(item => item.directing)
       .map(item => ({
         title: item.directing!.title,
         date: item.directing!.date,
       }));
+
+    if (sortOrders.directing === 'date') {
+      return sortDirectingByDate(data);
+    }
+    return data; // Original order (no display_order field for directing)
   };
 
   const getPerformancesData = () => {
-    return portfolio.performances
+    const data = portfolio.performances
       .filter(item => item.performance)
       .map(item => ({
         performance_title: item.performance!.performance_title,
         date: item.performance!.date,
         category: item.performance!.category || null,
       }));
+
+    if (sortOrders.performances === 'date') {
+      return sortPerformancesByDate(data);
+    }
+    return data; // Original order (no display_order field for performances)
   };
 
   const getWorkshopsData = () => {
-    return portfolio.workshops.map(workshop => ({
+    const data = portfolio.workshops.map(workshop => ({
       class_name: workshop.class_name,
       class_role: workshop.class_role || [],
       country: workshop.country,
       class_date: workshop.class_date,
     }));
+
+    if (sortOrders.workshops === 'date') {
+      return sortWorkshopsByDate(data);
+    }
+    return data; // Original order (no display_order field for workshops)
   };
 
   const getAwardsData = () => {
@@ -236,18 +327,14 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         {/* Highlights */}
         {(getHighlightsData().length > 0) && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Highlights</h2>
-              <button
-                onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Highlights"
+              sortOrder={sortOrders.highlights}
+              onToggleSort={() => toggleSortOrder('highlights')}
+            />
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
-                {getHighlightsData().slice(0, 5).map((item, index) => (
+                {getHighlightsData().slice(0, 4).map((item, index) => (
                   <a
                     key={index}
                     href={item.youtube_link || '#'}
@@ -273,41 +360,47 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 ))}
               </div>
             </div>
+            {getHighlightsData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Choreographies */}
         {portfolio.choreography && portfolio.choreography.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Choreographies</h2>
-              <button
-                onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Choreographies"
+              sortOrder={sortOrders.choreographies}
+              onToggleSort={() => toggleSortOrder('choreographies')}
+            />
             <div className="space-y-4">
-              {portfolio.choreography.slice(0, 5).map((item, index) => (
+              {getChoreographyData().slice(0, 4).map((item, index) => (
                 <a
                   key={index}
-                  href={item.song?.youtube_link || '#'}
+                  href={item.song.youtube_link || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
                 >
                   <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
-                    {item.song?.youtube_link && (
+                    {item.song.youtube_link && (
                       <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold truncate group-hover:text-green-400 transition-colors">
-                      {item.song?.singer} - {item.song?.title}
+                      {item.song.singer} - {item.song.title}
                     </h3>
-                    <p className="text-sm text-gray-400">{item.role?.join(', ')}</p>
-                    {item.song?.date && (
+                    <p className="text-sm text-gray-400">{item.role.join(', ')}</p>
+                    {item.song.date && (
                       <p className="text-xs text-gray-500 mt-1">
                         {new Date(item.song.date).toLocaleDateString()}
                       </p>
@@ -316,23 +409,29 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </a>
               ))}
             </div>
+            {getChoreographyData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Media */}
         {portfolio.media && portfolio.media.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Media</h2>
-              <button
-                onClick={() => openModal('media', 'Media', getMediaData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Media"
+              sortOrder={sortOrders.media}
+              onToggleSort={() => toggleSortOrder('media')}
+            />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {[...portfolio.media].sort((a, b) => a.display_order - b.display_order).slice(0, 8).map((item, index) => (
+              {getMediaData().slice(0, 4).map((item, index) => (
                 <a
                   key={index}
                   href={item.youtube_link}
@@ -345,7 +444,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                   </div>
                   <p className="text-sm text-white mt-1 truncate">{item.title}</p>
                   <p className="text-xs text-gray-400 truncate">
-                    {item.role}
+                    {item.role.join(', ')}
                     {item.video_date && (
                       <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
                     )}
@@ -353,94 +452,124 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </a>
               ))}
             </div>
+            {getMediaData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('media', 'Media', getMediaData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Directing */}
         {portfolio.directing && portfolio.directing.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Directing</h2>
-              <button
-                onClick={() => openModal('directing', 'Directing', getDirectingData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Directing"
+              sortOrder={sortOrders.directing}
+              onToggleSort={() => toggleSortOrder('directing')}
+            />
             <div className="space-y-3">
-              {portfolio.directing.slice(0, 5).map((item, index) => (
+              {getDirectingData().slice(0, 4).map((item, index) => (
                 <div key={index} className="p-4 bg-white/5 rounded-lg">
-                  <h3 className="font-semibold">{item.directing?.title}</h3>
-                  {item.directing?.date && (
+                  <h3 className="font-semibold">{item.title}</h3>
+                  {item.date && (
                     <p className="text-sm text-gray-400 mt-1">
-                      {new Date(item.directing.date).getFullYear()}.{String(new Date(item.directing.date).getMonth() + 1).padStart(2, '0')}
+                      {new Date(item.date).getFullYear()}.{String(new Date(item.date).getMonth() + 1).padStart(2, '0')}
                     </p>
                   )}
                 </div>
               ))}
             </div>
+            {getDirectingData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('directing', 'Directing', getDirectingData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Performances */}
         {portfolio.performances && portfolio.performances.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Performances</h2>
-              <button
-                onClick={() => openModal('performances', 'Performances', getPerformancesData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Performances"
+              sortOrder={sortOrders.performances}
+              onToggleSort={() => toggleSortOrder('performances')}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {portfolio.performances.slice(0, 4).map((item, index) => (
+              {getPerformancesData().slice(0, 4).map((item, index) => (
                 <div
                   key={index}
                   className="p-6 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
                 >
-                  <h3 className="font-semibold text-lg mb-2">{item.performance?.performance_title}</h3>
-                  {item.performance?.date && (
+                  <h3 className="font-semibold text-lg mb-2">{item.performance_title}</h3>
+                  {item.date && (
                     <p className="text-sm text-gray-400">
-                      {new Date(item.performance.date).toLocaleDateString()}
+                      {new Date(item.date).toLocaleDateString()}
                     </p>
                   )}
-                  {item.performance?.category && (
-                    <p className="text-xs text-gray-500 mt-1">{item.performance.category}</p>
+                  {item.category && (
+                    <p className="text-xs text-gray-500 mt-1">{item.category}</p>
                   )}
                 </div>
               ))}
             </div>
+            {getPerformancesData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('performances', 'Performances', getPerformancesData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* Classes/Workshops */}
         {portfolio.workshops && portfolio.workshops.length > 0 && (
           <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Classes</h2>
-              <button
-                onClick={() => openModal('workshops', 'Classes & Workshops', getWorkshopsData())}
-                className="text-green-400 text-sm hover:underline"
-              >
-                View All →
-              </button>
-            </div>
+            <SectionHeaders
+              title="Classes"
+              sortOrder={sortOrders.workshops}
+              onToggleSort={() => toggleSortOrder('workshops')}
+            />
             <div className="space-y-3">
-              {portfolio.workshops.slice(0, 5).map((workshop, index) => (
+              {getWorkshopsData().slice(0, 4).map((workshop, index) => (
                 <div key={index} className="p-4 bg-white/5 rounded-lg">
                   <h3 className="font-semibold">{workshop.class_name}</h3>
                   <p className="text-sm text-gray-400 mt-1">
-                    {workshop.class_role?.join(', ')} • {workshop.country}
+                    {workshop.class_role.join(', ')} • {workshop.country}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(workshop.class_date).getFullYear()}.{String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
-                  </p>
+                  {workshop.class_date && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(workshop.class_date).getFullYear()}.{String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
+            {getWorkshopsData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('workshops', 'Classes & Workshops', getWorkshopsData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
           </section>
         )}
       </div>
