@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-export async function PUT(
+export async function PUT(   ///async, await = db에서 데이터 가져올 시간 기다리기 timesleep
   request: NextRequest,
-  { params }: { params: Promise<{ artist_id: string }> }
+  { params }: { params: Promise<{ artist_id: string }> }   ///URL에서 가져온 변수 
 ) {
   try {
+    console.log("PATH =", request.nextUrl.pathname);  //url 경로 출력
+    console.log("PARAMS =", params);  // 파라미터값 출력  ex. artist_id
+
     const { artist_id } = await params;
-    const body = await request.json();
-    const { choreography } = body;
+    console.log('PUT /choreo artist_id =', artist_id); //artist_id 로그
+
+    const body = await request.json(); //body 파싱
+    const { choreography } = body;   // body 내부 choregraphy 필드 꺼내기 
 
     // Get auth token from request headers
     const authHeader = request.headers.get('authorization');
+    console.log('AUTH HEADER =', authHeader); //author 로그
+
     if (!authHeader) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -32,10 +39,12 @@ export async function PUT(
 
     // Update choreography items
     if (choreography && Array.isArray(choreography)) {
-      const { data: existingChoreo } = await authClient
+      const { data: existingChoreo, error: existingError } = await authClient
         .from('dancer_choreo')
         .select('song_id, role, is_highlight, display_order')
         .eq('artist_id', artist_id);
+      
+      console.log('EXISTING CHOREO =', existingChoreo,'ERROR =', existingError);   
 
       const existingSongIds = new Set(
         existingChoreo?.map((item) => item.song_id) || []
