@@ -12,6 +12,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { CSS } from '@dnd-kit/utilities';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
+import { MediaItem } from '@/types/portfolio';
 
 // Types
 interface Song {
@@ -29,15 +30,15 @@ interface ChoreographyItem {
   display_order: number;
 }
 
-interface MediaItem {
-  media_id?: string;
-  youtube_link: string;
-  role?: string;
-  is_highlight: boolean;
-  display_order: number;
-  title: string;
-  video_date: Date | string;
-}
+// interface MediaItem {
+//   media_id?: string;
+//   youtube_link: string;
+//   role?: string;
+//   is_highlight: boolean;
+//   display_order: number;
+//   title: string;
+//   video_date: Date | string;
+// }
 
 interface Performance {
   performance_title: string;
@@ -709,7 +710,7 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
       role: data.role,
       is_highlight: false,
       display_order: media.length,
-      video_date: data.video_date || new Date().toISOString().split('T')[0],
+      video_date: new Date(data.video_date as string) || new Date().toISOString().split('T')[0],
     };
     setMedia([...media, newItem]);
   };

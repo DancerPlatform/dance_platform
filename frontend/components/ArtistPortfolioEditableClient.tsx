@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Instagram, Twitter, Youtube, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { PortfolioModal, PortfolioSectionType } from './PortfolioModal';
 import { ArtistPortfolio } from './ArtistPortfolioClient';
 import {
@@ -127,7 +127,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveMedia = async (media: any[]) => {
+  const handleSaveMedia = async (media: MediaItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -269,32 +269,6 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  // Transform data for modal (same as original component)
-  const getChoreographyData = () => {
-    return portfolio.choreography.map(item => ({
-      song: {
-        title: item.song?.title || '',
-        singer: item.song?.singer || '',
-        youtube_link: item.song?.youtube_link || null,
-        date: item.song?.date || null,
-      },
-      role: item.role || [],
-      is_highlight: item.is_highlight,
-      display_order: item.display_order,
-    }));
-  };
-
-  const getMediaData = () => {
-    return portfolio.media.map(item => ({
-      youtube_link: item.youtube_link,
-      role: item.role ? [item.role] : [],
-      is_highlight: item.is_highlight,
-      display_order: item.display_order,
-      title: item.title,
-      video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
-    }));
-  };
-
   const getHighlightsData = () => {
     const choreoHighlights = portfolio.choreography
       .filter(item => item.is_highlight)
@@ -319,42 +293,6 @@ export function ArtistPortfolioEditableClient({
       }));
 
     return [...choreoHighlights, ...mediaHighlights].sort((a, b) => a.display_order - b.display_order);
-  };
-
-  const getDirectingData = () => {
-    return portfolio.directing
-      .filter(item => item.directing)
-      .map(item => ({
-        title: item.directing!.title,
-        date: item.directing!.date,
-      }));
-  };
-
-  const getPerformancesData = () => {
-    return portfolio.performances
-      .filter(item => item.performance)
-      .map(item => ({
-        performance_title: item.performance!.performance_title,
-        date: item.performance!.date,
-        category: item.performance!.category || null,
-      }));
-  };
-
-  const getWorkshopsData = () => {
-    return portfolio.workshops.map(workshop => ({
-      class_name: workshop.class_name,
-      class_role: workshop.class_role || [],
-      country: workshop.country,
-      class_date: workshop.class_date,
-    }));
-  };
-
-  const getAwardsData = () => {
-    return portfolio.awards.map(award => ({
-      award_title: award.award_title,
-      issuing_org: award.issuing_org,
-      received_date: award.received_date,
-    }));
   };
 
   return (
@@ -459,7 +397,7 @@ export function ArtistPortfolioEditableClient({
                     href={item.youtube_link || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group w-[240px] sm:w-[320px] shrink-0"
+                    className="group w-60 sm:w-[320px] shrink-0"
                   >
                     <div className="overflow-hidden rounded-xl sm:rounded-2xl bg-zinc-900">
                       {item.youtube_link && (
