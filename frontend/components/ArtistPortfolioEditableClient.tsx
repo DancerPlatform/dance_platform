@@ -401,34 +401,33 @@ export function ArtistPortfolioEditableClient({
         </div>
       </div>
 
-      {/* Team Info */}
-      {portfolio.teams && portfolio.teams.length > 0 && (
-        <div className="">
-          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-4 py-2">
-            <div className="flex -space-x-2">
-              {portfolio.teams.map((membership, idx) => (
-                <div key={idx} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden">
-                  {membership.team?.leader?.photo?.photo && (
-                    <Image
-                      src={membership.team.leader.photo.photo}
-                      alt={membership.team.leader.name || 'Team member'}
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            <span className="text-sm font-medium">
-              {portfolio.teams[0]?.team?.team_name}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-16">
+        {/* Team Info */}
+          {portfolio.teams && portfolio.teams.length > 0 && (
+            <div className="flex w-full items-center gap-3">
+              <div className="size-20 rounded-sm overflow-hidden shrink-0">
+                {portfolio.teams[0]?.team?.photo && (
+                  <Image
+                    src={portfolio.teams[0].team.photo}
+                    alt={portfolio.teams[0].team.team_name}
+                    width={100}
+                    height={100}
+                    className="object-cover w-full h-full"
+                  />
+                )}
+              </div>
+              <div className="flex flex-col justify-between h-20">
+                <p className="text-xs bg-gray-400 text-black w-fit px-1 rounded-xs font-bold">Team</p>
+                <p className="text-md text-white">
+                  {portfolio.teams[0]?.team?.team_name}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {portfolio.teams[0]?.team?.leader?.artist_id == portfolio.artist_id ? "리더" : "멤버"}
+                </p>
+              </div>
+            </div>
+          )}
         {/* Social Links */}
         <section>
           <div className="flex gap-4 sm:gap-6 justify-center">

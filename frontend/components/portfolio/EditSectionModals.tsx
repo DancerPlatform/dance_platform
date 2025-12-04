@@ -139,10 +139,10 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${artistId}-${Date.now()}.${fileExt}`;
-      const filePath = `artist-profiles/${fileName}`;
+      const filePath = `profile_pictures/${fileName}`;
 
       const { error } = await supabase.storage
-        .from('artist-images')
+        .from('profile_pictures')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false
@@ -155,7 +155,7 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('artist-images')
+        .from('profile_pictures')
         .getPublicUrl(filePath);
 
       setPhoto(publicUrl);
