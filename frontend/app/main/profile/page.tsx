@@ -3,9 +3,11 @@
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ProfilePage() {
-  const { user, profile, artistUser, loading, signOut } = useAuth();
+  const { user, profile, artistUser, signOut, loading } = useAuth();
+
 
   // Show loading state
   if (loading) {
@@ -19,7 +21,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Show login prompt if not authenticated
   if (!user || !profile) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-6">
@@ -51,8 +52,18 @@ export default function ProfilePage() {
         {/* Profile Section */}
         <div className="flex flex-col items-center pt-8">
           {/* Profile Image */}
-          <div className="size-30 rounded-full bg-zinc-400 flex items-center justify-center mb-6">
-            <User className="size-16 text-zinc-300" strokeWidth={1.5} />
+          <div className="size-30 rounded-full bg-zinc-400 flex items-center justify-center mb-6 overflow-hidden">
+            {artistUser.portfolio_photo ? (
+              <Image
+                src={artistUser.portfolio_photo}
+                alt={artistUser.name}
+                width={120}
+                height={120}
+                className="size-full object-cover object-top"
+              />
+            ) : (
+              <User className="size-16 text-zinc-300" strokeWidth={1.5} />
+            )}
           </div>
 
           {/* Username */}

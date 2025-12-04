@@ -110,6 +110,7 @@ export async function signOut() {
  * Get the current user's profile
  */
 export async function getUserProfile(authId: string): Promise<UserProfile | null> {
+  console.log("Received Auth Id", authId)
   const { data, error } = await supabase
     .from('user_profiles')
     .select('*')
@@ -148,7 +149,10 @@ export async function getClientUser(authId: string): Promise<ClientUser | null> 
 export async function getArtistUser(authId: string): Promise<ArtistUser | null> {
   const { data, error } = await supabase
     .from('artist_user')
-    .select('*')
+    .select(`
+      *,
+      portfolio:artist_portfolio(photo)
+    `)
     .eq('auth_id', authId)
     .single()
 
@@ -157,7 +161,13 @@ export async function getArtistUser(authId: string): Promise<ArtistUser | null> 
     return null
   }
 
-  return data
+  // Extract the photo from the portfolio join
+  const portfolioPhoto = (data as any)?.portfolio?.photo || null
+
+  return {
+    ...data,
+    portfolio_photo: portfolioPhoto
+  }
 }
 
 /**
@@ -183,6 +193,7 @@ export async function getNormalUser(authId: string): Promise<NormalUser | null> 
  */
 export async function getCompleteUserData(authId: string) {
   const profile = await getUserProfile(authId)
+  console.log("Profile")
 
   if (!profile) {
     return { profile: null, userData: null }

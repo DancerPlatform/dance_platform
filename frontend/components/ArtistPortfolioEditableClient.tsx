@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Instagram, Twitter, Youtube, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { PortfolioModal, PortfolioSectionType } from './PortfolioModal';
 import { ArtistPortfolio } from './ArtistPortfolioClient';
 import {
@@ -16,27 +16,9 @@ import {
 } from './portfolio/EditSectionModals';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-
-function extractYouTubeId(url: string): string | null {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-}
-
-function YouTubeThumbnail({ url, title }: { url: string; title?: string }) {
-  const videoId = extractYouTubeId(url);
-  if (!videoId) return null;
-  return (
-    <div className="relative w-full aspect-video bg-black overflow-hidden">
-      <Image
-        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-        alt={title || 'Video thumbnail'}
-        fill
-        className="object-cover object-center"
-      />
-    </div>
-  );
-}
+import YouTubeThumbnail from './YoutubeThumbnail';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
+import SocialSection from './portfolio/SocialSection';
 
 export function ArtistPortfolioEditableClient({
   portfolio: initialPortfolio,
@@ -70,19 +52,6 @@ export function ArtistPortfolioEditableClient({
 
   const highlights = portfolio.choreography?.filter(item => item.is_highlight) || [];
   const highlightMedia = portfolio.media?.filter(item => item.is_highlight) || [];
-
-  const openModal = (
-    sectionType: PortfolioSectionType,
-    sectionTitle: string,
-    data: any[]
-  ) => {
-    setModalState({
-      isOpen: true,
-      sectionType,
-      sectionTitle,
-      data,
-    });
-  };
 
   const closeModal = () => {
     setModalState({
@@ -130,7 +99,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveChoreography = async (choreography: any[]) => {
+  const handleSaveChoreography = async (choreography: ChoreographyItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -158,7 +127,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveMedia = async (media: any[]) => {
+  const handleSaveMedia = async (media: MediaItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -188,7 +157,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSavePerformances = async (performances: any[]) => {
+  const handleSavePerformances = async (performances: PerformanceItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -216,7 +185,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveDirecting = async (directing: any[]) => {
+  const handleSaveDirecting = async (directing: DirectingItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -244,7 +213,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveWorkshops = async (workshops: any[]) => {
+  const handleSaveWorkshops = async (workshops: Workshop[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -272,7 +241,7 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const handleSaveAwards = async (awards: any[]) => {
+  const handleSaveAwards = async (awards: Award[]) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('로그인이 필요합니다.');
@@ -300,32 +269,6 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  // Transform data for modal (same as original component)
-  const getChoreographyData = () => {
-    return portfolio.choreography.map(item => ({
-      song: {
-        title: item.song?.title || '',
-        singer: item.song?.singer || '',
-        youtube_link: item.song?.youtube_link || null,
-        date: item.song?.date || null,
-      },
-      role: item.role || [],
-      is_highlight: item.is_highlight,
-      display_order: item.display_order,
-    }));
-  };
-
-  const getMediaData = () => {
-    return portfolio.media.map(item => ({
-      youtube_link: item.youtube_link,
-      role: item.role ? [item.role] : [],
-      is_highlight: item.is_highlight,
-      display_order: item.display_order,
-      title: item.title,
-      video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
-    }));
-  };
-
   const getHighlightsData = () => {
     const choreoHighlights = portfolio.choreography
       .filter(item => item.is_highlight)
@@ -350,42 +293,6 @@ export function ArtistPortfolioEditableClient({
       }));
 
     return [...choreoHighlights, ...mediaHighlights].sort((a, b) => a.display_order - b.display_order);
-  };
-
-  const getDirectingData = () => {
-    return portfolio.directing
-      .filter(item => item.directing)
-      .map(item => ({
-        title: item.directing!.title,
-        date: item.directing!.date,
-      }));
-  };
-
-  const getPerformancesData = () => {
-    return portfolio.performances
-      .filter(item => item.performance)
-      .map(item => ({
-        performance_title: item.performance!.performance_title,
-        date: item.performance!.date,
-        category: item.performance!.category || null,
-      }));
-  };
-
-  const getWorkshopsData = () => {
-    return portfolio.workshops.map(workshop => ({
-      class_name: workshop.class_name,
-      class_role: workshop.class_role || [],
-      country: workshop.country,
-      class_date: workshop.class_date,
-    }));
-  };
-
-  const getAwardsData = () => {
-    return portfolio.awards.map(award => ({
-      award_title: award.award_title,
-      issuing_org: award.issuing_org,
-      received_date: award.received_date,
-    }));
   };
 
   return (
@@ -433,69 +340,39 @@ export function ArtistPortfolioEditableClient({
         </div>
       </div>
 
-      {/* Team Info */}
-      {portfolio.teams && portfolio.teams.length > 0 && (
-        <div className="">
-          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-4 py-2">
-            <div className="flex -space-x-2">
-              {portfolio.teams.map((membership, idx) => (
-                <div key={idx} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden">
-                  {membership.team?.leader?.photo?.photo && (
-                    <Image
-                      src={membership.team.leader.photo.photo}
-                      alt={membership.team.leader.name || 'Team member'}
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            <span className="text-sm font-medium">
-              {portfolio.teams[0]?.team?.team_name}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-16">
+        {/* Team Info */}
+          {portfolio.teams && portfolio.teams.length > 0 && (
+            <div className="flex w-full items-center gap-3">
+              <div className="size-20 rounded-sm overflow-hidden shrink-0">
+                {portfolio.teams[0]?.team?.photo && (
+                  <Image
+                    src={portfolio.teams[0].team.photo}
+                    alt={portfolio.teams[0].team.team_name}
+                    width={100}
+                    height={100}
+                    className="object-cover w-full h-full"
+                  />
+                )}
+              </div>
+              <div className="flex flex-col justify-between h-20">
+                <p className="text-xs bg-gray-400 text-black w-fit px-1 rounded-xs font-bold">Team</p>
+                <p className="text-md text-white">
+                  {portfolio.teams[0]?.team?.team_name}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {portfolio.teams[0]?.team?.leader?.artist_id == portfolio.artist_id ? "리더" : "멤버"}
+                </p>
+              </div>
+            </div>
+          )}
         {/* Social Links */}
-        <section>
-          <div className="flex gap-4 sm:gap-6 justify-center">
-            {portfolio.instagram && (
-              <a
-                href={portfolio.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Instagram className="w-5 h-5 sm:w-6 sm:h-6" />
-              </a>
-            )}
-            {portfolio.twitter && (
-              <a
-                href={portfolio.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Twitter className="w-5 h-5 sm:w-6 sm:h-6" />
-              </a>
-            )}
-            {portfolio.youtube && (
-              <a
-                href={portfolio.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Youtube className="w-5 h-5 sm:w-6 sm:h-6" />
-              </a>
-            )}
-          </div>
-        </section>
+        <SocialSection 
+          instagram={portfolio.instagram}
+          twitter={portfolio.twitter}
+          youtube={portfolio.youtube}
+        />
 
         {/* Introduction */}
         {portfolio.introduction && (
@@ -520,7 +397,7 @@ export function ArtistPortfolioEditableClient({
                     href={item.youtube_link || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group w-[240px] sm:w-[320px] shrink-0"
+                    className="group w-60 sm:w-[320px] shrink-0"
                   >
                     <div className="overflow-hidden rounded-xl sm:rounded-2xl bg-zinc-900">
                       {item.youtube_link && (

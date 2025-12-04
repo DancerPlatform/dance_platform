@@ -25,6 +25,7 @@ export interface ArtistUser {
   phone: string | null
   birth: string | null
   auth_id: string | null
+  portfolio_photo?: string | null
 }
 
 export interface NormalUser {

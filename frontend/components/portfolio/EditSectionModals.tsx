@@ -12,6 +12,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { CSS } from '@dnd-kit/utilities';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
+import { MediaItem } from '@/types/portfolio';
 
 // Types
 interface Song {
@@ -29,15 +30,15 @@ interface ChoreographyItem {
   display_order: number;
 }
 
-interface MediaItem {
-  media_id?: string;
-  youtube_link: string;
-  role?: string;
-  is_highlight: boolean;
-  display_order: number;
-  title: string;
-  video_date: Date | string;
-}
+// interface MediaItem {
+//   media_id?: string;
+//   youtube_link: string;
+//   role?: string;
+//   is_highlight: boolean;
+//   display_order: number;
+//   title: string;
+//   video_date: Date | string;
+// }
 
 interface Performance {
   performance_title: string;
@@ -139,10 +140,10 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${artistId}-${Date.now()}.${fileExt}`;
-      const filePath = `artist-profiles/${fileName}`;
+      const filePath = `profile_pictures/${fileName}`;
 
       const { error } = await supabase.storage
-        .from('artist-images')
+        .from('profile_pictures')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false
@@ -155,7 +156,7 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('artist-images')
+        .from('profile_pictures')
         .getPublicUrl(filePath);
 
       setPhoto(publicUrl);
@@ -709,7 +710,7 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
       role: data.role,
       is_highlight: false,
       display_order: media.length,
-      video_date: data.video_date || new Date().toISOString().split('T')[0],
+      video_date: new Date(data.video_date as string) || new Date().toISOString().split('T')[0],
     };
     setMedia([...media, newItem]);
   };
@@ -893,10 +894,71 @@ interface PerformancesEditModalProps {
   initialData: PerformanceItem[];
 }
 
+function PerformanceSortableItem({
+  id,
+  item,
+  onRemove,
+}: {
+  id: string;
+  item: PerformanceItem;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="p-6 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+      >
+        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+      </button>
+      <div className="flex-1">
+        <h3 className="font-semibold text-lg mb-2">{item.performance?.performance_title}</h3>
+        {item.performance?.date && (
+          <p className="text-sm text-gray-400">
+            {new Date(item.performance.date).toLocaleDateString()}
+          </p>
+        )}
+        {item.performance?.category && (
+          <p className="text-xs text-gray-500 mt-1">{item.performance.category}</p>
+        )}
+      </div>
+      <button
+        onClick={onRemove}
+        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
 export function PerformancesEditModal({ isOpen, onClose, onSave, initialData }: PerformancesEditModalProps) {
   const [performances, setPerformances] = useState<PerformanceItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = performances.findIndex((_, i) => `performance-${i}` === active.id);
+      const newIndex = performances.findIndex((_, i) => `performance-${i}` === over.id);
+      const newPerformances = arrayMove(performances, oldIndex, newIndex);
+      setPerformances(newPerformances);
+    }
+  };
 
   const remove = (index: number) => {
     setPerformances(performances.filter((_, i) => i !== index));
@@ -943,27 +1005,23 @@ export function PerformancesEditModal({ isOpen, onClose, onSave, initialData }: 
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <div className="grid grid-cols-1 gap-4">
-              {performances.map((item, index) => (
-                <div key={index} className="p-6 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors">
-                  <button
-                    onClick={() => remove(index)}
-                    className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <h3 className="font-semibold text-lg mb-2">{item.performance?.performance_title}</h3>
-                  {item.performance?.date && (
-                    <p className="text-sm text-gray-400">
-                      {new Date(item.performance.date).toLocaleDateString()}
-                    </p>
-                  )}
-                  {item.performance?.category && (
-                    <p className="text-xs text-gray-500 mt-1">{item.performance.category}</p>
-                  )}
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={performances.map((_, i) => `performance-${i}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="grid grid-cols-1 gap-4">
+                  {performances.map((item, index) => (
+                    <PerformanceSortableItem
+                      key={`performance-${index}`}
+                      id={`performance-${index}`}
+                      item={item}
+                      onRemove={() => remove(index)}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
             {performances.length === 0 && (
               <p className="text-center text-zinc-400 py-8 text-sm">공연이 없습니다. 추가 버튼을 눌러 추가해보세요.</p>
             )}
@@ -1080,10 +1138,69 @@ interface DirectingEditModalProps {
   initialData: DirectingItem[];
 }
 
+function DirectingSortableItem({
+  id,
+  item,
+  onRemove,
+}: {
+  id: string;
+  item: DirectingItem;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors flex gap-2 items-center">
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+      >
+        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+      </button>
+      <div className="flex-1">
+        <h3 className="font-semibold">{item.directing?.title}</h3>
+        {item.directing?.date && (
+          <p className="text-sm text-gray-400 mt-1">
+            {new Date(item.directing.date).getFullYear()}.
+            {String(new Date(item.directing.date).getMonth() + 1).padStart(2, '0')}
+          </p>
+        )}
+      </div>
+      <button
+        onClick={onRemove}
+        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
 export function DirectingEditModal({ isOpen, onClose, onSave, initialData }: DirectingEditModalProps) {
   const [directing, setDirecting] = useState<DirectingItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = directing.findIndex((_, i) => `directing-${i}` === active.id);
+      const newIndex = directing.findIndex((_, i) => `directing-${i}` === over.id);
+      const newDirecting = arrayMove(directing, oldIndex, newIndex);
+      setDirecting(newDirecting);
+    }
+  };
 
   const remove = (index: number) => {
     setDirecting(directing.filter((_, i) => i !== index));
@@ -1122,25 +1239,23 @@ export function DirectingEditModal({ isOpen, onClose, onSave, initialData }: Dir
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <div className="space-y-3">
-              {directing.map((item, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors">
-                  <button
-                    onClick={() => remove(index)}
-                    className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <h3 className="font-semibold">{item.directing?.title}</h3>
-                  {item.directing?.date && (
-                    <p className="text-sm text-gray-400 mt-1">
-                      {new Date(item.directing.date).getFullYear()}.
-                      {String(new Date(item.directing.date).getMonth() + 1).padStart(2, '0')}
-                    </p>
-                  )}
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={directing.map((_, i) => `directing-${i}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {directing.map((item, index) => (
+                    <DirectingSortableItem
+                      key={`directing-${index}`}
+                      id={`directing-${index}`}
+                      item={item}
+                      onRemove={() => remove(index)}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
             {directing.length === 0 && (
               <p className="text-center text-zinc-400 py-8 text-sm">연출 작품이 없습니다. 추가 버튼을 눌러 추가해보세요.</p>
             )}
@@ -1239,10 +1354,70 @@ interface WorkshopsEditModalProps {
   initialData: Workshop[];
 }
 
+function WorkshopSortableItem({
+  id,
+  item,
+  onRemove,
+}: {
+  id: string;
+  item: Workshop;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+      >
+        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+      </button>
+      <div className="flex-1">
+        <h3 className="font-semibold">{item.class_name}</h3>
+        <p className="text-sm text-gray-400 mt-1">
+          {item.class_role?.join(', ')} • {item.country}
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          {new Date(item.class_date).getFullYear()}.
+          {String(new Date(item.class_date).getMonth() + 1).padStart(2, '0')}
+        </p>
+      </div>
+      <button
+        onClick={onRemove}
+        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
 export function WorkshopsEditModal({ isOpen, onClose, onSave, initialData }: WorkshopsEditModalProps) {
   const [workshops, setWorkshops] = useState<Workshop[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = workshops.findIndex((_, i) => `workshop-${i}` === active.id);
+      const newIndex = workshops.findIndex((_, i) => `workshop-${i}` === over.id);
+      const newWorkshops = arrayMove(workshops, oldIndex, newIndex);
+      setWorkshops(newWorkshops);
+    }
+  };
 
   const remove = (index: number) => {
     setWorkshops(workshops.filter((_, i) => i !== index));
@@ -1278,26 +1453,23 @@ export function WorkshopsEditModal({ isOpen, onClose, onSave, initialData }: Wor
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <div className="space-y-3">
-              {workshops.map((workshop, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors">
-                  <button
-                    onClick={() => remove(index)}
-                    className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <h3 className="font-semibold">{workshop.class_name}</h3>
-                  <p className="text-sm text-gray-400 mt-1">
-                    {workshop.class_role?.join(', ')} • {workshop.country}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(workshop.class_date).getFullYear()}.
-                    {String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
-                  </p>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={workshops.map((_, i) => `workshop-${i}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {workshops.map((workshop, index) => (
+                    <WorkshopSortableItem
+                      key={`workshop-${index}`}
+                      id={`workshop-${index}`}
+                      item={workshop}
+                      onRemove={() => remove(index)}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
             {workshops.length === 0 && (
               <p className="text-center text-zinc-400 py-8 text-sm">워크샵이 없습니다. 추가 버튼을 눌러 추가해보세요.</p>
             )}
@@ -1425,10 +1597,67 @@ interface AwardsEditModalProps {
   initialData: Award[];
 }
 
+function AwardSortableItem({
+  id,
+  item,
+  onRemove,
+}: {
+  id: string;
+  item: Award;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+      >
+        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+      </button>
+      <div className="flex-1">
+        <h3 className="font-semibold">{item.award_title}</h3>
+        <p className="text-sm text-gray-400 mt-1">{item.issuing_org}</p>
+        <p className="text-xs text-gray-500 mt-1">
+          {new Date(item.received_date).toLocaleDateString()}
+        </p>
+      </div>
+      <button
+        onClick={onRemove}
+        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
 export function AwardsEditModal({ isOpen, onClose, onSave, initialData }: AwardsEditModalProps) {
   const [awards, setAwards] = useState<Award[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = awards.findIndex((_, i) => `award-${i}` === active.id);
+      const newIndex = awards.findIndex((_, i) => `award-${i}` === over.id);
+      const newAwards = arrayMove(awards, oldIndex, newIndex);
+      setAwards(newAwards);
+    }
+  };
 
   const remove = (index: number) => {
     setAwards(awards.filter((_, i) => i !== index));
@@ -1464,23 +1693,23 @@ export function AwardsEditModal({ isOpen, onClose, onSave, initialData }: Awards
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <div className="space-y-3">
-              {awards.map((award, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors">
-                  <button
-                    onClick={() => remove(index)}
-                    className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/50 hover:bg-red-500/70 rounded"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <h3 className="font-semibold">{award.award_title}</h3>
-                  <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(award.received_date).toLocaleDateString()}
-                  </p>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={awards.map((_, i) => `award-${i}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {awards.map((award, index) => (
+                    <AwardSortableItem
+                      key={`award-${index}`}
+                      id={`award-${index}`}
+                      item={award}
+                      onRemove={() => remove(index)}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
             {awards.length === 0 && (
               <p className="text-center text-zinc-400 py-8 text-sm">수상 경력이 없습니다. 추가 버튼을 눌러 추가해보세요.</p>
             )}

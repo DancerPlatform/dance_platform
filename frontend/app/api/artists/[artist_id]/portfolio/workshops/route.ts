@@ -38,14 +38,16 @@ export async function PUT(
         .delete()
         .eq('artist_id', artist_id);
 
-      // Insert new workshops
-      for (const workshop of workshops) {
+      // Insert new workshops with display_order
+      for (let index = 0; index < workshops.length; index++) {
+        const workshop = workshops[index];
         await authClient.from('workshop').insert({
           artist_id,
           class_name: workshop.class_name,
           class_date: workshop.class_date,
           country: workshop.country,
           class_role: workshop.class_role || null,
+          display_order: index,
         });
       }
     }

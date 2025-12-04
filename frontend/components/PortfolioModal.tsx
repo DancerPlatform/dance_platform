@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,8 @@ export type PortfolioSectionType =
   | 'performances'
   | 'workshops'
   | 'awards';
+
+type SortOrder = 'display_order' | 'date';
 
 export interface Song {
   title: string;
@@ -87,21 +90,79 @@ export function PortfolioModal({
   sectionTitle,
   data,
 }: PortfolioModalProps) {
+  const [sortOrder, setSortOrder] = useState<SortOrder>('display_order');
+
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'display_order' ? 'date' : 'display_order');
+  };
+
+  // Sorting functions
+  const sortByDate = (items: any[]) => {
+    return [...items].sort((a, b) => {
+      let dateA = 0;
+      let dateB = 0;
+
+      // Handle different date field names
+      if ('video_date' in a && a.video_date) {
+        dateA = new Date(a.video_date).getTime();
+      } else if ('date' in a && a.date) {
+        dateA = new Date(a.date).getTime();
+      } else if ('class_date' in a && a.class_date) {
+        dateA = new Date(a.class_date).getTime();
+      } else if ('song' in a && a.song?.date) {
+        dateA = new Date(a.song.date).getTime();
+      } else if ('received_date' in a && a.received_date) {
+        dateA = new Date(a.received_date).getTime();
+      }
+
+      if ('video_date' in b && b.video_date) {
+        dateB = new Date(b.video_date).getTime();
+      } else if ('date' in b && b.date) {
+        dateB = new Date(b.date).getTime();
+      } else if ('class_date' in b && b.class_date) {
+        dateB = new Date(b.class_date).getTime();
+      } else if ('song' in b && b.song?.date) {
+        dateB = new Date(b.song.date).getTime();
+      } else if ('received_date' in b && b.received_date) {
+        dateB = new Date(b.received_date).getTime();
+      }
+
+      return dateB - dateA; // Most recent first
+    });
+  };
+
+  const sortByDisplayOrder = (items: any[]) => {
+    return [...items].sort((a, b) => {
+      const orderA = a.display_order ?? Infinity;
+      const orderB = b.display_order ?? Infinity;
+      return orderA - orderB;
+    });
+  };
+
+  const getSortedData = () => {
+    if (sortOrder === 'date') {
+      return sortByDate(data as any[]);
+    }
+    return sortByDisplayOrder(data as any[]);
+  };
+
   const renderContent = () => {
+    const sortedData = getSortedData();
+
     switch (sectionType) {
       case 'highlights':
       case 'media':
-        return renderMediaContent(data as MediaItem[]);
+        return renderMediaContent(sortedData as MediaItem[]);
       case 'choreographies':
-        return renderChoreographyContent(data as ChoreographyItem[]);
+        return renderChoreographyContent(sortedData as ChoreographyItem[]);
       case 'directing':
-        return renderDirectingContent(data as DirectingItem[]);
+        return renderDirectingContent(sortedData as DirectingItem[]);
       case 'performances':
-        return renderPerformancesContent(data as PerformanceItem[]);
+        return renderPerformancesContent(sortedData as PerformanceItem[]);
       case 'workshops':
-        return renderWorkshopsContent(data as WorkshopItem[]);
+        return renderWorkshopsContent(sortedData as WorkshopItem[]);
       case 'awards':
-        return renderAwardsContent(data as AwardItem[]);
+        return renderAwardsContent(sortedData as AwardItem[]);
       default:
         return null;
     }
@@ -323,17 +384,35 @@ export function PortfolioModal({
     );
   };
 
-  const extractYouTubeId = (url: string): string => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : '';
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{sectionTitle}</DialogTitle>
+          <div className="flex justify-between items-center">
+            <DialogTitle className="text-2xl">{sectionTitle}</DialogTitle>
+            <div className="flex gap-2">
+              <button
+                onClick={toggleSortOrder}
+                className={`text-xs px-3 py-1 rounded-full transition-colors ${
+                  sortOrder === 'display_order'
+                    ? 'bg-green-400 text-black font-semibold'
+                    : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                }`}
+              >
+                Order
+              </button>
+              <button
+                onClick={toggleSortOrder}
+                className={`text-xs px-3 py-1 rounded-full transition-colors ${
+                  sortOrder === 'date'
+                    ? 'bg-green-400 text-black font-semibold'
+                    : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                }`}
+              >
+                Date
+              </button>
+            </div>
+          </div>
         </DialogHeader>
         <div className="mt-4">
           {renderContent()}
