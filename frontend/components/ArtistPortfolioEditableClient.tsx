@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
+import SocialSection from './portfolio/SocialSection';
 
 export function ArtistPortfolioEditableClient({
   portfolio: initialPortfolio,
@@ -429,40 +430,11 @@ export function ArtistPortfolioEditableClient({
             </div>
           )}
         {/* Social Links */}
-        <section>
-          <div className="flex gap-4 sm:gap-6 justify-center">
-            {portfolio.instagram && (
-              <a
-                href={portfolio.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Instagram className="w-5 h-5 sm:w-6 sm:h-6" />
-              </a>
-            )}
-            {portfolio.twitter && (
-              <a
-                href={portfolio.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Twitter className="w-5 h-5 sm:w-6 sm:h-6" />
-              </a>
-            )}
-            {portfolio.youtube && (
-              <a
-                href={portfolio.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <Youtube className="w-5 h-5 sm:w-6 sm:h-6" />
-              </a>
-            )}
-          </div>
-        </section>
+        <SocialSection 
+          instagram={portfolio.instagram}
+          twitter={portfolio.twitter}
+          youtube={portfolio.youtube}
+        />
 
         {/* Introduction */}
         {portfolio.introduction && (
