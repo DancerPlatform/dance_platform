@@ -123,7 +123,7 @@ interface ProfileEditModalProps {
 }
 
 export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistId }: ProfileEditModalProps) {
-  const [artistName, setArtistName] = useState(initialData.artist_name);
+  const [artistName, setArtistName] = useState(initialData.artist_name || '');
   const [artistNameEng, setArtistNameEng] = useState(initialData.artist_name_eng || '');
   const [introduction, setIntroduction] = useState(initialData.introduction || '');
   const [photo, setPhoto] = useState(initialData.photo || '');
@@ -132,6 +132,17 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
   const [youtube, setYoutube] = useState(initialData.youtube || '');
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update state when initialData changes
+  useEffect(() => {
+    setArtistName(initialData.artist_name || '');
+    setArtistNameEng(initialData.artist_name_eng || '');
+    setIntroduction(initialData.introduction || '');
+    setPhoto(initialData.photo || '');
+    setInstagram(initialData.instagram || '');
+    setTwitter(initialData.twitter || '');
+    setYoutube(initialData.youtube || '');
+  }, [initialData]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
