@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
 import { Music } from 'lucide-react'
 import { signUp } from '@/lib/auth'
+import Link from 'next/link'
 
 export default function ArtistSignupPage() {
   const [formData, setFormData] = useState({
@@ -73,9 +74,9 @@ export default function ArtistSignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <Header />
-      <Card className="w-full max-w-md bg-black/80 px-4 py-20 border-white/20">
+      <div className="w-full max-w-md bg-black/80 py-20 border-white/20 flex flex-col gap-6">
         <CardHeader className="text-center text-white space-y-2">
           <div className="flex justify-center mb-2">
             <Music className="h-12 w-12 text-white" />
@@ -204,12 +205,12 @@ export default function ArtistSignupPage() {
           </form>
 
           <div className="mt-4 text-center">
-            <a href="/login/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/login/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
               Already have an account? Sign in
-            </a>
+            </Link>
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   )
 }
