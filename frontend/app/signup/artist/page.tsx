@@ -33,7 +33,80 @@ export default function ArtistSignupPage() {
     available: false,
     message: '',
   })
+  const [emailValidation, setEmailValidation] = useState<{
+    isChecking: boolean
+    checked: boolean
+    available: boolean
+    message: string
+  }>({
+    isChecking: false,
+    checked: false,
+    available: false,
+    message: '',
+  })
+  const [phoneValidation, setPhoneValidation] = useState<{
+    isChecking: boolean
+    checked: boolean
+    available: boolean
+    message: string
+  }>({
+    isChecking: false,
+    checked: false,
+    available: false,
+    message: '',
+  })
   const router = useRouter()
+
+  const checkFieldAvailability = async (field: 'email' | 'phone', value: string) => {
+    if (!value.trim()) {
+      return { checked: false, available: false, message: '' }
+    }
+
+    try {
+      const response = await fetch(`/api/check-user-field?field=${field}&value=${encodeURIComponent(value)}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to check ${field}`)
+      }
+
+      return {
+        checked: true,
+        available: data.available,
+        message: data.available
+          ? `This ${field} is available!`
+          : `This ${field} is already registered. Please use another one.`,
+      }
+    } catch (error) {
+      return {
+        checked: true,
+        available: false,
+        message: `Failed to check ${field} availability. Please try again.`,
+      }
+    }
+  }
+
+  const handleEmailBlur = async () => {
+    if (!formData.email.trim()) return
+
+    setEmailValidation(prev => ({ ...prev, isChecking: true }))
+    const result = await checkFieldAvailability('email', formData.email)
+    setEmailValidation({
+      isChecking: false,
+      ...result,
+    })
+  }
+
+  const handlePhoneBlur = async () => {
+    if (!formData.phone.trim()) return
+
+    setPhoneValidation(prev => ({ ...prev, isChecking: true }))
+    const result = await checkFieldAvailability('phone', formData.phone)
+    setPhoneValidation({
+      isChecking: false,
+      ...result,
+    })
+  }
 
   const handleCheckId = async () => {
     if (!formData.artistId.trim()) {
@@ -82,6 +155,20 @@ export default function ArtistSignupPage() {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+
+    // Validate email availability
+    if (emailValidation.checked && !emailValidation.available) {
+      setError('Email is already registered. Please use another email.')
+      setIsLoading(false)
+      return
+    }
+
+    // Validate phone availability if phone is provided
+    if (formData.phone.trim() && phoneValidation.checked && !phoneValidation.available) {
+      setError('Phone number is already registered. Please use another number.')
+      setIsLoading(false)
+      return
+    }
 
     // Validate artist ID is checked and available
     if (!formData.artistId.trim()) {
@@ -156,6 +243,26 @@ export default function ArtistSignupPage() {
         message: '',
       })
     }
+
+    // Reset email validation if email is changed
+    if (name === 'email' && emailValidation.checked) {
+      setEmailValidation({
+        isChecking: false,
+        checked: false,
+        available: false,
+        message: '',
+      })
+    }
+
+    // Reset phone validation if phone is changed
+    if (name === 'phone' && phoneValidation.checked) {
+      setPhoneValidation({
+        isChecking: false,
+        checked: false,
+        available: false,
+        message: '',
+      })
+    }
   }
 
   return (
@@ -208,10 +315,23 @@ export default function ArtistSignupPage() {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleEmailBlur}
                 required
-                disabled={isLoading}
+                disabled={isLoading || emailValidation.isChecking}
                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
               />
+              {emailValidation.isChecking && (
+                <p className="text-xs text-gray-400">Checking availability...</p>
+              )}
+              {emailValidation.checked && (
+                <p
+                  className={`text-xs ${
+                    emailValidation.available ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {emailValidation.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -264,9 +384,22 @@ export default function ArtistSignupPage() {
                 placeholder="Enter your phone number"
                 value={formData.phone}
                 onChange={handleChange}
-                disabled={isLoading}
+                onBlur={handlePhoneBlur}
+                disabled={isLoading || phoneValidation.isChecking}
                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
               />
+              {phoneValidation.isChecking && (
+                <p className="text-xs text-gray-400">Checking availability...</p>
+              )}
+              {phoneValidation.checked && (
+                <p
+                  className={`text-xs ${
+                    phoneValidation.available ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {phoneValidation.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
