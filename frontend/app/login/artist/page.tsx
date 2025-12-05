@@ -45,14 +45,14 @@ export default function ArtistLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-3">
       <Header />
-      <Card className="w-full max-w-md bg-black/80 px-4 py-20 border-white/20">
+      <Card className="w-full max-w-md bg-black/80 py-20 border-white/20">
         <CardHeader className="text-center text-white space-y-2">
-          <div className="flex justify-center mb-2">
+          {/* <div className="flex justify-center mb-2">
             <Music className="h-12 w-12 text-white" />
-          </div>
-          <CardTitle className="text-3xl">Dancer Login</CardTitle>
+          </div> */}
+          <CardTitle className="text-3xl">Login</CardTitle>
           <CardDescription className="text-gray-400">
             Sign in to your dancer account
           </CardDescription>
