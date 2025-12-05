@@ -1,12 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import { PermissionsModal } from '@/components/portfolio/PermissionsModal';
+import { ManagedPortfoliosModal } from '@/components/portfolio/ManagedPortfoliosModal';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, signOut, loading } = useAuth();
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+  const [isManagedPortfoliosModalOpen, setIsManagedPortfoliosModalOpen] = useState(false);
 
 
   // Show loading state
@@ -30,7 +35,7 @@ export default function ProfilePage() {
             마이페이지를 이용하려면 로그인이 필요합니다.
           </p>
           <Link
-            href="/login"
+            href="/login/artist"
             className="inline-block bg-white text-black px-8 py-3 rounded-full font-medium hover:bg-zinc-200 transition-colors"
           >
             로그인하기
@@ -98,8 +103,37 @@ export default function ProfilePage() {
             href={`/edit-portfolio/${artistUser.artist_id}`}
             className="block w-full px-6 py-6 text-left text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            포트폴리오 수정
+            내 포트폴리오 수정하기
           </Link>
+
+          {/* Add users that are allowed to edit my portfolio */}
+          <button
+            onClick={() => setIsPermissionsModalOpen(true)}
+            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+          >
+            포트폴리오 권한 설정
+          </button>
+
+          {/* View managed portfolios */}
+          <button
+            onClick={() => setIsManagedPortfoliosModalOpen(true)}
+            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+          >
+            관리중인 포트폴리오 보기
+          </button>
+
+          {/* Permissions Modal */}
+          <PermissionsModal
+            isOpen={isPermissionsModalOpen}
+            onClose={() => setIsPermissionsModalOpen(false)}
+            artistId={artistUser.artist_id}
+          />
+
+          {/* Managed Portfolios Modal */}
+          <ManagedPortfoliosModal
+            isOpen={isManagedPortfoliosModalOpen}
+            onClose={() => setIsManagedPortfoliosModalOpen(false)}
+          />
 
           {/* Logout Button */}
           <button

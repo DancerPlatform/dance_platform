@@ -252,7 +252,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               src={portfolio.photo}
               alt={portfolio.artist_name}
               fill
-              className="object-cover object-top blur-sm"
+              className="object-cover object-top"
               priority
             />
             <div className="absolute bottom-0 inset-0 bg-linear-to-b from-transparent via-black/50 to-black"></div>
@@ -261,7 +261,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
 
         {/* Artist Info Section */}
         <div className="absolute bottom-0 left-0 right-0 text-center flex flex-col items-center">
-          {portfolio.photo && (
+          {/* {portfolio.photo && (
             <div className="w-32 h-32 rounded-full overflow-hidden border border-white shadow-2xl mb-4">
               <Image
                 src={portfolio.photo}
@@ -272,7 +272,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 priority
               />
             </div>
-          )}
+          )} */}
           <h1 className="text-4xl font-bold mb-2">{portfolio.artist_name}</h1>
           {portfolio.artist_name_eng && (
             <p className="text-xl text-gray-300">{portfolio.artist_name_eng}</p>

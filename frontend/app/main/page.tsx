@@ -62,7 +62,7 @@ export default function MainPage() {
     <div className="min-h-screen bg-black text-white pb-10 select-none">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
-        <h1 className="text-3xl font-bold">dee&apos;tz</h1>
+        <h1 className="text-3xl font-bold">dee<span className='text-green-500'>&apos;</span>tz</h1>
         <button className="rounded-full" onClick={() => {router.push("/main/search")}}>
           <Search className='size-8'/>
         </button>
@@ -70,7 +70,7 @@ export default function MainPage() {
 
       <main className="space-y-8">
         {/* Banner Section - Full width on mobile, constrained on desktop */}
-        <section className="w-full">
+        {/* <section className="w-full">
           <div className="md:px-6 lg:px-8 px-6">
             <SlidingBanner
               items={bannerItems}
@@ -84,7 +84,7 @@ export default function MainPage() {
               loop={true}
             />
           </div>
-        </section>
+        </section> */}
 
         {/* Hero Section */}
         <section className="space-y-4 px-6">

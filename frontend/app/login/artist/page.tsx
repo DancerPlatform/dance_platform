@@ -1,17 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
-import { Music } from 'lucide-react'
+import { Check, Music } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
 export default function ArtistLoginPage() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -44,17 +45,18 @@ export default function ArtistLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-3">
       <Header />
-      <Card className="w-full max-w-md bg-black/80 px-4 py-20 border-white/20">
+      <Card className="w-full max-w-md bg-black/80 py-20 border-white/20">
         <CardHeader className="text-center text-white space-y-2">
-          <div className="flex justify-center mb-2">
+          {/* <div className="flex justify-center mb-2">
             <Music className="h-12 w-12 text-white" />
-          </div>
-          <CardTitle className="text-3xl">Dancer Login</CardTitle>
+          </div> */}
+          <CardTitle className="text-3xl">Login</CardTitle>
           <CardDescription className="text-gray-400">
             Sign in to your dancer account
           </CardDescription>
+          <p className={`w-full ${searchParams.get('signup') == "success" ? "block" : "hidden"} border border-green-700 bg-green-500/20 py-4 rounded-lg`}>Confirmation Mail Sent</p>
         </CardHeader>
 
         <CardContent>

@@ -421,20 +421,20 @@ export function ArtistPortfolioEditableClient({
         )}
 
         {/* Choreographies */}
-        {portfolio.choreography && portfolio.choreography.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-              <h2 className="text-2xl sm:text-3xl font-bold">Choreographies</h2>
-              <div className="flex gap-2 sm:gap-3 shrink-0">
-                <button
-                  onClick={() => setShowChoreographyEdit(true)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">편집</span>
-                </button>
-              </div>
+        <section>
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+            <h2 className="text-2xl sm:text-3xl font-bold">Choreographies</h2>
+            <div className="flex gap-2 sm:gap-3 shrink-0">
+              <button
+                onClick={() => setShowChoreographyEdit(true)}
+                className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">편집</span>
+              </button>
             </div>
+          </div>
+          {portfolio.choreography && portfolio.choreography.length > 0 ? (
             <div className="space-y-3 sm:space-y-4">
               {portfolio.choreography.slice(0, 5).map((item, index) => (
                 <a
@@ -468,24 +468,26 @@ export function ArtistPortfolioEditableClient({
                 </a>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-sm text-gray-400">아직 안무 작품이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          )}
+        </section>
 
         {/* Media */}
-        {portfolio.media && portfolio.media.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-              <h2 className="text-2xl sm:text-3xl font-bold">Media</h2>
-              <div className="flex gap-2 sm:gap-3 shrink-0">
-                <button
-                  onClick={() => setShowMediaEdit(true)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">편집</span>
-                </button>
-              </div>
+        <section>
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+            <h2 className="text-2xl sm:text-3xl font-bold">Media</h2>
+            <div className="flex gap-2 sm:gap-3 shrink-0">
+              <button
+                onClick={() => setShowMediaEdit(true)}
+                className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">편집</span>
+              </button>
             </div>
+          </div>
+          {portfolio.media && portfolio.media.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {[...portfolio.media].sort((a, b) => a.display_order - b.display_order).slice(0, 8).map((item, index) => (
                 <a
@@ -513,24 +515,26 @@ export function ArtistPortfolioEditableClient({
                 </a>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-sm text-gray-400">아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          )}
+        </section>
 
         {/* Directing */}
-        {portfolio.directing && portfolio.directing.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-              <h2 className="text-2xl sm:text-3xl font-bold">Directing</h2>
-              <div className="flex gap-2 sm:gap-3 shrink-0">
-                <button
-                  onClick={() => setShowDirectingEdit(true)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">편집</span>
-                </button>
-              </div>
+        <section>
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+            <h2 className="text-2xl sm:text-3xl font-bold">Directing</h2>
+            <div className="flex gap-2 sm:gap-3 shrink-0">
+              <button
+                onClick={() => setShowDirectingEdit(true)}
+                className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">편집</span>
+              </button>
             </div>
+          </div>
+          {portfolio.directing && portfolio.directing.length > 0 ? (
             <div className="space-y-2 sm:space-y-3">
               {portfolio.directing.slice(0, 5).map((item, index) => (
                 <div key={index} className="p-3 sm:p-4 bg-white/5 rounded-lg">
@@ -543,24 +547,26 @@ export function ArtistPortfolioEditableClient({
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-sm text-gray-400">아직 연출 작품이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          )}
+        </section>
 
         {/* Performances */}
-        {portfolio.performances && portfolio.performances.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-              <h2 className="text-2xl sm:text-3xl font-bold">Performances</h2>
-              <div className="flex gap-2 sm:gap-3 shrink-0">
-                <button
-                  onClick={() => setShowPerformancesEdit(true)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">편집</span>
-                </button>
-              </div>
+        <section>
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+            <h2 className="text-2xl sm:text-3xl font-bold">Performances</h2>
+            <div className="flex gap-2 sm:gap-3 shrink-0">
+              <button
+                onClick={() => setShowPerformancesEdit(true)}
+                className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">편집</span>
+              </button>
             </div>
+          </div>
+          {portfolio.performances && portfolio.performances.length > 0 ? (
             <div className="grid grid-cols-1 gap-3 sm:gap-4">
               {portfolio.performances.slice(0, 4).map((item, index) => (
                 <div
@@ -579,24 +585,26 @@ export function ArtistPortfolioEditableClient({
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-sm text-gray-400">아직 공연 기록이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          )}
+        </section>
 
         {/* Classes/Workshops */}
-        {portfolio.workshops && portfolio.workshops.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-              <h2 className="text-2xl sm:text-3xl font-bold">Classes</h2>
-              <div className="flex gap-2 sm:gap-3 shrink-0">
-                <button
-                  onClick={() => setShowWorkshopsEdit(true)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="text-xs sm:text-sm">편집</span>
-                </button>
-              </div>
+        <section>
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+            <h2 className="text-2xl sm:text-3xl font-bold">Classes</h2>
+            <div className="flex gap-2 sm:gap-3 shrink-0">
+              <button
+                onClick={() => setShowWorkshopsEdit(true)}
+                className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">편집</span>
+              </button>
             </div>
+          </div>
+          {portfolio.workshops && portfolio.workshops.length > 0 ? (
             <div className="space-y-2 sm:space-y-3">
               {portfolio.workshops.slice(0, 5).map((workshop, index) => (
                 <div key={index} className="p-3 sm:p-4 bg-white/5 rounded-lg">
@@ -610,22 +618,24 @@ export function ArtistPortfolioEditableClient({
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-sm text-gray-400">아직 클래스 기록이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          )}
+        </section>
 
         {/* Awards */}
-        {portfolio.awards && portfolio.awards.length > 0 && (
-          <section>
-            <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-              <h2 className="text-2xl sm:text-3xl font-bold">Awards</h2>
-              <button
-                onClick={() => setShowAwardsEdit(true)}
-                className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
-              >
-                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="text-xs sm:text-sm">편집</span>
-              </button>
-            </div>
+        <section>
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+            <h2 className="text-2xl sm:text-3xl font-bold">Awards</h2>
+            <button
+              onClick={() => setShowAwardsEdit(true)}
+              className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
+            >
+              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm">편집</span>
+            </button>
+          </div>
+          {portfolio.awards && portfolio.awards.length > 0 ? (
             <div className="space-y-2 sm:space-y-3">
               {portfolio.awards.map((award, index) => (
                 <div key={index} className="p-3 sm:p-4 bg-white/5 rounded-lg">
@@ -637,8 +647,10 @@ export function ArtistPortfolioEditableClient({
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-sm text-gray-400">아직 수상 경력이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          )}
+        </section>
       </div>
 
       {/* View All Modal */}
@@ -658,13 +670,13 @@ export function ArtistPortfolioEditableClient({
         onClose={() => setShowProfileEdit(false)}
         onSave={handleSaveProfile}
         initialData={{
-          artist_name: portfolio.artist_name,
-          artist_name_eng: portfolio.artist_name_eng,
-          introduction: portfolio.introduction,
-          photo: portfolio.photo,
-          instagram: portfolio.instagram,
-          twitter: portfolio.twitter,
-          youtube: portfolio.youtube,
+          artist_name: portfolio.artist_name || "",
+          artist_name_eng: portfolio.artist_name_eng || "",
+          introduction: portfolio.introduction || "",
+          photo: portfolio.photo || "",
+          instagram: portfolio.instagram || "",
+          twitter: portfolio.twitter || "",
+          youtube: portfolio.youtube || "",
         }}
         artistId={artistId}
       />

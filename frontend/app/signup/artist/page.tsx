@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
 import { Music } from 'lucide-react'
 import { signUp } from '@/lib/auth'
+import Link from 'next/link'
 
 export default function ArtistSignupPage() {
   const [formData, setFormData] = useState({
@@ -18,15 +19,175 @@ export default function ArtistSignupPage() {
     confirmPassword: '',
     phone: '',
     birth: '',
+    artistId: '',
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isCheckingId, setIsCheckingId] = useState(false)
+  const [idCheckResult, setIdCheckResult] = useState<{
+    checked: boolean
+    available: boolean
+    message: string
+  }>({
+    checked: false,
+    available: false,
+    message: '',
+  })
+  const [emailValidation, setEmailValidation] = useState<{
+    isChecking: boolean
+    checked: boolean
+    available: boolean
+    message: string
+  }>({
+    isChecking: false,
+    checked: false,
+    available: false,
+    message: '',
+  })
+  const [phoneValidation, setPhoneValidation] = useState<{
+    isChecking: boolean
+    checked: boolean
+    available: boolean
+    message: string
+  }>({
+    isChecking: false,
+    checked: false,
+    available: false,
+    message: '',
+  })
   const router = useRouter()
+
+  const checkFieldAvailability = async (field: 'email' | 'phone', value: string) => {
+    if (!value.trim()) {
+      return { checked: false, available: false, message: '' }
+    }
+
+    try {
+      const response = await fetch(`/api/check-user-field?field=${field}&value=${encodeURIComponent(value)}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to check ${field}`)
+      }
+
+      return {
+        checked: true,
+        available: data.available,
+        message: data.available
+          ? `This ${field} is available!`
+          : `This ${field} is already registered. Please use another one.`,
+      }
+    } catch (error) {
+      return {
+        checked: true,
+        available: false,
+        message: `Failed to check ${field} availability. Please try again.`,
+      }
+    }
+  }
+
+  const handleEmailBlur = async () => {
+    if (!formData.email.trim()) return
+
+    setEmailValidation(prev => ({ ...prev, isChecking: true }))
+    const result = await checkFieldAvailability('email', formData.email)
+    setEmailValidation({
+      isChecking: false,
+      ...result,
+    })
+  }
+
+  const handlePhoneBlur = async () => {
+    if (!formData.phone.trim()) return
+
+    setPhoneValidation(prev => ({ ...prev, isChecking: true }))
+    const result = await checkFieldAvailability('phone', formData.phone)
+    setPhoneValidation({
+      isChecking: false,
+      ...result,
+    })
+  }
+
+  const handleCheckId = async () => {
+    if (!formData.artistId.trim()) {
+      setIdCheckResult({
+        checked: true,
+        available: false,
+        message: 'Please enter an ID',
+      })
+      return
+    }
+
+    setIsCheckingId(true)
+    setIdCheckResult({
+      checked: false,
+      available: false,
+      message: '',
+    })
+
+    try {
+      const response = await fetch(`/api/check-artist-id?artist_id=${encodeURIComponent(formData.artistId)}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to check ID')
+      }
+
+      setIdCheckResult({
+        checked: true,
+        available: data.available,
+        message: data.available
+          ? 'This ID is available!'
+          : 'This ID is already taken. Please try another one.',
+      })
+    } catch (error) {
+      setIdCheckResult({
+        checked: true,
+        available: false,
+        message: 'Failed to check ID availability. Please try again.',
+      })
+    } finally {
+      setIsCheckingId(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+
+    // Validate email availability
+    if (emailValidation.checked && !emailValidation.available) {
+      setError('Email is already registered. Please use another email.')
+      setIsLoading(false)
+      return
+    }
+
+    // Validate phone availability if phone is provided
+    if (formData.phone.trim() && phoneValidation.checked && !phoneValidation.available) {
+      setError('Phone number is already registered. Please use another number.')
+      setIsLoading(false)
+      return
+    }
+
+    // Validate artist ID is checked and available
+    if (!formData.artistId.trim()) {
+      setError('Artist ID is required')
+      setIsLoading(false)
+      return
+    }
+
+    if (!idCheckResult.checked) {
+      setError('Please verify your Artist ID using the duplicate check button')
+      setIsLoading(false)
+      return
+    }
+
+    if (!idCheckResult.available) {
+      setError('Please choose an available Artist ID')
+      setIsLoading(false)
+      return
+    }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -50,6 +211,7 @@ export default function ArtistSignupPage() {
         name: formData.name,
         phone: formData.phone || undefined,
         birth: formData.birth || undefined,
+        artist_id: formData.artistId,
       }
     )
 
@@ -66,28 +228,59 @@ export default function ArtistSignupPage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }))
+
+    // Reset ID check result if artist ID is changed
+    if (name === 'artistId' && idCheckResult.checked) {
+      setIdCheckResult({
+        checked: false,
+        available: false,
+        message: '',
+      })
+    }
+
+    // Reset email validation if email is changed
+    if (name === 'email' && emailValidation.checked) {
+      setEmailValidation({
+        isChecking: false,
+        checked: false,
+        available: false,
+        message: '',
+      })
+    }
+
+    // Reset phone validation if phone is changed
+    if (name === 'phone' && phoneValidation.checked) {
+      setPhoneValidation({
+        isChecking: false,
+        checked: false,
+        available: false,
+        message: '',
+      })
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <Header />
-      <Card className="w-full max-w-md bg-black/80 px-4 py-20 border-white/20">
+      <div className="w-full max-w-md bg-black/80 py-20 border-white/20 flex flex-col gap-6">
         <CardHeader className="text-center text-white space-y-2">
-          <div className="flex justify-center mb-2">
+          {/* <div className="flex justify-center mb-2">
             <Music className="h-12 w-12 text-white" />
-          </div>
-          <CardTitle className="text-3xl">Dancer Sign Up</CardTitle>
+          </div> */}
+          <CardTitle className="text-3xl">Sign Up Now</CardTitle>
           <CardDescription className="text-gray-400">
             Create your dancer account
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 pb-10">
             {error && (
               <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-2 rounded">
                 {error}
@@ -122,10 +315,62 @@ export default function ArtistSignupPage() {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleEmailBlur}
                 required
-                disabled={isLoading}
+                disabled={isLoading || emailValidation.isChecking}
                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
               />
+              {emailValidation.isChecking && (
+                <p className="text-xs text-gray-400">Checking availability...</p>
+              )}
+              {emailValidation.checked && (
+                <p
+                  className={`text-xs ${
+                    emailValidation.available ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {emailValidation.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="artistId" className="text-white">
+                아이디 <span className="text-red-500">*</span>
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="artistId"
+                  name="artistId"
+                  type="text"
+                  placeholder="Enter your artist ID"
+                  value={formData.artistId}
+                  onChange={handleChange}
+                  required
+                  disabled={isLoading}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                />
+                <Button
+                  type="button"
+                  onClick={handleCheckId}
+                  disabled={isLoading || isCheckingId || !formData.artistId.trim()}
+                  className="bg-white/20 text-white hover:bg-white/30 whitespace-nowrap"
+                >
+                  {isCheckingId ? '확인 중...' : '중복확인'}
+                </Button>
+              </div>
+              {idCheckResult.checked && (
+                <p
+                  className={`text-xs ${
+                    idCheckResult.available ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {idCheckResult.message}
+                </p>
+              )}
+              <p className="text-xs text-gray-400">
+                This will be your unique artist identifier
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -139,9 +384,22 @@ export default function ArtistSignupPage() {
                 placeholder="Enter your phone number"
                 value={formData.phone}
                 onChange={handleChange}
-                disabled={isLoading}
+                onBlur={handlePhoneBlur}
+                disabled={isLoading || phoneValidation.isChecking}
                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
               />
+              {phoneValidation.isChecking && (
+                <p className="text-xs text-gray-400">Checking availability...</p>
+              )}
+              {phoneValidation.checked && (
+                <p
+                  className={`text-xs ${
+                    phoneValidation.available ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {phoneValidation.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -194,22 +452,24 @@ export default function ArtistSignupPage() {
               />
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-white text-black hover:bg-white/90 h-12 text-lg"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Creating account...' : 'Sign Up'}
-            </Button>
+            <div className='fixed bottom-0 w-full left-0 bg-black px-5 pb-10 pt-6 border-t border-white/40'>
+              <Button
+                type="submit"
+                className="w-full bg-white text-black hover:bg-white/90 h-12 text-lg"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating account...' : 'Sign Up'}
+              </Button>
+            </div>
           </form>
 
           <div className="mt-4 text-center">
-            <a href="/login/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/login/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
               Already have an account? Sign in
-            </a>
+            </Link>
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   )
 }

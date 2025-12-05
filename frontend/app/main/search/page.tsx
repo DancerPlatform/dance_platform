@@ -3,10 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ArtistCard } from "@/components/artist-card";
 import { GroupCard } from "@/components/group-card";
-import { useSearch } from "@/hooks/useSearch";
 
 interface ArtistResult {
   artist_id: string;
@@ -31,20 +30,52 @@ interface CrewResult {
   } | null;
 }
 
+interface SearchResponse {
+  results: (ArtistResult | CrewResult)[];
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
+
 export default function SearchPage() {
   const [searchInput, setSearchInput] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [activeTab, setActiveTab] = useState('dancer');
   const [offset, setOffset] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<(ArtistResult | CrewResult)[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const limit = 10;
 
-  // Use SWR hook for caching and optimized fetching
-  const { data, isLoading, isError } = useSearch({
-    type: activeTab,
-    keyword: searchKeyword,
-    limit,
-    offset,
-  });
+  const fetchSearchResults = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const url = `/api/search?type=${activeTab}&keyword=${encodeURIComponent(searchKeyword)}&limit=${limit}&offset=${offset}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+
+      const data: SearchResponse = await response.json();
+      setSearchResults(data.results);
+      setTotal(data.total);
+      setHasMore(data.hasMore);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+      setTotal(0);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeTab, searchKeyword, limit, offset]);
+
+  useEffect(() => {
+    fetchSearchResults();
+  }, [fetchSearchResults]);
 
   const handleSearch = () => {
     setOffset(0);
@@ -59,10 +90,6 @@ export default function SearchPage() {
   const handleLoadMore = () => {
     setOffset(offset + limit);
   };
-
-  const searchResults = data?.results || [];
-  const total = data?.total || 0;
-  const hasMore = data?.hasMore || false;
 
   return (
     <div>
@@ -119,7 +146,7 @@ export default function SearchPage() {
                   const artist = result as ArtistResult;
                   return (
                     <ArtistCard
-                      key={artist.artist_id}
+                      key={`dancer-${artist.artist_id}`}
                       artistId={artist.artist_id}
                       nameEN={artist.artist_name_eng}
                       nameKR={artist.artist_name}
@@ -159,7 +186,7 @@ export default function SearchPage() {
                   const crew = result as CrewResult;
                   return (
                     <GroupCard
-                      key={crew.group_id}
+                      key={`crew-${crew.group_id}`}
                       groupId={crew.group_id}
                       nameKR={crew.group_name}
                       imageUrl={crew.photo}
@@ -199,7 +226,7 @@ export default function SearchPage() {
                   const artist = result as ArtistResult;
                   return (
                     <ArtistCard
-                      key={artist.artist_id}
+                      key={`career-${artist.artist_id}`}
                       artistId={artist.artist_id}
                       nameEN={artist.artist_name_eng}
                       nameKR={artist.artist_name}

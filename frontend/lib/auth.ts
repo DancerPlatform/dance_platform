@@ -13,6 +13,7 @@ export async function signUp(
     phone?: string
     birth?: string
     company_id?: string
+    artist_id?: string
   }
 ) {
   try {
@@ -31,8 +32,12 @@ export async function signUp(
     if (authError) throw authError
     if (!authData.user) throw new Error('No user returned from signup')
 
+    // Verify the user was created in auth.users
+    if (!authData.user.id) throw new Error('User ID not available')
+
     // Generate a unique ID for the user based on type
-    const userId = crypto.randomUUID()
+    // For artists, use the provided artist_id or generate one
+    const userId = userType === 'artist' && userData.artist_id ? userData.artist_id : crypto.randomUUID()
 
     // Create the user-specific record
     if (userType === 'client') {
@@ -61,6 +66,8 @@ export async function signUp(
         })
 
       if (artistError) throw artistError
+
+      // Note: edit_permissions and artist_portfolio are automatically created by database trigger
     } else {
       const { error: userError } = await supabase
         .from('user')

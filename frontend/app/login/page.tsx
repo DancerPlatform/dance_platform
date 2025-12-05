@@ -1,17 +1,23 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Users, Music, User } from 'lucide-react'
 import { Header } from '@/components/header'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+// import { redirect } from 'next/dist/server/api-utils'
 
 type UserType = 'client' | 'artist' | 'user' | null
 
 export default function LoginPage() {
   const [selectedType, setSelectedType] = useState<UserType>(null)
+
+  useEffect(() => {
+    redirect("/login/artist");
+  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
