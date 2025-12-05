@@ -1,17 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
-import { Music } from 'lucide-react'
+import { Check, Music } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
 export default function ArtistLoginPage() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -55,6 +56,7 @@ export default function ArtistLoginPage() {
           <CardDescription className="text-gray-400">
             Sign in to your dancer account
           </CardDescription>
+          <p className={`w-full ${searchParams.get('signup') == "success" ? "block" : "hidden"} border border-green-700 bg-green-500/20 py-4 rounded-lg`}>Confirmation Mail Sent</p>
         </CardHeader>
 
         <CardContent>
