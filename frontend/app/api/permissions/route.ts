@@ -74,6 +74,8 @@ export async function GET(request: NextRequest) {
     // Get user details from user_profiles for each auth_id
     if (permissions && permissions.length > 0) {
       const authIds = permissions.map((p) => p.auth_id);
+      console.log("[Auth Ids]", authIds)
+      
       const { data: userProfiles, error: profilesError } = await supabase
         .from("user_profiles")
         .select("auth_id, email, user_type")
@@ -87,6 +89,10 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      console.log("[User Profiles]", userProfiles)
+
+
+
       // Merge user profile data with permissions
       const permissionsWithUserData = permissions.map((permission) => {
         const userProfile = userProfiles?.find(
@@ -98,6 +104,8 @@ export async function GET(request: NextRequest) {
           user_type: userProfile?.user_type || null,
         };
       });
+
+      // console.log(permissionsWithUserData)
 
       return NextResponse.json({ permissions: permissionsWithUserData });
     }

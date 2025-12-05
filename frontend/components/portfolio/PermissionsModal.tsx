@@ -33,13 +33,26 @@ export function PermissionsModal({ isOpen, onClose, artistId }: PermissionsModal
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // Fetch existing permissions when modal opens
+  // Fetch current user and existing permissions when modal opens
   useEffect(() => {
     if (isOpen) {
+      fetchCurrentUser();
       fetchPermissions();
     }
   }, [isOpen, artistId]);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setCurrentUserId(session.user.id);
+      }
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+    }
+  };
 
   const fetchPermissions = async () => {
     try {
@@ -235,35 +248,37 @@ export function PermissionsModal({ isOpen, onClose, artistId }: PermissionsModal
           <div>
             <Label>현재 편집 권한이 있는 사용자</Label>
             <div className="mt-3 space-y-2">
-              {permissions.length === 0 ? (
+              {permissions.filter(p => p.auth_id !== currentUserId).length === 0 ? (
                 <p className="text-sm text-zinc-400 py-4 text-center">
                   아직 추가된 사용자가 없습니다.
                 </p>
               ) : (
-                permissions.map((permission) => (
-                  <div
-                    key={permission.auth_id}
-                    className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg"
-                  >
-                    <div>
-                      <p className="text-sm font-medium">
-                        {permission.email}
-                      </p>
-                      <p className="text-xs text-zinc-400">
-                        {permission.user_type}
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRemovePermission(permission.auth_id)}
-                      disabled={isLoading}
-                      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                permissions
+                  .filter(permission => permission.auth_id !== currentUserId)
+                  .map((permission) => (
+                    <div
+                      key={permission.auth_id}
+                      className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg"
                     >
-                      <X className="size-4" />
-                    </Button>
-                  </div>
-                ))
+                      <div>
+                        <p className="text-sm font-medium">
+                          {permission.email}
+                        </p>
+                        <p className="text-xs text-zinc-400">
+                          {permission.user_type}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRemovePermission(permission.auth_id)}
+                        disabled={isLoading}
+                        className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+                  ))
               )}
             </div>
           </div>

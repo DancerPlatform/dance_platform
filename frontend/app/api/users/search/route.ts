@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +17,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Search in user_profiles table for users by email
-    const { data: users, error } = await supabase
+    const { data: users, error } = await supabaseAdmin
       .from("user_profiles")
       .select("auth_id, email, user_type")
       .ilike("email", `%${email.trim()}%`)
