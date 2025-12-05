@@ -13,6 +13,7 @@ export async function signUp(
     phone?: string
     birth?: string
     company_id?: string
+    artist_id?: string
   }
 ) {
   try {
@@ -35,7 +36,8 @@ export async function signUp(
     if (!authData.user.id) throw new Error('User ID not available')
 
     // Generate a unique ID for the user based on type
-    const userId = crypto.randomUUID()
+    // For artists, use the provided artist_id or generate one
+    const userId = userType === 'artist' && userData.artist_id ? userData.artist_id : crypto.randomUUID()
 
     // Create the user-specific record
     if (userType === 'client') {

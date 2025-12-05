@@ -19,15 +19,88 @@ export default function ArtistSignupPage() {
     confirmPassword: '',
     phone: '',
     birth: '',
+    artistId: '',
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isCheckingId, setIsCheckingId] = useState(false)
+  const [idCheckResult, setIdCheckResult] = useState<{
+    checked: boolean
+    available: boolean
+    message: string
+  }>({
+    checked: false,
+    available: false,
+    message: '',
+  })
   const router = useRouter()
+
+  const handleCheckId = async () => {
+    if (!formData.artistId.trim()) {
+      setIdCheckResult({
+        checked: true,
+        available: false,
+        message: 'Please enter an ID',
+      })
+      return
+    }
+
+    setIsCheckingId(true)
+    setIdCheckResult({
+      checked: false,
+      available: false,
+      message: '',
+    })
+
+    try {
+      const response = await fetch(`/api/check-artist-id?artist_id=${encodeURIComponent(formData.artistId)}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to check ID')
+      }
+
+      setIdCheckResult({
+        checked: true,
+        available: data.available,
+        message: data.available
+          ? 'This ID is available!'
+          : 'This ID is already taken. Please try another one.',
+      })
+    } catch (error) {
+      setIdCheckResult({
+        checked: true,
+        available: false,
+        message: 'Failed to check ID availability. Please try again.',
+      })
+    } finally {
+      setIsCheckingId(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+
+    // Validate artist ID is checked and available
+    if (!formData.artistId.trim()) {
+      setError('Artist ID is required')
+      setIsLoading(false)
+      return
+    }
+
+    if (!idCheckResult.checked) {
+      setError('Please verify your Artist ID using the duplicate check button')
+      setIsLoading(false)
+      return
+    }
+
+    if (!idCheckResult.available) {
+      setError('Please choose an available Artist ID')
+      setIsLoading(false)
+      return
+    }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -51,6 +124,7 @@ export default function ArtistSignupPage() {
         name: formData.name,
         phone: formData.phone || undefined,
         birth: formData.birth || undefined,
+        artist_id: formData.artistId,
       }
     )
 
@@ -67,10 +141,21 @@ export default function ArtistSignupPage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }))
+
+    // Reset ID check result if artist ID is changed
+    if (name === 'artistId' && idCheckResult.checked) {
+      setIdCheckResult({
+        checked: false,
+        available: false,
+        message: '',
+      })
+    }
   }
 
   return (
@@ -127,6 +212,45 @@ export default function ArtistSignupPage() {
                 disabled={isLoading}
                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="artistId" className="text-white">
+                Artist ID <span className="text-red-500">*</span>
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="artistId"
+                  name="artistId"
+                  type="text"
+                  placeholder="Enter your artist ID"
+                  value={formData.artistId}
+                  onChange={handleChange}
+                  required
+                  disabled={isLoading}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                />
+                <Button
+                  type="button"
+                  onClick={handleCheckId}
+                  disabled={isLoading || isCheckingId || !formData.artistId.trim()}
+                  className="bg-white/20 text-white hover:bg-white/30 whitespace-nowrap"
+                >
+                  {isCheckingId ? '확인 중...' : '중복확인'}
+                </Button>
+              </div>
+              {idCheckResult.checked && (
+                <p
+                  className={`text-xs ${
+                    idCheckResult.available ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {idCheckResult.message}
+                </p>
+              )}
+              <p className="text-xs text-gray-400">
+                This will be your unique artist identifier
+              </p>
             </div>
 
             <div className="space-y-2">
