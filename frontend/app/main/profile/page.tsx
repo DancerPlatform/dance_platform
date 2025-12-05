@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import { PermissionsModal } from '@/components/portfolio/PermissionsModal';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, signOut, loading } = useAuth();
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
 
 
   // Show loading state
@@ -100,6 +103,21 @@ export default function ProfilePage() {
           >
             포트폴리오 수정
           </Link>
+
+          {/* Add users that are allowed to edit my portfolio */}
+          <button
+            onClick={() => setIsPermissionsModalOpen(true)}
+            className="block w-full px-6 py-6 text-left text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+          >
+            포트폴리오 권한 설정
+          </button>
+
+          {/* Permissions Modal */}
+          <PermissionsModal
+            isOpen={isPermissionsModalOpen}
+            onClose={() => setIsPermissionsModalOpen(false)}
+            artistId={artistUser.artist_id}
+          />
 
           {/* Logout Button */}
           <button
