@@ -20,9 +20,6 @@ export function GroupCard({
   memberCount,
   className,
 }: GroupCardProps) {
-
-  console.log(imageUrl)
-
   return (
     <Link
       href={`/group/${groupId}`}
@@ -43,7 +40,7 @@ export function GroupCard({
             className="object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center black">
+          <div className="w-full h-full flex items-center justify-center bg-gray-800">
             <Users className="w-20 h-20 text-gray-600" />
           </div>
         )}
