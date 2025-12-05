@@ -280,7 +280,7 @@ export default function ArtistSignupPage() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 pb-10">
             {error && (
               <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-2 rounded">
                 {error}
@@ -336,7 +336,7 @@ export default function ArtistSignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="artistId" className="text-white">
-                Artist ID <span className="text-red-500">*</span>
+                아이디 <span className="text-red-500">*</span>
               </Label>
               <div className="flex gap-2">
                 <Input
@@ -452,13 +452,15 @@ export default function ArtistSignupPage() {
               />
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-white text-black hover:bg-white/90 h-12 text-lg"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Creating account...' : 'Sign Up'}
-            </Button>
+            <div className='fixed bottom-0 w-full left-0 bg-black px-5 pb-10 pt-6 border-t border-white/40'>
+              <Button
+                type="submit"
+                className="w-full bg-white text-black hover:bg-white/90 h-12 text-lg"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating account...' : 'Sign Up'}
+              </Button>
+            </div>
           </form>
 
           <div className="mt-4 text-center">
