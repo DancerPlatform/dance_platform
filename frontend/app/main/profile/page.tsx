@@ -35,7 +35,7 @@ export default function ProfilePage() {
             마이페이지를 이용하려면 로그인이 필요합니다.
           </p>
           <Link
-            href="/login"
+            href="/login/artist"
             className="inline-block bg-white text-black px-8 py-3 rounded-full font-medium hover:bg-zinc-200 transition-colors"
           >
             로그인하기

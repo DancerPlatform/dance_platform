@@ -270,10 +270,10 @@ export default function ArtistSignupPage() {
       <Header />
       <div className="w-full max-w-md bg-black/80 py-20 border-white/20 flex flex-col gap-6">
         <CardHeader className="text-center text-white space-y-2">
-          <div className="flex justify-center mb-2">
+          {/* <div className="flex justify-center mb-2">
             <Music className="h-12 w-12 text-white" />
-          </div>
-          <CardTitle className="text-3xl">Dancer Sign Up</CardTitle>
+          </div> */}
+          <CardTitle className="text-3xl">Sign Up Now</CardTitle>
           <CardDescription className="text-gray-400">
             Create your dancer account
           </CardDescription>
