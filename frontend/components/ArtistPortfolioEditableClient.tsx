@@ -7,6 +7,7 @@ import { PortfolioModal, PortfolioSectionType } from './PortfolioModal';
 import { ArtistPortfolio } from './ArtistPortfolioClient';
 import {
   ProfileEditModal,
+  HighlightsEditModal,
   ChoreographyEditModal,
   MediaEditModal,
   PerformancesEditModal,
@@ -17,7 +18,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import YouTubeThumbnail from './YoutubeThumbnail';
-import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
+import { Award, HighlightsItem, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
 
 export function ArtistPortfolioEditableClient({
@@ -43,6 +44,7 @@ export function ArtistPortfolioEditableClient({
 
   // Edit modal states
   const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [showHighlightsEdit, setShowHighlightsEdit] = useState(false);
   const [showChoreographyEdit, setShowChoreographyEdit] = useState(false);
   const [showMediaEdit, setShowMediaEdit] = useState(false);
   const [showPerformancesEdit, setShowPerformancesEdit] = useState(false);
@@ -50,7 +52,7 @@ export function ArtistPortfolioEditableClient({
   const [showWorkshopsEdit, setShowWorkshopsEdit] = useState(false);
   const [showAwardsEdit, setShowAwardsEdit] = useState(false);
 
-  const highlights = portfolio.choreography?.filter(item => item.is_highlight) || [];
+  const highlightchoreo = portfolio.choreography?.filter(item => item.is_highlight) || [];
   const highlightMedia = portfolio.media?.filter(item => item.is_highlight) || [];
 
   const closeModal = () => {
@@ -156,6 +158,38 @@ export function ArtistPortfolioEditableClient({
     alert('미디어가 저장되었습니다.');
     router.refresh();
   };
+
+  
+  const handleSaveHighlights = async (highlights: HighlightsItem[]) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    console.log('Saving highlight:', highlights.map(h => ({ title: h.title, display_order: h.display_order })));
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/highlights`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ highlights }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to save media');
+    }
+
+    setPortfolio({ ...portfolio, highlights });
+    alert('하이라이트가 저장되었습니다.');
+    router.refresh();
+  };
+
 
   const handleSavePerformances = async (performances: PerformanceItem[]) => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -269,30 +303,38 @@ export function ArtistPortfolioEditableClient({
     router.refresh();
   };
 
-  const getHighlightsData = () => {
-    const choreoHighlights = portfolio.choreography
+  const getHighlightsData = (): HighlightsItem[] => {
+    // Combine both choreography highlights (as media items) and media highlights
+    const choreoHighlights: HighlightsItem[] = portfolio.choreography
       .filter(item => item.is_highlight)
       .map(item => ({
+        highlight_id: item.song?.song_id,
+        source: 'choreo',
         youtube_link: item.song?.youtube_link || '',
         role: item.role || [],
         is_highlight: true,
-        display_order: item.display_order,
+        display_order: item.highlight_display_order ?? item.display_order,
         title: item.song ? `${item.song.singer} - ${item.song.title}` : 'Untitled',
         video_date: item.song?.date || null,
       }));
 
-    const mediaHighlights = portfolio.media
+    const mediaHighlights: HighlightsItem[] = portfolio.media
       .filter(item => item.is_highlight)
       .map(item => ({
+        highlight_id: item.media_id,
+        source: 'media',
         youtube_link: item.youtube_link,
         role: item.role ? [item.role] : [],
         is_highlight: item.is_highlight,
-        display_order: item.display_order,
+        display_order: item.highlight_display_order ?? item.display_order,
         title: item.title,
         video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
       }));
 
-    return [...choreoHighlights, ...mediaHighlights].sort((a, b) => a.display_order - b.display_order);
+    // Combine and sort
+    const combined = [...choreoHighlights, ...mediaHighlights];
+
+    return combined.sort((a, b) => a.display_order - b.display_order);
   };
 
   return (
@@ -384,10 +426,19 @@ export function ArtistPortfolioEditableClient({
         )}
 
         {/* Highlights */}
-        {(highlights.length > 0 || highlightMedia.length > 0) && (
+        {(highlightchoreo.length > 0 || highlightMedia.length > 0) && (
           <section>
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="text-2xl sm:text-3xl font-bold">Highlights</h2>
+              <div className="flex gap-2 sm:gap-3 shrink-0">  
+                <button
+                  onClick={() => setShowHighlightsEdit(true)}
+                  className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="text-xs sm:text-sm">편집</span>
+                </button>
+              </div>
             </div>
             <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
               <div className="flex gap-3 sm:gap-4 min-w-max">
@@ -681,6 +732,13 @@ export function ArtistPortfolioEditableClient({
         onClose={() => setShowMediaEdit(false)}
         onSave={handleSaveMedia}
         initialData={portfolio.media}
+      />
+
+      <HighlightsEditModal
+        isOpen={showHighlightsEdit}
+        onClose={() => setShowHighlightsEdit(false)}
+        onSave={handleSaveHighlights}
+        initialData={getHighlightsData()}
       />
 
       <PerformancesEditModal

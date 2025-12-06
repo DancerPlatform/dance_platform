@@ -12,7 +12,6 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { CSS } from '@dnd-kit/utilities';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { MediaItem } from '@/types/portfolio';
 
 // Types
 interface Song {
@@ -28,17 +27,30 @@ interface ChoreographyItem {
   role?: string[];
   is_highlight: boolean;
   display_order: number;
+  highlight_diaplay_order?: number;
 }
 
-// interface MediaItem {
-//   media_id?: string;
-//   youtube_link: string;
-//   role?: string;
-//   is_highlight: boolean;
-//   display_order: number;
-//   title: string;
-//   video_date: Date | string;
-// }
+interface MediaItem {
+  media_id?: string;
+  youtube_link: string;
+  role?: string;
+  is_highlight: boolean;
+  display_order: number;
+  highlight_display_order?: number;
+  title: string;
+  video_date: Date;
+}
+
+export interface HighlightsItem {
+  highlight_id? : string;
+  source : 'choreo' | 'media';
+  youtube_link: string;
+  role: string[];
+  is_highlight : boolean;
+  display_order: number;
+  title: string;
+  video_date: string | null ;
+}
 
 interface Performance {
   performance_title: string;
@@ -885,6 +897,137 @@ function AddMediaSubModal({
     </Dialog>
   );
 }
+
+//highlight edit modal
+
+interface HighlightsEditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (highlight: HighlightsItem[]) => Promise<void>;
+  initialData: HighlightsItem[];    
+}
+
+function HighlightsSortableItem({
+  id,
+  item
+}: {
+  id: string;
+  item: HighlightsItem;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative group flex justify-between  w-full items-center gap-1 sm:gap-2 bg-white/5 p-2 rounded-lg">
+      <div className='flex items-center gap-4'>
+        <button
+          {...attributes}
+          {...listeners}
+          className="z-10 cursor-grab active:cursor-grabbing p-1 sm:p-2 bg-black/50 hover:bg-black/70 rounded shrink-0"
+        >
+          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+        </button>
+        <p className="text-xs sm:text-sm text-white truncate flex-1 min-w-0 max-w-[150px]">{item.title}</p>
+        <p className="text-xs text-gray-400 truncate hidden sm:block">
+          {item.role}
+          {item.video_date && (
+            <span>
+              {' '}
+              · {new Date(item.video_date).getFullYear()}.
+              {String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}
+            </span>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export function HighlightsEditModal({ isOpen, onClose, onSave, initialData }: HighlightsEditModalProps) {
+  const [highlights, setHighlights] = useState<HighlightsItem[]>(initialData);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Update local state when initialData changes
+  useEffect(() => {
+    setHighlights(initialData);
+  }, [initialData]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = highlights.findIndex((_, i) => `highlights-${i}` === active.id);
+      const newIndex = highlights.findIndex((_, i) => `highlights-${i}` === over.id);
+      const newHighlights = arrayMove(highlights, oldIndex, newIndex);
+      const updated = newHighlights.map((item, index) => ({ ...item, display_order: index }));
+      setHighlights(updated);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSaving(true);
+    try {
+      await onSave(highlights);
+      onClose();
+    } catch (error) {
+      console.error('Error saving highlight:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="bg-zinc-900 text-white border-zinc-800 max-w-4xl max-h-[90vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
+          <DialogHeader>
+            <DialogTitle className="flex justify-between items-center gap-2">
+              <span className="text-base sm:text-lg">하이라이트 편집</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={highlights.map((_, i) => `highlights-${i}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex flex-col gap-4">
+                  {highlights.map((item, index) => (
+                    <HighlightsSortableItem
+                      key={`highlights-${index}`}
+                      id={`highlights-${index}`}
+                      item={item}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+            {highlights.length === 0 && (
+              <p className="text-center text-zinc-400 py-8">하이라이트가 없습니다. Media 또는 Choreographies에서 추가해보세요.</p>
+            )}
+          </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" disabled={isSaving}>
+              {isSaving ? '저장 중...' : '저장'}
+            </Button>
+            <Button variant="outline" onClick={onClose} className="border-zinc-700 w-full sm:w-auto" disabled={isSaving}>
+              취소
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 
 // Performances Edit Modal
 interface PerformancesEditModalProps {

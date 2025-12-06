@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Instagram, Twitter, Youtube } from 'lucide-react';
 import { PortfolioModal, PortfolioSectionType, PortfolioData } from './PortfolioModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
-import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
+import { Award, ChoreographyItem, DirectingItem, HighlightsItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
 import { SectionHeaders } from './SectionHeaders';
 
@@ -20,6 +20,7 @@ export interface ArtistPortfolio {
   youtube?: string;
   workshops: Workshop[];
   awards: Award[];
+  highlights : HighlightsItem[];
   choreography: ChoreographyItem[];
   media: MediaItem[];
   performances: PerformanceItem[];
@@ -29,6 +30,7 @@ export interface ArtistPortfolio {
 
 type SortOrder = 'display_order' | 'date';
 
+// 열고 닫는 박스 모달 (ex. 편집박스)
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -48,10 +50,11 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     choreographies: 'display_order',
     media: 'display_order',
     directing: 'display_order',
-    performances: 'display_order',
+    performances: 'date',
     workshops: 'display_order',
   });
 
+  //정렬방식 변경 date<->displayorder
   const toggleSortOrder = (section: string) => {
     setSortOrders(prev => ({
       ...prev,
@@ -91,6 +94,14 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
   };
 
   const sortMediaByDate = (items: { youtube_link: string; role: string[]; is_highlight: boolean; display_order: number; title: string; video_date: string | null }[]) => {
+    return [...items].sort((a, b) => {
+      const dateA = a.video_date ? new Date(a.video_date).getTime() : 0;
+      const dateB = b.video_date ? new Date(b.video_date).getTime() : 0;
+      return dateB - dateA; // Most recent first
+    });
+  };
+
+  const sortHighlightByDate = (items: HighlightsItem[]) => {
     return [...items].sort((a, b) => {
       const dateA = a.video_date ? new Date(a.video_date).getTime() : 0;
       const dateB = b.video_date ? new Date(b.video_date).getTime() : 0;
@@ -158,26 +169,30 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     return data.sort((a, b) => a.display_order - b.display_order);
   };
 
-  const getHighlightsData = () => {
+  const getHighlightsData = (): HighlightsItem[] => {
     // Combine both choreography highlights (as media items) and media highlights
-    const choreoHighlights = portfolio.choreography
+    const choreoHighlights: HighlightsItem[] = portfolio.choreography
       .filter(item => item.is_highlight)
       .map(item => ({
+        highlight_id: item.song?.song_id,
+        source: 'choreo',
         youtube_link: item.song?.youtube_link || '',
         role: item.role || [],
         is_highlight: true,
-        display_order: item.display_order,
+        display_order: item.highlight_display_order ?? item.display_order,
         title: item.song ? `${item.song.singer} - ${item.song.title}` : 'Untitled',
         video_date: item.song?.date || null,
       }));
 
-    const mediaHighlights = portfolio.media
+    const mediaHighlights: HighlightsItem[] = portfolio.media
       .filter(item => item.is_highlight)
       .map(item => ({
+        highlight_id: item.media_id,
+        source: 'media',
         youtube_link: item.youtube_link,
         role: item.role ? [item.role] : [],
         is_highlight: item.is_highlight,
-        display_order: item.display_order,
+        display_order: item.highlight_display_order ?? item.display_order,
         title: item.title,
         video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
       }));
@@ -186,7 +201,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     const combined = [...choreoHighlights, ...mediaHighlights];
 
     if (sortOrders.highlights === 'date') {
-      return sortMediaByDate(combined);
+      return sortHighlightByDate(combined);
     }
     return combined.sort((a, b) => a.display_order - b.display_order);
   };
