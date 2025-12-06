@@ -59,6 +59,7 @@ export default function AdminClaimsPage() {
       const data = await response.json()
 
       setIsAdmin(data.is_admin)
+      console.log(data)
       if (!data.is_admin) {
         setError('You do not have admin privileges')
         return

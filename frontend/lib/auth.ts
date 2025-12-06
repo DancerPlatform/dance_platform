@@ -3,6 +3,8 @@ import type { UserType, UserProfile, ClientUser, ArtistUser, NormalUser } from '
 
 /**
  * Sign up a new user with the specified user type
+ * For artists: Only creates auth record, no database records
+ * For clients/users: Creates auth + database records
  */
 export async function signUp(
   email: string,
@@ -13,11 +15,10 @@ export async function signUp(
     phone?: string
     birth?: string
     company_id?: string
-    artist_id?: string
   }
 ) {
   try {
-    // First, create the auth user with user_type in metadata
+    // Create the auth user with user_type in metadata
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -35,11 +36,16 @@ export async function signUp(
     // Verify the user was created in auth.users
     if (!authData.user.id) throw new Error('User ID not available')
 
-    // Generate a unique ID for the user based on type
-    // For artists, use the provided artist_id or generate one
-    const userId = userType === 'artist' && userData.artist_id ? userData.artist_id : crypto.randomUUID()
+    // For artists: ONLY create auth record, no database records
+    // User will choose to create or claim portfolio later
+    if (userType === 'artist') {
+      return { user: authData.user, error: null }
+    }
 
-    // Create the user-specific record
+    // Generate a unique ID for non-artist users
+    const userId = crypto.randomUUID()
+
+    // Create the user-specific record for clients and normal users
     if (userType === 'client') {
       const { error: clientError } = await supabase
         .from('client_user')
@@ -53,21 +59,6 @@ export async function signUp(
         })
 
       if (clientError) throw clientError
-    } else if (userType === 'artist') {
-      const { error: artistError } = await supabase
-        .from('artist_user')
-        .insert({
-          artist_id: userId,
-          name: userData.name,
-          email,
-          phone: userData.phone || null,
-          birth: userData.birth || null,
-          auth_id: authData.user.id,
-        })
-
-      if (artistError) throw artistError
-
-      // Note: edit_permissions and artist_portfolio are automatically created by database trigger
     } else {
       const { error: userError } = await supabase
         .from('user')

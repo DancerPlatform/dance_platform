@@ -21,12 +21,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
+    console.log("user: ", user.id)
+
     // Check if user is admin
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('is_admin')
       .eq('auth_id', user.id)
       .single()
+
+    console.log('[Profile]: ', profile)
 
     let query = supabase
       .from('portfolio_claim_requests')
@@ -120,19 +124,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already has a claimed portfolio
-    const { data: userArtist } = await supabase
-      .from('artist_user')
-      .select('artist_id')
-      .eq('auth_id', user.id)
-      .single()
-
-    if (userArtist) {
-      return NextResponse.json(
-        { error: 'You already have a claimed portfolio' },
-        { status: 400 }
-      )
-    }
+    // Note: Users CAN claim a new portfolio even if they already have one
+    // Upon approval, their account will be switched to the new portfolio
 
     // Calculate match scores
     const emailMatches = artist.email?.toLowerCase() === user.email?.toLowerCase()
