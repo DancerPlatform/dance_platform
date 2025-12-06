@@ -33,6 +33,7 @@ export interface ChoreographyItem {
   role?: string[];
   is_highlight: boolean;
   display_order: number;
+  highlight_display_order?: number;
 }
 
 export interface PerformanceItem {
@@ -72,4 +73,16 @@ export interface Team {
 
 export interface TeamMembership {
   team?: Team;
+}
+
+
+export interface HighlightsItem {
+  highlight_id?: string
+  source : 'choreo' | 'media';
+  youtube_link: string;
+  role: string[];
+  is_highlight : boolean;
+  display_order: number;
+  title: string;
+  video_date: string | null ;
 }
