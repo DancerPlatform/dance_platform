@@ -4,10 +4,10 @@ import { supabase } from '@/lib/supabase'
 // POST /api/claims/[claim_id]/reject - Reject a claim request (admin only)
 export async function POST(
   request: NextRequest,
-  { params }: { params: { claim_id: string } }
+  { params }: { params: Promise<{ claim_id: string }> }
 ) {
   try {
-    const { claim_id } = params
+    const { claim_id } = await params
     const body = await request.json()
     const { reason } = body
 

@@ -4,10 +4,11 @@ import { supabase } from '@/lib/supabase'
 // POST /api/claims/[claim_id]/approve - Approve a claim request (admin only)
 export async function POST(
   request: NextRequest,
-  { params }: { params: { claim_id: string } }
+  { params }: { params: Promise<{ claim_id: string }> }
 ) {
   try {
-    const { claim_id } = params
+    const { claim_id } = await params
+    console.log("Claim id:", claim_id)
 
     // Get the auth header
     const authHeader = request.headers.get('authorization')
@@ -33,6 +34,7 @@ export async function POST(
       return NextResponse.json({ error: 'Admin privileges required' }, { status: 403 })
     }
 
+    console.log(`Claim Id: ${claim_id} User ID:${user.id}`)
     // Call the approve function
     const { data, error } = await supabase.rpc('approve_portfolio_claim', {
       p_claim_id: claim_id,
