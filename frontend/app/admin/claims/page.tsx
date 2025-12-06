@@ -226,13 +226,13 @@ export default function AdminClaimsPage() {
           ) : (
             <div className="space-y-4">
               {pendingClaims.map((claim) => (
-                <Card key={claim.claim_id} className="bg-zinc-900 border-zinc-800">
+                <Card key={claim.claim_id} className="bg-zinc-900 border-zinc-800 py-6">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-xl">{claim.artist_user.name}</CardTitle>
+                        <CardTitle className="text-xl text-white">Trying to claim: {claim.artist_user.name}&apos;s profile</CardTitle>
                         <CardDescription className="text-gray-400">
-                          Portfolio ID: {claim.artist_id}
+                          Requestion to claim portfolio ID: {claim.artist_id}
                         </CardDescription>
                       </div>
                       {getStatusBadge(claim.status)}
@@ -240,26 +240,26 @@ export default function AdminClaimsPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
+                      {/* <div>
                         <p className="text-gray-500 mb-1">Portfolio Email</p>
                         <p className="text-white">{claim.artist_user.email}</p>
-                      </div>
+                      </div> */}
                       <div>
                         <p className="text-gray-500 mb-1">Requester Email</p>
                         <div className="flex items-center gap-2">
                           <p className="text-white">{claim.requester_email}</p>
-                          {getMatchIndicator(claim.email_matches)}
+                          {/* {getMatchIndicator(claim.email_matches)} */}
                         </div>
                       </div>
-                      <div>
+                      {/* <div>
                         <p className="text-gray-500 mb-1">Portfolio Phone</p>
                         <p className="text-white">{claim.artist_user.phone || '-'}</p>
-                      </div>
+                      </div> */}
                       <div>
                         <p className="text-gray-500 mb-1">Requester Phone</p>
                         <div className="flex items-center gap-2">
                           <p className="text-white">{claim.requester_phone || '-'}</p>
-                          {getMatchIndicator(claim.phone_matches)}
+                          {/* {getMatchIndicator(claim.phone_matches)} */}
                         </div>
                       </div>
                     </div>
@@ -302,7 +302,7 @@ export default function AdminClaimsPage() {
                   <CardContent className="py-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="font-medium">{claim.artist_user.name}</p>
+                        <p className="font-medium text-white">{claim.artist_user.name}</p>
                         <p className="text-sm text-gray-400">{claim.requester_email}</p>
                       </div>
                       <div className="text-right">
