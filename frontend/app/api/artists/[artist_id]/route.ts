@@ -9,10 +9,18 @@ export async function GET(
   try {
     const { artist_id } = await params;
 
-    // Fetch basic artist portfolio info
+    // Fetch basic artist portfolio info along with artist_user to check if claimed
     const { data: artistData, error: artistError } = await supabase
       .from('artist_portfolio')
-      .select('*')
+      .select(`
+        *,
+        artist_user:artist_id (
+          auth_id,
+          email,
+          phone,
+          name
+        )
+      `)
       .eq('artist_id', artist_id)
       .single();
 
