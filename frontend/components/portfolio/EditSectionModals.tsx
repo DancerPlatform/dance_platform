@@ -345,11 +345,13 @@ function ChoreographySortableItem({
   item,
   onToggleHighlight,
   onRemove,
+  onEdit,
 }: {
   id: string;
   item: ChoreographyItem;
   onToggleHighlight: () => void;
   onRemove: () => void;
+  onEdit: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
@@ -374,8 +376,8 @@ function ChoreographySortableItem({
         )}
       </div> */}
 
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold truncate text-sm sm:text-base">
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={onEdit}>
+        <h3 className="font-semibold truncate text-sm sm:text-base hover:text-green-400 transition-colors">
           {item.song?.singer} - {item.song?.title}
         </h3>
         <p className="text-xs sm:text-sm text-gray-400 truncate">{item.role?.join(', ')}</p>
@@ -403,6 +405,7 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
   const [choreography, setChoreography] = useState<ChoreographyItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -440,6 +443,12 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
       display_order: choreography.length,
     };
     setChoreography([...choreography, newItem]);
+  };
+
+  const updateItem = (index: number, data: { song: Song; role: string[] }) => {
+    const updated = [...choreography];
+    updated[index] = { ...updated[index], song: data.song, role: data.role };
+    setChoreography(updated);
   };
 
   const handleSubmit = async () => {
@@ -485,6 +494,7 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
                       item={item}
                       onToggleHighlight={() => toggleHighlight(index)}
                       onRemove={() => remove(index)}
+                      onEdit={() => setEditingIndex(index)}
                     />
                   ))}
                 </div>
@@ -514,6 +524,22 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
           setShowAddModal(false);
         }}
       />
+
+      {/* Edit Choreography Modal */}
+      {editingIndex !== null && (
+        <EditChoreographySubModal
+          isOpen={editingIndex !== null}
+          onClose={() => setEditingIndex(null)}
+          onUpdate={(data) => {
+            updateItem(editingIndex, data);
+            setEditingIndex(null);
+          }}
+          initialData={{
+            song: choreography[editingIndex].song!,
+            role: choreography[editingIndex].role || [],
+          }}
+        />
+      )}
     </>
   );
 }
@@ -623,6 +649,113 @@ function AddChoreographySubModal({
   );
 }
 
+// Edit Choreography Sub Modal
+function EditChoreographySubModal({
+  isOpen,
+  onClose,
+  onUpdate,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (data: { song: Song; role: string[] }) => void;
+  initialData: { song: Song; role: string[] };
+}) {
+  const [title, setTitle] = useState(initialData.song.title || '');
+  const [singer, setSinger] = useState(initialData.song.singer || '');
+  const [youtubeLink, setYoutubeLink] = useState(initialData.song.youtube_link || '');
+  const [date, setDate] = useState(initialData.song.date || '');
+  const [role, setRole] = useState(initialData.role.join(', ') || '');
+
+  const handleSubmit = () => {
+    if (!title || !singer || !youtubeLink || !date) {
+      alert('모든 필수 필드를 입력해주세요.');
+      return;
+    }
+
+    onUpdate({
+      song: {
+        song_id: initialData.song.song_id,
+        title,
+        singer,
+        youtube_link: youtubeLink,
+        date
+      },
+      role: role.split(',').map((r) => r.trim()).filter(Boolean),
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
+        <DialogHeader>
+          <DialogTitle className="text-base sm:text-lg">안무 편집</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div>
+            <Label htmlFor="edit-singer">가수 *</Label>
+            <Input
+              id="edit-singer"
+              value={singer}
+              onChange={(e) => setSinger(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="예: 아이유"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-title">곡 제목 *</Label>
+            <Input
+              id="edit-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="예: Love poem"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-youtube">YouTube 링크 *</Label>
+            <Input
+              id="edit-youtube"
+              value={youtubeLink}
+              onChange={(e) => setYoutubeLink(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-date">날짜 *</Label>
+            <Input
+              id="edit-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-role">역할 (쉼표로 구분)</Label>
+            <Input
+              id="edit-role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="예: 안무가, 퍼포머"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={onClose} className="border-zinc-700 w-full sm:w-auto">
+            취소
+          </Button>
+          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+            저장
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Media Edit Modal (similar structure to Choreography)
 interface MediaEditModalProps {
   isOpen: boolean;
@@ -636,11 +769,13 @@ function MediaSortableItem({
   item,
   onToggleHighlight,
   onRemove,
+  onEdit,
 }: {
   id: string;
   item: MediaItem;
   onToggleHighlight: () => void;
   onRemove: () => void;
+  onEdit: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
@@ -659,7 +794,7 @@ function MediaSortableItem({
         >
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </button>
-        <p className="text-xs sm:text-sm text-white truncate flex-1 min-w-0 max-w-[150px]">{item.title}</p>
+        <p className="text-xs sm:text-sm text-white truncate flex-1 min-w-0 max-w-[150px] cursor-pointer hover:text-green-400 transition-colors" onClick={onEdit}>{item.title}</p>
         <p className="text-xs text-gray-400 truncate hidden sm:block">
           {item.role}
           {item.video_date && (
@@ -690,6 +825,7 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
   const [media, setMedia] = useState<MediaItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   // Update local state when initialData changes
   useEffect(() => {
@@ -736,6 +872,18 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
     setMedia([...media, newItem]);
   };
 
+  const updateItem = (index: number, data: { youtube_link: string; title: string; role?: string; video_date?: string }) => {
+    const updated = [...media];
+    updated[index] = {
+      ...updated[index],
+      youtube_link: data.youtube_link,
+      title: data.title,
+      role: data.role,
+      video_date: data.video_date ? new Date(data.video_date) : updated[index].video_date,
+    };
+    setMedia(updated);
+  };
+
   const handleSubmit = async () => {
     setIsSaving(true);
     try {
@@ -779,6 +927,7 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
                       item={item}
                       onToggleHighlight={() => toggleHighlight(index)}
                       onRemove={() => remove(index)}
+                      onEdit={() => setEditingIndex(index)}
                     />
                   ))}
                 </div>
@@ -808,6 +957,28 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
           setShowAddModal(false);
         }}
       />
+
+      {/* Edit Media Modal */}
+      {editingIndex !== null && (
+        <EditMediaSubModal
+          isOpen={editingIndex !== null}
+          onClose={() => setEditingIndex(null)}
+          onUpdate={(data) => {
+            updateItem(editingIndex, data);
+            setEditingIndex(null);
+          }}
+          initialData={{
+            youtube_link: media[editingIndex].youtube_link,
+            title: media[editingIndex].title,
+            role: media[editingIndex].role,
+            video_date: media[editingIndex].video_date
+              ? (typeof media[editingIndex].video_date === 'string'
+                  ? media[editingIndex].video_date as string
+                  : new Date(media[editingIndex].video_date as Date).toISOString().split('T')[0])
+              : undefined,
+          }}
+        />
+      )}
     </>
   );
 }
@@ -900,6 +1071,98 @@ function AddMediaSubModal({
           </Button>
           <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
             추가
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Edit Media Sub Modal
+function EditMediaSubModal({
+  isOpen,
+  onClose,
+  onUpdate,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (data: { youtube_link: string; title: string; role?: string; video_date?: string }) => void;
+  initialData: { youtube_link: string; title: string; role?: string; video_date?: string };
+}) {
+  const [title, setTitle] = useState(initialData.title || '');
+  const [youtubeLink, setYoutubeLink] = useState(initialData.youtube_link || '');
+  const [role, setRole] = useState(initialData.role || '');
+  const [videoDate, setVideoDate] = useState(initialData.video_date || '');
+
+  const handleSubmit = () => {
+    if (!youtubeLink || !title) {
+      alert('YouTube 링크와 제목을 입력해주세요.');
+      return;
+    }
+
+    onUpdate({
+      youtube_link: youtubeLink,
+      title,
+      role: role || undefined,
+      video_date: videoDate || undefined,
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
+        <DialogHeader>
+          <DialogTitle className="text-base sm:text-lg">미디어 편집</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div>
+            <Label htmlFor="edit-media-title">제목 *</Label>
+            <Input
+              id="edit-media-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="영상 제목"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-media-youtube">YouTube 링크 *</Label>
+            <Input
+              id="edit-media-youtube"
+              value={youtubeLink}
+              onChange={(e) => setYoutubeLink(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-media-role">역할</Label>
+            <Input
+              id="edit-media-role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="예: 안무가"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-media-date">영상 날짜</Label>
+            <Input
+              id="edit-media-date"
+              type="date"
+              value={videoDate}
+              onChange={(e) => setVideoDate(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={onClose} className="border-zinc-700 w-full sm:w-auto">
+            취소
+          </Button>
+          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+            저장
           </Button>
         </DialogFooter>
       </DialogContent>

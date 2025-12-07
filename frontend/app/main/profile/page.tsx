@@ -146,7 +146,7 @@ export default function ProfilePage() {
           {/* Admin Button - Only show if user is admin */}
           {profile.is_admin && (
             <Link
-              href="/admin/claims"
+              href="/admin"
               className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
             >
               관리자 페이지

@@ -287,22 +287,6 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         </div>
       </div>
 
-      {/* Claim Portfolio Button - Only show if unclaimed */}
-      {portfolio.artist_user && !portfolio.artist_user.auth_id && (
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 flex items-center justify-between">
-            <div className="text-sm">
-              <p className="text-blue-400 font-medium">Is this your portfolio?</p>
-              <p className="text-gray-400 text-xs">Claim it to manage and edit your content</p>
-            </div>
-            <ClaimPortfolioButton
-              artistId={portfolio.artist_id}
-              artistName={portfolio.artist_user.name}
-              isUnclaimed={!portfolio.artist_user.auth_id}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
@@ -588,6 +572,38 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               <div className="flex justify-center mt-6">
                 <button
                   onClick={() => openModal('workshops', 'Classes & Workshops', getWorkshopsData())}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  View All →
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Awards */}
+        {portfolio.awards && portfolio.awards.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold mb-4">Awards</h2>
+            <div className="space-y-3">
+              {getAwardsData().slice(0, 4).map((award, index) => (
+                <div key={index} className="p-4 bg-white/5 rounded-lg">
+                  <h3 className="font-semibold">{award.award_title}</h3>
+                  {award.issuing_org && (
+                    <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>
+                  )}
+                  {award.received_date && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(award.received_date).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+            {getAwardsData().length > 4 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => openModal('awards', 'Awards', getAwardsData())}
                   className="text-green-400 text-sm hover:underline"
                 >
                   View All →

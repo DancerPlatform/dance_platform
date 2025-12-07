@@ -47,7 +47,18 @@ export async function PUT(
       for (let i = 0; i < choreography.length; i++) {
         const item = choreography[i];
         if (item.song?.song_id && existingSongIds.has(item.song.song_id)) {
-          // Update existing item with correct order
+          // Update existing song data
+          await authClient
+            .from('song')
+            .update({
+              title: item.song.title,
+              singer: item.song.singer,
+              date: item.song.date,
+              youtube_link: item.song.youtube_link || null,
+            })
+            .eq('song_id', item.song.song_id);
+
+          // Update existing choreography relationship with correct order
           processedSongs.add(item.song.song_id);
           await authClient
             .from('dancer_choreo')
