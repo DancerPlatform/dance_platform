@@ -267,7 +267,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
   return (
     <>
       {/* Hero Section */}
-      <div className="relative h-[400px] overflow-hidden">
+      <div className="relative h-[500px] overflow-hidden">
         {portfolio.photo && (
           <>
             <Image
