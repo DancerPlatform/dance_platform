@@ -149,9 +149,19 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
     if (!file) return;
 
     try {
+      // Get the current authenticated user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        console.error('Authentication error:', authError);
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${artistId}-${Date.now()}.${fileExt}`;
-      const filePath = `profile_pictures/${fileName}`;
+      // RLS policy requires files to be in a folder named after the user's auth.uid()
+      const filePath = `${user.id}/${fileName}`;
 
       const { error } = await supabase.storage
         .from('profile_pictures')

@@ -8,6 +8,7 @@ import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
 import { SectionHeaders } from './SectionHeaders';
+import { ClaimPortfolioButton } from './ClaimPortfolioButton';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -25,6 +26,12 @@ export interface ArtistPortfolio {
   performances: PerformanceItem[];
   directing: DirectingItem[];
   teams: TeamMembership[];
+  artist_user?: {
+    auth_id: string | null;
+    email: string;
+    phone: string;
+    name: string;
+  };
 }
 
 type SortOrder = 'display_order' | 'date';
@@ -279,6 +286,23 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
           )}
         </div>
       </div>
+
+      {/* Claim Portfolio Button - Only show if unclaimed */}
+      {portfolio.artist_user && !portfolio.artist_user.auth_id && (
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 flex items-center justify-between">
+            <div className="text-sm">
+              <p className="text-blue-400 font-medium">Is this your portfolio?</p>
+              <p className="text-gray-400 text-xs">Claim it to manage and edit your content</p>
+            </div>
+            <ClaimPortfolioButton
+              artistId={portfolio.artist_id}
+              artistName={portfolio.artist_user.name}
+              isUnclaimed={!portfolio.artist_user.auth_id}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">

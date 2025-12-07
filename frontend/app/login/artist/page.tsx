@@ -35,7 +35,8 @@ function ArtistLoginForm() {
 
     // Check if user is an artist
     if (userProfile?.user_type !== 'artist') {
-      setError('This account is not registered as an artist')
+      // setError('This account is not registered as an artist')
+      router.push('/artist/portfolio-setup')
       setIsLoading(false)
       return
     }

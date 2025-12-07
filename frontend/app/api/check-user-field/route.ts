@@ -29,34 +29,58 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Check across all user tables: artist_user, client_user, and user
-    // const tables = ['artist_user', 'client_user', 'user']
+    console.log('Checking field availability:', field, value)
 
-    console.log('this is the value in try', value)
-    const {data, error} = await supabaseAdmin
-    .from('user_profiles')
-    .select('email')
-    .eq('email', value)
-    .single()
+    // Check auth.users table for email
+    if (field === 'email') {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers()
 
-    console.log(data)
+      if (error) {
+        console.error('Error checking email in auth.users:', error)
+        return NextResponse.json(
+          { error: `Failed to check ${field} availability` },
+          { status: 500 }
+        )
+      }
 
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 is the "no rows returned" error code
-      console.error(`Error checking ${field} in 'user_profiles:`, error)
-      return NextResponse.json(
-        { error: `Failed to check ${field} availability` },
-        { status: 500 }
-      )
+      // Check if email exists
+      const emailExists = data.users.some(user => user.email === value)
+
+      if (emailExists) {
+        return NextResponse.json({
+          available: false,
+          field,
+          value,
+          message: `This ${field} is already registered`,
+        })
+      }
     }
 
-    if (data) {
-      return NextResponse.json({
-        available: false,
-        field,
-        value,
-        message: `This ${field} is already registered`,
-      })
+    // Check user_profiles table for phone
+    if (field === 'phone') {
+      const { data, error } = await supabaseAdmin
+        .from('user_profiles')
+        .select('phone')
+        .eq('phone', value)
+        .single()
+
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is the "no rows returned" error code
+        console.error(`Error checking ${field} in user_profiles:`, error)
+        return NextResponse.json(
+          { error: `Failed to check ${field} availability` },
+          { status: 500 }
+        )
+      }
+
+      if (data) {
+        return NextResponse.json({
+          available: false,
+          field,
+          value,
+          message: `This ${field} is already registered`,
+        })
+      }
     }
 
 

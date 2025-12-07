@@ -43,8 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: user.email || '',
             user_metadata: user.user_metadata,
           },
+          profile: null,
+          clientUser: null,
+          artistUser: null,
+          normalUser: null,
           loading: false,
-          error: new Error('User profile not found'),
+          error: null,
         }))
         return
       }

@@ -30,7 +30,14 @@ export default function EditPortfolioPage() {
       }
 
       try {
-        // Check if the current user has permission to edit this artist's portfolio
+        // First, check if this is the user's own portfolio
+        if (artistUser && artistUser.artist_id === artistId) {
+          setHasPermission(true);
+          setPermissionChecked(true);
+          return;
+        }
+
+        // If not their own portfolio, check edit_permissions table
         const { data, error } = await supabase
           .from('edit_permissions')
           .select('artist_id')
@@ -38,7 +45,7 @@ export default function EditPortfolioPage() {
           .eq('artist_id', artistId)
           .single();
 
-        if (error) {
+        if (error && error.code !== 'PGRST116') {
           console.error('Permission check error:', error);
           setHasPermission(false);
         } else {
@@ -55,7 +62,7 @@ export default function EditPortfolioPage() {
     if (!loading) {
       checkPermission();
     }
-  }, [user, profile, artistId, loading]);
+  }, [user, profile, artistUser, artistId, loading]);
 
   // Fetch portfolio data
   useEffect(() => {
@@ -75,6 +82,11 @@ export default function EditPortfolioPage() {
         if (response.ok) {
           const data = await response.json();
           setPortfolio(data);
+        }
+
+        if (!user || !profile) {
+          router.push('/login');
+          return null;
         }
       } catch (error) {
         console.error('Failed to fetch portfolio:', error);
@@ -101,10 +113,10 @@ export default function EditPortfolioPage() {
   }
 
   // Show login prompt if not authenticated
-  if (!user || !profile) {
-    router.push('/login');
-    return null;
-  }
+  // if (!user || !profile) {
+  //   router.push('/login');
+  //   return null;
+  // }
 
   // Check if user has permission to edit this portfolio
   if (!hasPermission) {
@@ -136,7 +148,7 @@ export default function EditPortfolioPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header />
+      <Header onBack={() => {router.push('/main/profile')}} />
       <ArtistPortfolioEditableClient portfolio={portfolio} artistId={artistId} />
       <Footer />
     </div>
