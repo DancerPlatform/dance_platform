@@ -2,6 +2,12 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+import './ArtistPortfolioClient.css';
 import { Instagram, Twitter, Youtube } from 'lucide-react';
 import { PortfolioModal, PortfolioSectionType, PortfolioData } from './PortfolioModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
@@ -86,6 +92,15 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
       sectionTitle: '',
       data: [],
     });
+  };
+
+  // Helper function to chunk array into groups
+  const chunkArray = <T,>(array: T[], size: number): T[][] => {
+    const chunks: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
   };
 
   // Sorting helper functions
@@ -389,44 +404,47 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               sortOrder={sortOrders.choreographies}
               onToggleSort={() => toggleSortOrder('choreographies')}
             />
-            <div className="space-y-4">
-              {getChoreographyData().slice(0, 4).map((item, index) => (
-                <a
-                  key={index}
-                  href={item.song.youtube_link || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
-                >
-                  <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
-                    {item.song.youtube_link && (
-                      <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
-                    )}
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={16}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              navigation
+              className="pb-12!"
+            >
+              {chunkArray(getChoreographyData(), 4).map((chunk, slideIndex) => (
+                <SwiperSlide key={slideIndex}>
+                  <div className="space-y-4">
+                    {chunk.map((item, itemIndex) => (
+                      <a
+                        key={itemIndex}
+                        href={item.song.youtube_link || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
+                      >
+                        <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
+                          {item.song.youtube_link && (
+                            <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate group-hover:text-green-400 transition-colors">
+                            {item.song.singer} - {item.song.title}
+                          </h3>
+                          <p className="text-sm text-gray-400">{item.role.join(', ')}</p>
+                          {item.song.date && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(item.song.date).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </a>
+                    ))}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate group-hover:text-green-400 transition-colors">
-                      {item.song.singer} - {item.song.title}
-                    </h3>
-                    <p className="text-sm text-gray-400">{item.role.join(', ')}</p>
-                    {item.song.date && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(item.song.date).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                </a>
+                </SwiperSlide>
               ))}
-            </div>
-            {getChoreographyData().length > 4 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData())}
-                  className="text-green-400 text-sm hover:underline"
-                >
-                  View All →
-                </button>
-              </div>
-            )}
+            </Swiper>
           </section>
         )}
 
@@ -438,38 +456,41 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               sortOrder={sortOrders.media}
               onToggleSort={() => toggleSortOrder('media')}
             />
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {getMediaData().slice(0, 4).map((item, index) => (
-                <a
-                  key={index}
-                  href={item.youtube_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative"
-                >
-                  <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                    <YouTubeThumbnail url={item.youtube_link} />
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={16}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              navigation
+              className="pb-12!"
+            >
+              {chunkArray(getMediaData(), 4).map((chunk, slideIndex) => (
+                <SwiperSlide key={slideIndex}>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {chunk.map((item, itemIndex) => (
+                      <a
+                        key={itemIndex}
+                        href={item.youtube_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative block"
+                      >
+                        <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                          <YouTubeThumbnail url={item.youtube_link} />
+                        </div>
+                        <p className="text-sm text-white mt-1 truncate">{item.title}</p>
+                        <p className="text-xs text-gray-400 truncate">
+                          {item.role.join(', ')}
+                          {item.video_date && (
+                            <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
+                          )}
+                        </p>
+                      </a>
+                    ))}
                   </div>
-                  <p className="text-sm text-white mt-1 truncate">{item.title}</p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {item.role.join(', ')}
-                    {item.video_date && (
-                      <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
-                    )}
-                  </p>
-                </a>
+                </SwiperSlide>
               ))}
-            </div>
-            {getMediaData().length > 4 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => openModal('media', 'Media', getMediaData())}
-                  className="text-green-400 text-sm hover:underline"
-                >
-                  View All →
-                </button>
-              </div>
-            )}
+            </Swiper>
           </section>
         )}
 
@@ -481,28 +502,31 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               sortOrder={sortOrders.directing}
               onToggleSort={() => toggleSortOrder('directing')}
             />
-            <div className="space-y-3">
-              {getDirectingData().slice(0, 4).map((item, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  {item.date && (
-                    <p className="text-sm text-gray-400 mt-1">
-                      {new Date(item.date).getFullYear()}.{String(new Date(item.date).getMonth() + 1).padStart(2, '0')}
-                    </p>
-                  )}
-                </div>
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={12}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              navigation
+              className="pb-12!"
+            >
+              {chunkArray(getDirectingData(), 3).map((chunk, slideIndex) => (
+                <SwiperSlide key={slideIndex}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {chunk.map((item, itemIndex) => (
+                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
+                        <h3 className="font-semibold">{item.title}</h3>
+                        {item.date && (
+                          <p className="text-sm text-gray-400 mt-1">
+                            {new Date(item.date).getFullYear()}.{String(new Date(item.date).getMonth() + 1).padStart(2, '0')}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </SwiperSlide>
               ))}
-            </div>
-            {getDirectingData().length > 4 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => openModal('directing', 'Directing', getDirectingData())}
-                  className="text-green-400 text-sm hover:underline"
-                >
-                  View All →
-                </button>
-              </div>
-            )}
+            </Swiper>
           </section>
         )}
 
@@ -514,34 +538,34 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               sortOrder={sortOrders.performances}
               onToggleSort={() => toggleSortOrder('performances')}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {getPerformancesData().slice(0, 4).map((item, index) => (
-                <div
-                  key={index}
-                  className="p-6 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
-                >
-                  <h3 className="font-semibold text-lg mb-2">{item.performance_title}</h3>
-                  {item.date && (
-                    <p className="text-sm text-gray-400">
-                      {new Date(item.date).toLocaleDateString()}
-                    </p>
-                  )}
-                  {item.category && (
-                    <p className="text-xs text-gray-500 mt-1">{item.category}</p>
-                  )}
-                </div>
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={16}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              navigation
+              className="pb-12!"
+            >
+              {chunkArray(getPerformancesData(), 4).map((chunk, slideIndex) => (
+                <SwiperSlide key={slideIndex}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {chunk.map((item, itemIndex) => (
+                      <div key={itemIndex} className="p-6 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                        <h3 className="font-semibold text-lg mb-2">{item.performance_title}</h3>
+                        {item.date && (
+                          <p className="text-sm text-gray-400">
+                            {new Date(item.date).toLocaleDateString()}
+                          </p>
+                        )}
+                        {item.category && (
+                          <p className="text-xs text-gray-500 mt-1">{item.category}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </SwiperSlide>
               ))}
-            </div>
-            {getPerformancesData().length > 4 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => openModal('performances', 'Performances', getPerformancesData())}
-                  className="text-green-400 text-sm hover:underline"
-                >
-                  View All →
-                </button>
-              </div>
-            )}
+            </Swiper>
           </section>
         )}
 
@@ -553,31 +577,34 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               sortOrder={sortOrders.workshops}
               onToggleSort={() => toggleSortOrder('workshops')}
             />
-            <div className="space-y-3">
-              {getWorkshopsData().slice(0, 4).map((workshop, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg">
-                  <h3 className="font-semibold">{workshop.class_name}</h3>
-                  <p className="text-sm text-gray-400 mt-1">
-                    {workshop.class_role.join(', ')} • {workshop.country}
-                  </p>
-                  {workshop.class_date && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(workshop.class_date).getFullYear()}.{String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
-                    </p>
-                  )}
-                </div>
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={12}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              navigation
+              className="pb-12!"
+            >
+              {chunkArray(getWorkshopsData(), 3).map((chunk, slideIndex) => (
+                <SwiperSlide key={slideIndex}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {chunk.map((workshop, itemIndex) => (
+                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
+                        <h3 className="font-semibold">{workshop.class_name}</h3>
+                        <p className="text-sm text-gray-400 mt-1">
+                          {workshop.class_role.join(', ')} • {workshop.country}
+                        </p>
+                        {workshop.class_date && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(workshop.class_date).getFullYear()}.{String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </SwiperSlide>
               ))}
-            </div>
-            {getWorkshopsData().length > 4 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => openModal('workshops', 'Classes & Workshops', getWorkshopsData())}
-                  className="text-green-400 text-sm hover:underline"
-                >
-                  View All →
-                </button>
-              </div>
-            )}
+            </Swiper>
           </section>
         )}
 
@@ -585,31 +612,34 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         {portfolio.awards && portfolio.awards.length > 0 && (
           <section>
             <h2 className="text-2xl font-bold mb-4">Awards</h2>
-            <div className="space-y-3">
-              {getAwardsData().slice(0, 4).map((award, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg">
-                  <h3 className="font-semibold">{award.award_title}</h3>
-                  {award.issuing_org && (
-                    <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>
-                  )}
-                  {award.received_date && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(award.received_date).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={12}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              navigation
+              className="pb-12!"
+            >
+              {chunkArray(getAwardsData(), 3).map((chunk, slideIndex) => (
+                <SwiperSlide key={slideIndex}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {chunk.map((award, itemIndex) => (
+                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
+                        <h3 className="font-semibold">{award.award_title}</h3>
+                        {award.issuing_org && (
+                          <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>
+                        )}
+                        {award.received_date && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(award.received_date).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </SwiperSlide>
               ))}
-            </div>
-            {getAwardsData().length > 4 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => openModal('awards', 'Awards', getAwardsData())}
-                  className="text-green-400 text-sm hover:underline"
-                >
-                  View All →
-                </button>
-              </div>
-            )}
+            </Swiper>
           </section>
         )}
       </div>
