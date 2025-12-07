@@ -370,11 +370,11 @@ function ChoreographySortableItem({
         <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
       </button>
 
-      {/* <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
+      <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
         {item.song?.youtube_link && (
           <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
         )}
-      </div> */}
+      </div>
 
       <div className="flex-1 min-w-0 cursor-pointer" onClick={onEdit}>
         <h3 className="font-semibold truncate text-sm sm:text-base hover:text-green-400 transition-colors">
