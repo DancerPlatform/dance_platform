@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Header } from '@/components/header'
+import { AdminSidebar } from '@/components/AdminSidebar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -183,25 +183,22 @@ export default function AdminClaimsPage() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-black text-white">
-        <Header />
-        <div className="max-w-4xl mx-auto px-6 py-20">
-          <Alert className="bg-red-500/10 border-red-500/50">
-            <AlertCircle className="h-4 w-4 text-red-400" />
-            <AlertDescription className="text-red-400">
-              {error || 'Access denied. Admin privileges required.'}
-            </AlertDescription>
-          </Alert>
-        </div>
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <Alert className="bg-red-500/10 border-red-500/50 max-w-md">
+          <AlertCircle className="h-4 w-4 text-red-400" />
+          <AlertDescription className="text-red-400">
+            {error || 'Access denied. Admin privileges required.'}
+          </AlertDescription>
+        </Alert>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
+    <div className="flex min-h-screen bg-black text-white">
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Portfolio Claim Requests</h1>
           <p className="text-gray-400">Review and manage portfolio ownership claims</p>
@@ -325,6 +322,7 @@ export default function AdminClaimsPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Reject Dialog */}

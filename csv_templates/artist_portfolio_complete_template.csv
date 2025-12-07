@@ -1,0 +1,14 @@
+section,artist_id,artist_name,artist_name_eng,introduction,photo,instagram,twitter,youtube,song_id,song_title,singer,youtube_link,song_date,role,is_highlight,display_order,media_title,video_date,performance_id,performance_title,performance_date,category,directing_id,directing_title,directing_date,class_name,class_role,country,class_date,issuing_org,award_title,received_date
+profile,artist001,김댄서,Kim Dancer,Professional dancer and choreographer,https://example.com/photo.jpg,https://instagram.com/kimdancer,https://twitter.com/kimdancer,https://youtube.com/@kimdancer,,,,,,,,,,,,,,,,,,,,,,
+choreography,artist001,,,,,,,,song001,DNA,BTS,https://www.youtube.com/watch?v=example1,2017-09-18,"Choreographer,Dancer",TRUE,1,,,,,,,,,,,,,,
+choreography,artist001,,,,,,,,song002,Feel Special,TWICE,https://www.youtube.com/watch?v=example2,2019-09-23,Choreographer,FALSE,2,,,,,,,,,,,,,,
+media,artist001,,,,,,,,,,,https://www.youtube.com/watch?v=example3,,,TRUE,1,Dance Practice Video,2023-06-15,,,,,,,,,,,
+media,artist001,,,,,,,,,,,https://www.youtube.com/watch?v=example4,,,FALSE,2,Performance Showcase,2023-08-20,,,,,,,,,,,
+performance,artist001,,,,,,,,,,,,,,,,,perf001,Seoul Dance Festival 2023,2023-05-10,참가,,,,,,,,
+performance,artist001,,,,,,,,,,,,,,,,,perf002,K-Pop World Festival,2023-09-15,수상,,,,,,,,
+directing,artist001,,,,,,,,,,,,,,,,,,,,,dir001,Spring Concert 2023,2023-03-20,,,,,,
+directing,artist001,,,,,,,,,,,,,,,,,,,,,dir002,Dance Showcase,2023-11-05,,,,,,
+workshop,artist001,,,,,,,,,,,,,,,,,,,,,,,,,"Urban Dance Workshop","Instructor,Choreographer",South Korea,2023-07-10,,,
+workshop,artist001,,,,,,,,,,,,,,,,,,,,,,,,,Contemporary Masterclass,Instructor,Japan,2023-10-15,,,
+award,artist001,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Korea Dance Association,Best Choreographer Award,2023-04-25
+award,artist001,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Seoul Arts Center,Excellence Prize,2023-12-01
