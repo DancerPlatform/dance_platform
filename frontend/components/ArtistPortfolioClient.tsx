@@ -357,7 +357,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             />
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
-                {getHighlightsData().slice(0, 4).map((item, index) => (
+                {getHighlightsData().map((item, index) => (
                   <a
                     key={index}
                     href={item.youtube_link || '#'}
@@ -383,7 +383,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 ))}
               </div>
             </div>
-            {getHighlightsData().length > 4 && (
+            {/* {getHighlightsData().length > 4 && (
               <div className="flex justify-center mt-6">
                 <button
                   onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
@@ -392,7 +392,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                   View All →
                 </button>
               </div>
-            )}
+            )} */}
           </section>
         )}
 
