@@ -9,9 +9,11 @@ import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
 export default function CreatePortfolioPage() {
+  const { refreshUser } = useAuth()
   const [formData, setFormData] = useState({
     artistId: '',
     name: '',
@@ -176,8 +178,14 @@ export default function CreatePortfolioPage() {
         throw new Error(data.error || 'Failed to create portfolio')
       }
 
-      // Success! Redirect to the new portfolio
-      router.push(`/edit-portfolio/${formData.artistId}?welcome=true`)
+      // Success! Refresh user data to get the new artistUser info
+      await refreshUser()
+
+      // Add a small delay to ensure all database operations are complete
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Redirect to the new portfolio
+      router.replace(`/edit-portfolio/${formData.artistId}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
       setIsLoading(false)

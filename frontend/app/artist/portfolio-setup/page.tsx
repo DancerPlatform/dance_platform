@@ -46,8 +46,8 @@ export default function PortfolioSetupPage() {
           .eq('auth_id', session.user.id)
           .single()
 
-        if (artistUser) {
-          router.push(`/${artistUser.artist_id}`)
+        if (profile && artistUser) {
+          router.push(`/main/profile`)
         }
         return
       }
@@ -78,7 +78,7 @@ export default function PortfolioSetupPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header onBack={() => {router.push('/main/profile')}}/>
+      <Header onBack={() => {router.push('/main')}}/>
 
       <div className="max-w-4xl mx-auto px-6 py-20">
       <div className="text-center mb-12">
