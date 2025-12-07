@@ -1,5 +1,5 @@
 
-import { Instagram, Twitter, Youtube } from "lucide-react";
+import { Instagram, Twitter, X, Youtube } from "lucide-react";
 
 interface SocialSectionProps {
   instagram?: string | null;
@@ -13,7 +13,7 @@ export default function SocialSection({instagram, twitter, youtube}: SocialSecti
       <div className="flex gap-3">
         {instagram && (
           <a
-            href={instagram}
+            href={`https://www.instagram.com/${instagram}`}
             target="_blank"
             rel="noopener noreferrer"
             className="size-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
@@ -23,7 +23,7 @@ export default function SocialSection({instagram, twitter, youtube}: SocialSecti
         )}
         {twitter && (
           <a
-            href={twitter}
+            href={`https://x.com/${twitter}`}
             target="_blank"
             rel="noopener noreferrer"
             className="size-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
@@ -33,7 +33,7 @@ export default function SocialSection({instagram, twitter, youtube}: SocialSecti
         )}
         {youtube && (
           <a
-            href={youtube}
+            href={`https://www.youtube.com/@${youtube}`}
             target="_blank"
             rel="noopener noreferrer"
             className="size-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"

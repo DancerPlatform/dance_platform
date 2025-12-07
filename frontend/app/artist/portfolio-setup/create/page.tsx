@@ -214,14 +214,14 @@ export default function CreatePortfolioPage() {
     <div className="min-h-screen bg-black text-white">
       <Header />
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
-        <Link
+      <div className="max-w-2xl mx-auto px-6 py-20">
+        {/* <Link
           href="/artist/portfolio-setup"
           className="inline-flex items-center text-gray-400 hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to options
-        </Link>
+        </Link> */}
 
         <Card className="bg-zinc-900 border-zinc-800">
           <CardHeader>

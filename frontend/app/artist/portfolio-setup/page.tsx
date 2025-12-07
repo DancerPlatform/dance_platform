@@ -78,26 +78,26 @@ export default function PortfolioSetupPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header />
+      <Header onBack={() => {router.push('/main/profile')}}/>
 
       <div className="max-w-4xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Welcome to Dance Platform</h1>
+      <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Welcome to dee<span className='text-green-400'>&apos;</span>tz</h1>
           <p className="text-gray-400 text-lg">
-            Choose how you'd like to set up your artist portfolio
+            Choose how you&apos;d like to set up your artist portfolio
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Create New Portfolio */}
-          <Card className="bg-zinc-900 border-zinc-800 hover:border-white/20 transition-colors cursor-pointer group">
+          <Card className="bg-zinc-900 border-zinc-800 hover:border-white/20 transition-colors cursor-pointer group py-6">
             <CardHeader>
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
                   <PlusCircle className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <CardTitle className="text-center text-2xl">Create New Portfolio</CardTitle>
+              <CardTitle className="text-center text-2xl text-white">Create New Portfolio</CardTitle>
               <CardDescription className="text-center text-gray-400">
                 Start fresh with a brand new artist portfolio
               </CardDescription>
@@ -118,14 +118,14 @@ export default function PortfolioSetupPage() {
           </Card>
 
           {/* Claim Existing Portfolio */}
-          <Card className="bg-zinc-900 border-zinc-800 hover:border-white/20 transition-colors cursor-pointer group">
+          <Card className="bg-zinc-900 border-zinc-800 hover:border-white/20 transition-colors cursor-pointer group py-6">
             <CardHeader>
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
                   <Search className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <CardTitle className="text-center text-2xl">Claim Existing Portfolio</CardTitle>
+              <CardTitle className="text-center text-2xl text-white">Claim Existing Portfolio</CardTitle>
               <CardDescription className="text-center text-gray-400">
                 Take ownership of an existing portfolio
               </CardDescription>
@@ -149,7 +149,7 @@ export default function PortfolioSetupPage() {
 
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500">
-            Need help? Contact support at support@danceplatform.com
+            Need help? Contact support at sungeun8877@gmail.com
           </p>
         </div>
       </div>
