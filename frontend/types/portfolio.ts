@@ -7,12 +7,14 @@ interface Song {
 }
 
 interface Performance {
+  performance_id?: string;
   performance_title: string;
   date: string;
   category?: string;
 }
 
 interface Directing {
+  directing_id?: string;
   title: string;
   date: string;
 }
