@@ -175,13 +175,32 @@ async function processRow(row: CSVRow, counts: ProcessedCounts, errors: string[]
         throw new Error(`Unknown section type: ${section}`);
     }
   } catch (err) {
-    errors.push(`[${section}] artist_id ${row.artist_id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    console.error(`Error processing ${section} for artist_id ${row.artist_id}:`, err);
+    const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
+    errors.push(`[${section}] artist_id ${row.artist_id}: ${errorMessage}`);
   }
 }
 
 async function processProfile(row: CSVRow) {
-  // Upsert artist_portfolio
-  const { error } = await supabaseAdmin
+  // First, ensure artist_user exists
+  const { error: artistUserError } = await supabaseAdmin
+    .from('artist_user')
+    .upsert({
+      artist_id: row.artist_id,
+      name: row.artist_name || null,
+      email: row.email || null,
+      phone: row.phone || null,
+      birth: row.birth || null,
+      auth_id: row.auth_id || null,
+    }, { onConflict: 'artist_id' });
+
+  if (artistUserError) {
+    console.error('Artist user upsert error:', artistUserError);
+    throw artistUserError;
+  }
+
+  // Then, upsert artist_portfolio
+  const { error: portfolioError } = await supabaseAdmin
     .from('artist_portfolio')
     .upsert({
       artist_id: row.artist_id,
@@ -194,7 +213,10 @@ async function processProfile(row: CSVRow) {
       youtube: row.youtube || null,
     }, { onConflict: 'artist_id' });
 
-  if (error) throw error;
+  if (portfolioError) {
+    console.error('Portfolio upsert error:', portfolioError);
+    throw portfolioError;
+  }
 
   // If auth_id and email are provided, create/update user_profile and edit_permissions
   if (row.auth_id && row.email) {
@@ -365,6 +387,8 @@ export async function POST(request: NextRequest) {
     // Read CSV file
     const csvText = await file.text();
     const rows = parseCSV(csvText);
+    console.log("csv text:", csvText)
+    console.log(rows)
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'CSV file contains no data rows' }, { status: 400 });
