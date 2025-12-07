@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PermissionsModal } from '@/components/portfolio/PermissionsModal';
@@ -12,7 +13,14 @@ export default function ProfilePage() {
   const { user, profile, artistUser, signOut, loading } = useAuth();
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
   const [isManagedPortfoliosModalOpen, setIsManagedPortfoliosModalOpen] = useState(false);
+  const router = useRouter();
 
+  // Redirect to portfolio setup if user doesn't have profile or artist profile
+  useEffect(() => {
+    if (!profile || !artistUser) {
+      router.push('/artist/portfolio-setup');
+    }
+  }, [loading, user, profile, artistUser, router]);
 
   // Show loading state
   if (loading) {

@@ -111,11 +111,11 @@ export default function ArtistSignupPage() {
     }
 
     // Validate phone availability if phone is provided
-    if (formData.phone.trim() && phoneValidation.checked && !phoneValidation.available) {
-      setError('Phone number is already registered. Please use another number.')
-      setIsLoading(false)
-      return
-    }
+    // if (formData.phone.trim() && phoneValidation.checked && !phoneValidation.available) {
+    //   setError('Phone number is already registered. Please use another number.')
+    //   setIsLoading(false)
+    //   return
+    // }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -252,7 +252,7 @@ export default function ArtistSignupPage() {
               )}
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="phone" className="text-white">
                 Phone Number
               </Label>
@@ -279,9 +279,9 @@ export default function ArtistSignupPage() {
                   {phoneValidation.message}
                 </p>
               )}
-            </div>
+            </div> */}
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="birth" className="text-white">
                 Date of Birth
               </Label>
@@ -294,7 +294,7 @@ export default function ArtistSignupPage() {
                 disabled={isLoading}
                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
               />
-            </div>
+            </div> */}
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-white">

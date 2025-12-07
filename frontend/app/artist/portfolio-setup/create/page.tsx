@@ -177,7 +177,7 @@ export default function CreatePortfolioPage() {
       }
 
       // Success! Redirect to the new portfolio
-      router.push(`/${formData.artistId}?welcome=true`)
+      router.push(`/edit-portfolio/${formData.artistId}?welcome=true`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
       setIsLoading(false)

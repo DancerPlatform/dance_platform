@@ -155,6 +155,10 @@ export async function getArtistUser(authId: string): Promise<ArtistUser | null> 
     .single()
 
   if (error) {
+    // PGRST116 is the "no rows returned" error code - this is expected for new users
+    if (error.code === 'PGRST116') {
+      return null
+    }
     console.error('Error fetching artist user:', error)
     return null
   }
