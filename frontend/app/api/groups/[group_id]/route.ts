@@ -36,7 +36,7 @@ export async function GET(
       );
     }
 
-    // Fetch full details for each member
+    // Fetch full details for each member including all portfolio items
     const members = await Promise.all(
       (memberIds || []).map(async ({ artist_id }) => {
         const { data: artistData } = await supabase
@@ -51,12 +51,83 @@ export async function GET(
           .eq('artist_id', artist_id)
           .single();
 
+        // Fetch workshops
+        const { data: workshops } = await supabase
+          .from('workshop')
+          .select('*')
+          .eq('artist_id', artist_id);
+
+        // Fetch awards
+        const { data: awards } = await supabase
+          .from('dancer_award')
+          .select('*')
+          .eq('artist_id', artist_id);
+
+        // Fetch choreography with song info
+        const { data: choreography } = await supabase
+          .from('dancer_choreo')
+          .select(`
+            role,
+            display_order,
+            is_highlight,
+            highlight_display_order,
+            song:song_id (
+              song_id,
+              title,
+              singer,
+              date,
+              youtube_link
+            )
+          `)
+          .eq('artist_id', artist_id)
+          .order('display_order', { ascending: true });
+
+        // Fetch media
+        const { data: media } = await supabase
+          .from('dancer_media')
+          .select('*')
+          .eq('artist_id', artist_id)
+          .order('display_order', { ascending: true });
+
+        // Fetch performances
+        const { data: performances } = await supabase
+          .from('dancer_performance')
+          .select(`
+            performance:performance_id (
+              performance_id,
+              performance_title,
+              date,
+              category
+            )
+          `)
+          .eq('artist_id', artist_id);
+
+        // Fetch directing work
+        const { data: directing } = await supabase
+          .from('dancer_directing')
+          .select(`
+            directing:directing_id (
+              directing_id,
+              title,
+              date
+            )
+          `)
+          .eq('artist_id', artist_id);
+
         return {
           artist_id,
           is_leader: artist_id === teamData.leader_id,
-          joined_date: null, // artist_team doesn't have joined_date
+          joined_date: null,
           artist: artistData,
-          portfolio: portfolioData,
+          portfolio: {
+            ...portfolioData,
+            workshops: workshops || [],
+            awards: awards || [],
+            choreography: choreography || [],
+            media: media || [],
+            performances: performances || [],
+            directing: directing || [],
+          },
         };
       })
     );
