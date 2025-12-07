@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { AdminSidebar } from '@/components/AdminSidebar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, AlertCircle, Upload, FileCheck, TrendingUp } from 'lucide-react'
+import { Loader2, AlertCircle, Upload, FileCheck, TrendingUp, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function AdminPage() {
@@ -117,7 +117,7 @@ export default function AdminPage() {
             </Alert>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Pending Claims Card */}
             <Card className="bg-zinc-900 border-zinc-800 hover:border-green-600/50 transition-colors cursor-pointer" onClick={() => router.push('/admin/claims')}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -142,6 +142,20 @@ export default function AdminPage() {
                 <div className="text-2xl font-bold text-white">{stats.totalArtists}</div>
                 <p className="text-xs text-gray-500 mt-1">
                   Registered profiles
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Artist Management Card */}
+            <Card className="bg-zinc-900 border-zinc-800 hover:border-green-600/50 transition-colors cursor-pointer" onClick={() => router.push('/admin/artists')}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-400">아티스트 관리</CardTitle>
+                <Users className="h-4 w-4 text-purple-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">Manage</div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Edit artist portfolios
                 </p>
               </CardContent>
             </Card>
@@ -171,6 +185,16 @@ export default function AdminPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
+                <button
+                  onClick={() => router.push('/admin/artists')}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors text-left"
+                >
+                  <Users className="h-5 w-5 text-purple-400" />
+                  <div>
+                    <div className="font-medium text-white">아티스트 관리</div>
+                    <div className="text-xs text-gray-400">Edit artist portfolios</div>
+                  </div>
+                </button>
                 <button
                   onClick={() => router.push('/admin/bulk-upload')}
                   className="w-full flex items-center gap-3 p-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors text-left"
