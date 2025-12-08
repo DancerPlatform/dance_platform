@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AdminSidebar } from '@/components/AdminSidebar'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, AlertCircle, Menu } from 'lucide-react'
+import { Loader2, AlertCircle, Menu, Home } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
 
 export default function AdminLayout({
   children,
@@ -78,14 +79,19 @@ export default function AdminLayout({
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile menu button */}
-        <div className="lg:hidden flex items-center h-16 px-4 border-b border-zinc-800">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-zinc-800"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <h1 className="ml-3 text-lg font-semibold">Admin Panel</h1>
+        <div className="lg:hidden flex items-center justify-between h-16 px-4 border-b border-zinc-800">
+          <div className='flex items-center'>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-zinc-800"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <h1 className="ml-3 text-lg font-semibold">Admin Panel</h1>
+          </div>
+          <Link href="/main">
+            <Home />
+          </Link>
         </div>
 
         <main className="flex-1 overflow-y-auto">

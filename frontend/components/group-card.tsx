@@ -24,7 +24,7 @@ export function GroupCard({
     <Link
       href={`/group/${groupId}`}
       className={cn(
-        "relative w-full aspect-[3/4] overflow-hidden rounded-lg bg-gray-950 border-gray-400 group hover:scale-105 transition-transform",
+        "relative w-full aspect-3/4 overflow-hidden rounded-lg bg-gray-950 border-gray-400 group hover:scale-105 transition-transform",
         className
       )}
     >
@@ -52,11 +52,11 @@ export function GroupCard({
       {/* Member Count Badge */}
 
       {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+      <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
         {/* Group Name */}
         <div className="">
-          {nameEN && <p className="text-md font-medium tracking-wide">{nameEN}</p>}
-          <h2 className="text-2xl font-bold tracking-tight">{nameKR}</h2>
+          {/* {nameEN && <p className="text-md font-medium tracking-wide">{nameEN}</p>} */}
+          <h2 className="text-md font-bold tracking-tight">{nameKR}</h2>
         </div>
       </div>
     </Link>
