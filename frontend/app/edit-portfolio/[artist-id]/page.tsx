@@ -30,7 +30,14 @@ export default function EditPortfolioPage() {
       }
 
       try {
-        // First, check if this is the user's own portfolio
+        // Admin users have permission to edit all portfolios
+        if (profile.is_admin) {
+          setHasPermission(true);
+          setPermissionChecked(true);
+          return;
+        }
+
+        // Check if this is the user's own portfolio
         if (artistUser && artistUser.artist_id === artistId) {
           setHasPermission(true);
           setPermissionChecked(true);
