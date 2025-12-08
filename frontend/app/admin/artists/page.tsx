@@ -9,9 +9,13 @@ import { supabase } from '@/lib/supabase'
 
 interface Artist {
   artist_id: string
-  artist_name: string
-  profile_image_url?: string
-  specialty?: string
+  artist_name: string | null
+  artist_name_eng: string | null
+  introduction: string | null
+  photo: string | null
+  instagram: string | null
+  twitter: string | null
+  youtube: string | null
 }
 
 export default function ArtistsManagementPage() {
@@ -58,29 +62,15 @@ export default function ArtistsManagementPage() {
 
   const fetchArtists = async () => {
     try {
-      // Fetch all artists that are not admins
+      // Fetch all artist portfolios
       const { data: artistsData, error: artistsError } = await supabase
-        .from('artists')
-        .select('artist_id, artist_name, profile_image_url, specialty')
-        .order('artist_name', { ascending: true })
+        .from('artist_portfolio')
+        .select('artist_id, artist_name, artist_name_eng, introduction, photo, instagram, twitter, youtube')
+        .order('artist_name', { ascending: true, nullsFirst: false })
 
       if (artistsError) throw artistsError
 
-      // Filter out admin users
-      const { data: profiles } = await supabase
-        .from('user_profiles')
-        .select('artist_id, is_admin')
-        .not('artist_id', 'is', null)
-
-      const adminArtistIds = new Set(
-        profiles?.filter(p => p.is_admin).map(p => p.artist_id) || []
-      )
-
-      const nonAdminArtists = artistsData?.filter(
-        artist => !adminArtistIds.has(artist.artist_id)
-      ) || []
-
-      setArtists(nonAdminArtists)
+      setArtists(artistsData || [])
     } catch (err) {
       console.error('Failed to fetch artists:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch artists')
@@ -88,8 +78,9 @@ export default function ArtistsManagementPage() {
   }
 
   const filteredArtists = artists.filter(artist =>
-    artist.artist_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    artist.specialty?.toLowerCase().includes(searchTerm.toLowerCase())
+    artist.artist_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    artist.artist_name_eng?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    artist.artist_id.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   if (isLoading) {
@@ -135,7 +126,7 @@ export default function ArtistsManagementPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search artists by name or specialty..."
+                placeholder="Search artists by name, English name, or ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-600"
@@ -154,24 +145,26 @@ export default function ArtistsManagementPage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      {artist.profile_image_url ? (
+                      {artist.photo ? (
                         <img
-                          src={artist.profile_image_url}
-                          alt={artist.artist_name}
+                          src={artist.photo}
+                          alt={artist.artist_name || artist.artist_id}
                           className="w-12 h-12 rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center">
                           <span className="text-xl text-gray-400">
-                            {artist.artist_name.charAt(0).toUpperCase()}
+                            {(artist.artist_name || artist.artist_id).charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div>
-                        <CardTitle className="text-white text-lg">{artist.artist_name}</CardTitle>
-                        {artist.specialty && (
+                        <CardTitle className="text-white text-lg">
+                          {artist.artist_name || artist.artist_id}
+                        </CardTitle>
+                        {artist.artist_name_eng && (
                           <CardDescription className="text-gray-400 text-sm">
-                            {artist.specialty}
+                            {artist.artist_name_eng}
                           </CardDescription>
                         )}
                       </div>
