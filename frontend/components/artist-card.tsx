@@ -50,11 +50,11 @@ export function ArtistCard({
       <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
 
       {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+      <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
         {/* Artist Name */}
         <div className="">
-          {nameEN && <p className="text-md font-medium tracking-wide">{nameEN}</p>}
-          <h2 className="text-2xl font-bold tracking-tight">{nameKR}</h2>
+          {nameEN && <p className="text-sm font-medium tracking-wide">{nameEN}</p>}
+          <h2 className="text-md font-bold tracking-tight">{nameKR}</h2>
         </div>
       </div>
     </Link>

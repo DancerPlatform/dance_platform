@@ -17,10 +17,10 @@ export default function ProfilePage() {
 
   // Redirect to portfolio setup if user doesn't have profile or artist profile
   useEffect(() => {
-    if (!profile || !artistUser) {
+    if (user && (!profile || !artistUser)) {
       router.push('/artist/portfolio-setup');
     }
-  }, [loading, user, profile, artistUser, router]);
+  }, [loading, user, profile, artistUser]);
 
   // Show loading state
   if (loading) {
@@ -155,7 +155,9 @@ export default function ProfilePage() {
 
           {/* Logout Button */}
           <button
-            onClick={signOut}
+            onClick={()=> {
+              signOut()
+          }}
             className="w-full px-6 py-6 text-left text-lg text-red-500 hover:bg-zinc-900 transition-colors"
           >
             로그아웃

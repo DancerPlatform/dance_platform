@@ -388,7 +388,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 <button
                   onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
                   className="text-green-400 text-sm hover:underline"
-                >
+                > 
                   View All →
                 </button>
               </div>
