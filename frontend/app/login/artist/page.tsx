@@ -47,7 +47,7 @@ function ArtistLoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-3">
-      <Header />
+      <Header onBack={() => {router.replace('/main')}} />
       <Card className="w-full max-w-md bg-black/80 py-20 border-white/20">
         <CardHeader className="text-center text-white space-y-2">
           {/* <div className="flex justify-center mb-2">
