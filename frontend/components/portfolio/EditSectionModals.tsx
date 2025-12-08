@@ -361,7 +361,7 @@ function ChoreographySortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex gap-2 sm:gap-4 p-2 bg-white/5 rounded-lg group items-center">
+    <div ref={setNodeRef} style={style} className="flex gap-1 sm:gap-2 p-2 bg-white/5 rounded-lg group items-center">
       <button
         {...attributes}
         {...listeners}
@@ -371,13 +371,15 @@ function ChoreographySortableItem({
       </button>
 
       <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
-        {item.song?.youtube_link && (
+        {item.song?.youtube_link ? (
           <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
+        ) : (
+          <div className='bg-gray-600 w-full h-6'></div>
         )}
       </div>
 
       <div className="flex-1 min-w-0 cursor-pointer" onClick={onEdit}>
-        <h3 className="font-semibold truncate text-sm sm:text-base hover:text-green-400 transition-colors">
+        <h3 className="font-semibold max-w-40 truncate text-sm sm:text-base hover:text-green-400 transition-colors">
           {item.song?.singer} - {item.song?.title}
         </h3>
         <p className="text-xs sm:text-sm text-gray-400 truncate">{item.role?.join(', ')}</p>
@@ -504,7 +506,7 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
               <p className="text-center text-zinc-400 py-8">안무가 없습니다. 추가 버튼을 눌러 추가해보세요.</p>
             )}
           </div>
-          <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <DialogFooter className="flex-col gap-2 sm:flex-row w-full">
             <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? '저장 중...' : '저장'}
             </Button>
