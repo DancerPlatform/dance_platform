@@ -468,21 +468,23 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="bg-zinc-900 text-white border-zinc-800 max-w-4xl max-h-[90vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
-          <DialogHeader>
-            <DialogTitle className="flex justify-between items-center gap-2">
-              <span className="text-base sm:text-lg">안무 편집</span>
-              <Button
-                onClick={() => setShowAddModal(true)}
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 shrink-0 text-xs sm:text-sm"
-              >
-                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                추가
-              </Button>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
+        <DialogContent className="bg-zinc-900 text-white border-zinc-800 max-w-4xl h-[90vh] w-[calc(100vw-2rem)] sm:w-full flex flex-col p-0 overflow-hidden">
+          <div className="px-6 pt-6 shrink-0">
+            <DialogHeader>
+              <DialogTitle className="flex justify-between items-center gap-2">
+                <span className="text-base sm:text-lg">안무 편집</span>
+                <Button
+                  onClick={() => setShowAddModal(true)}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 shrink-0 text-xs sm:text-sm"
+                >
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  추가
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext
                 items={choreography.map((_, i) => `choreo-${i}`)}
@@ -506,7 +508,7 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
               <p className="text-center text-zinc-400 py-8">안무가 없습니다. 추가 버튼을 눌러 추가해보세요.</p>
             )}
           </div>
-          <DialogFooter className="flex-col gap-2 sm:flex-row w-full">
+          <DialogFooter className="flex-col gap-2 sm:flex-row w-full shrink-0 bg-zinc-900 border-t border-zinc-800 px-6 py-4">
             <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? '저장 중...' : '저장'}
             </Button>
@@ -796,6 +798,13 @@ function MediaSortableItem({
         >
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </button>
+        <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
+        {item.youtube_link ? (
+          <YouTubeThumbnail url={item.youtube_link} title={item.title} />
+        ) : (
+          <div className='bg-gray-600 w-full h-6'></div>
+        )}
+      </div>
         <p className="text-xs sm:text-sm text-white truncate flex-1 min-w-0 max-w-[150px] cursor-pointer hover:text-green-400 transition-colors" onClick={onEdit}>{item.title}</p>
         <p className="text-xs text-gray-400 truncate hidden sm:block">
           {item.role}
@@ -901,21 +910,23 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="bg-zinc-900 text-white border-zinc-800 max-w-4xl max-h-[90vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
-          <DialogHeader>
-            <DialogTitle className="flex justify-between items-center gap-2">
-              <span className="text-base sm:text-lg">미디어 편집</span>
-              <Button
-                onClick={() => setShowAddModal(true)}
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 shrink-0 text-xs sm:text-sm"
-              >
-                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                추가
-              </Button>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
+        <DialogContent className="bg-zinc-900 text-white border-zinc-800 max-w-4xl h-[90vh] w-[calc(100vw-2rem)] sm:w-full flex flex-col p-0 overflow-hidden">
+          <div className="px-6 pt-6 shrink-0">
+            <DialogHeader>
+              <DialogTitle className="flex justify-between items-center gap-2">
+                <span className="text-base sm:text-lg">미디어 편집</span>
+                <Button
+                  onClick={() => setShowAddModal(true)}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 shrink-0 text-xs sm:text-sm"
+                >
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  추가
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext
                 items={media.map((_, i) => `media-${i}`)}
@@ -939,7 +950,7 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
               <p className="text-center text-zinc-400 py-8">미디어가 없습니다. 추가 버튼을 눌러 추가해보세요.</p>
             )}
           </div>
-          <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <DialogFooter className="flex-col gap-2 sm:flex-row w-full shrink-0 bg-zinc-900 border-t border-zinc-800 px-6 py-4">
             <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? '저장 중...' : '저장'}
             </Button>
