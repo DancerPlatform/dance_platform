@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Edit, User } from 'lucide-react';
+import { Edit, User, Plus } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -69,6 +69,13 @@ export function TeamPortfolioEditableClient({
   const [showDirectingEdit, setShowDirectingEdit] = useState(false);
   const [showWorkshopsEdit, setShowWorkshopsEdit] = useState(false);
   const [showAwardsEdit, setShowAwardsEdit] = useState(false);
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Array<{ id: string; name: string; name_eng?: string; photo?: string }>>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [selectedArtists, setSelectedArtists] = useState<Array<{ id: string; name: string; name_eng?: string; photo?: string }>>([]);
 
   const toggleSortOrder = (section: string) => {
     setSortOrders(prev => ({
@@ -352,6 +359,99 @@ export function TeamPortfolioEditableClient({
     router.refresh();
   };
 
+  const handleSearchArtists = async () => {
+    if (!searchQuery.trim()) {
+      alert('검색어를 입력해주세요.');
+      return;
+    }
+
+    setIsSearching(true);
+    setHasSearched(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists?q=${encodeURIComponent(searchQuery)}`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to search artists');
+      }
+
+      const data = await response.json();
+      setSearchResults(data.artists || []);
+    } catch (error) {
+      console.error('Error searching artists:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectArtist = (artist: { id: string; name: string; name_eng?: string; photo?: string }) => {
+    // Check if artist is already selected
+    if (selectedArtists.some(a => a.id === artist.id)) {
+      alert('이미 선택된 아티스트입니다.');
+      return;
+    }
+
+    setSelectedArtists([...selectedArtists, artist]);
+    setSearchQuery('');
+    setSearchResults([]);
+    setHasSearched(false);
+  };
+
+  const handleRemoveArtist = (artistId: string) => {
+    setSelectedArtists(selectedArtists.filter(a => a.id !== artistId));
+  };
+
+  const handleAddMembers = async () => {
+    if (selectedArtists.length === 0) {
+      alert('아티스트를 선택해주세요.');
+      return;
+    }
+
+    setIsAddingMember(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('로그인이 필요합니다.');
+        setIsAddingMember(false);
+        return;
+      }
+
+      const artist_ids = selectedArtists.map(artist => artist.id);
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/members`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ artist_ids }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add members');
+      }
+
+      alert(`${selectedArtists.length}명의 멤버가 추가되었습니다.`);
+
+      setSelectedArtists([]);
+      setSearchQuery('');
+      setSearchResults([]);
+      setHasSearched(false);
+      setShowAddMember(false);
+      router.refresh();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : '멤버 추가에 실패했습니다.');
+    } finally {
+      setIsAddingMember(false);
+    }
+  };
+
   // Transform data functions
   const getChoreographyData = () => {
     const data = teamChoreography.map(item => ({
@@ -522,44 +622,54 @@ export function TeamPortfolioEditableClient({
         />
 
         {/* Members Section */}
-        {portfolio.members && portfolio.members.length > 0 && (
-          <section>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Members</h2>
-            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
-              <div className="flex gap-4 sm:gap-6 min-w-max">
-                {portfolio.members.map((member, index) => (
-                  <Link
-                    key={index}
-                    href={`/artist/${member.artist_id}`}
-                    className="flex flex-col items-center group"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700 group-hover:border-green-400 transition-colors shrink-0">
-                      {member.portfolio?.photo ? (
-                        <Image
-                          src={member.portfolio.photo}
-                          alt={member.artist.name}
-                          width={96}
-                          height={96}
-                          className="w-full h-full object-cover object-top"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <User className="w-10 h-10 sm:w-12 sm:h-12 text-zinc-600" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="mt-2 text-sm sm:text-base font-medium text-white group-hover:text-green-400 transition-colors text-center">
-                      {member.portfolio?.artist_name || member.artist?.name || member.artist_id}
-                    </p>
-                    {member.is_leader && (
-                      <span className="mt-1 text-xs text-blue-400">Leader</span>
+        <section>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Members</h2>
+          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
+            <div className="flex gap-4 sm:gap-6 min-w-max">
+              {portfolio.members && portfolio.members.map((member, index) => (
+                <Link
+                  key={index}
+                  href={`/${member.artist_id}`}
+                  className="flex flex-col items-center group"
+                >
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700 group-hover:border-green-400 transition-colors shrink-0">
+                    {member.portfolio?.photo ? (
+                      <Image
+                        src={member.portfolio.photo}
+                        alt={member.artist.name}
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-10 h-10 sm:w-12 sm:h-12 text-zinc-600" />
+                      </div>
                     )}
-                  </Link>
-                ))}
-              </div>
+                  </div>
+                  <p className="mt-2 text-sm sm:text-base font-medium text-white group-hover:text-green-400 transition-colors text-center">
+                    {member.portfolio?.artist_name || member.artist?.name || member.artist_id}
+                  </p>
+                  {member.is_leader && (
+                    <span className="mt-1 text-xs text-blue-400">Leader</span>
+                  )}
+                </Link>
+              ))}
+              {/* Add Member Button */}
+              <button
+                onClick={() => setShowAddMember(true)}
+                className="flex flex-col items-center group"
+              >
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/10 hover:bg-white/20 border-2 border-dashed border-zinc-600 hover:border-green-400 transition-all shrink-0 flex items-center justify-center">
+                  <Plus className="w-8 h-8 sm:w-10 sm:h-10 text-zinc-500 group-hover:text-green-400 transition-colors" />
+                </div>
+                <p className="mt-2 text-sm sm:text-base font-medium text-zinc-500 group-hover:text-green-400 transition-colors text-center">
+                  Add Member
+                </p>
+              </button>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* Highlights */}
         {getHighlightsData().length > 0 && (
@@ -983,6 +1093,147 @@ export function TeamPortfolioEditableClient({
         onSave={handleSaveAwards}
         initialData={teamAwards}
       />
+
+      {/* Add Member Modal */}
+      {showAddMember && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Add Member</h3>
+            <div className="space-y-4">
+              <div className="relative">
+                <label className="block text-sm font-medium mb-2">Search Artist by Name</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearchArtists();
+                      }
+                    }}
+                    placeholder="Type artist name..."
+                    className="flex-1 px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-green-400"
+                    disabled={isAddingMember || isSearching}
+                  />
+                  <button
+                    onClick={handleSearchArtists}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isAddingMember || isSearching || !searchQuery.trim()}
+                  >
+                    {isSearching ? 'Searching...' : 'Search'}
+                  </button>
+                </div>
+
+                {/* Search Results Dropdown */}
+                {searchResults.length > 0 && (
+                  <div className="absolute w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg max-h-60 overflow-y-auto z-10">
+                    {searchResults.map((artist) => (
+                      <button
+                        key={artist.id}
+                        onClick={() => handleSelectArtist(artist)}
+                        className="w-full px-4 py-3 hover:bg-zinc-700 transition-colors flex items-center gap-3 text-left"
+                      >
+                        {artist.photo ? (
+                          <Image
+                            src={artist.photo}
+                            alt={artist.name}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover object-top"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
+                            <User className="w-5 h-5 text-zinc-500" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium">{artist.name}</p>
+                          {artist.name_eng && (
+                            <p className="text-xs text-gray-400">{artist.name_eng}</p>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* No results message */}
+                {!isSearching && hasSearched && searchResults.length === 0 && (
+                  <div className="absolute w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-center text-sm text-gray-400">
+                    No artists found. Try searching with different keywords.
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Artists List */}
+              {selectedArtists.length > 0 && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Selected Artists ({selectedArtists.length})</label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {selectedArtists.map((artist) => (
+                      <div
+                        key={artist.id}
+                        className="flex items-center gap-3 p-3 bg-zinc-800 rounded-lg"
+                      >
+                        {artist.photo ? (
+                          <Image
+                            src={artist.photo}
+                            alt={artist.name}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover object-top"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
+                            <User className="w-5 h-5 text-zinc-500" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{artist.name}</p>
+                          {artist.name_eng && (
+                            <p className="text-xs text-gray-400">{artist.name_eng}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleRemoveArtist(artist.id)}
+                          className="text-red-400 hover:text-red-300 text-sm px-2 py-1"
+                          disabled={isAddingMember}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setShowAddMember(false);
+                    setSelectedArtists([]);
+                    setSearchQuery('');
+                    setSearchResults([]);
+                    setHasSearched(false);
+                  }}
+                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors"
+                  disabled={isAddingMember}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddMembers}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isAddingMember || selectedArtists.length === 0}
+                >
+                  {isAddingMember ? 'Adding...' : `Add ${selectedArtists.length > 0 ? selectedArtists.length : ''} Member${selectedArtists.length !== 1 ? 's' : ''}`}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -54,7 +54,7 @@ export function ArtistCard({
         {/* Artist Name */}
         <div className="">
           {nameEN && <p className="text-sm font-medium tracking-wide">{nameEN}</p>}
-          <h2 className="text-md font-bold tracking-tight">{nameKR}</h2>
+          <h2 className="text-md md:text-lg font-bold tracking-tight">{nameKR}</h2>
         </div>
       </div>
     </Link>
