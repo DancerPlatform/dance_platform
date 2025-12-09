@@ -11,6 +11,7 @@ import { PortfolioSection } from './portfolio/PortfolioSection';
 import { ChoreographyCard, MediaCard, TextCard } from './portfolio/PortfolioCards';
 import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
+import { SectionHeaders } from './SectionHeaders';
 
 interface ArtistInfo {
   artist_id: string;
@@ -383,7 +384,7 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
                 <div key={index} className="p-4 bg-white/5 rounded-lg">
                   <h3 className="font-semibold">{workshop.class_name}</h3>
                   <p className="text-sm text-gray-400 mt-1">
-                    {workshop.class_role.join(', ')} • {workshop.country}
+                    {workshop.class_role?.join(', ')} • {workshop.country}
                   </p>
                   {workshop.class_date && (
                     <p className="text-xs text-gray-500 mt-1">

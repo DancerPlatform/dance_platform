@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Edit } from 'lucide-react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
@@ -31,6 +32,7 @@ import { VideoCarousel } from './portfolio/VideoCarousel';
 import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { chunkArray } from '@/lib/portfolioUtils';
+import { SectionHeaders } from './SectionHeaders';
 
 export function ArtistPortfolioEditableClient({
   portfolio: initialPortfolio,
