@@ -220,6 +220,10 @@ export function TeamPortfolioEditableClient({
       throw new Error('Failed to save choreography');
     }
 
+    setPortfolio({
+      ...portfolio,
+      choreography: choreography
+    });
     alert('안무 목록이 저장되었습니다.');
     router.refresh();
   };
@@ -243,10 +247,16 @@ export function TeamPortfolioEditableClient({
       }
     );
 
+    
+
     if (!response.ok) {
       throw new Error('Failed to save media');
     }
 
+    setPortfolio({
+      ...portfolio,
+      media: media
+    });
     alert('미디어가 저장되었습니다.');
     router.refresh();
   };
@@ -273,6 +283,11 @@ export function TeamPortfolioEditableClient({
     if (!response.ok) {
       throw new Error('Failed to save performances');
     }
+
+    setPortfolio({
+      ...portfolio,
+      performances: performances
+    });
 
     alert('공연 목록이 저장되었습니다.');
     router.refresh();
@@ -301,6 +316,11 @@ export function TeamPortfolioEditableClient({
       throw new Error('Failed to save directing');
     }
 
+    setPortfolio({
+      ...portfolio,
+      directing: directing
+    });
+
     alert('연출 목록이 저장되었습니다.');
     router.refresh();
   };
@@ -327,6 +347,11 @@ export function TeamPortfolioEditableClient({
     if (!response.ok) {
       throw new Error('Failed to save workshops');
     }
+
+    setPortfolio({
+      ...portfolio,
+      workshops: workshops
+    });
 
     alert('워크샵 목록이 저장되었습니다.');
     router.refresh();
@@ -355,6 +380,11 @@ export function TeamPortfolioEditableClient({
       throw new Error('Failed to save awards');
     }
 
+
+    setPortfolio({
+      ...portfolio,
+      awards: awards
+    });
     alert('수상 경력이 저장되었습니다.');
     router.refresh();
   };
