@@ -77,80 +77,13 @@ export function TeamPortfolioEditableClient({
     }));
   };
 
-  // Aggregate team choreography, media, performances, directing, workshops, and awards
-  const teamChoreography: ChoreographyItem[] = [];
-  const teamMedia: MediaItem[] = [];
-  const teamPerformances: PerformanceItem[] = [];
-  const teamDirecting: DirectingItem[] = [];
-  const teamWorkshops: Workshop[] = [];
-  const teamAwards: Award[] = [];
-
-  // Merge portfolio items from all members, removing duplicates
-  const choreographyMap = new Map<string, ChoreographyItem>();
-  portfolio.members.forEach(member => {
-    member.portfolio.choreography?.forEach(item => {
-      const songId = item.song?.song_id;
-      if (songId && !choreographyMap.has(songId)) {
-        choreographyMap.set(songId, item);
-      }
-    });
-  });
-  teamChoreography.push(...Array.from(choreographyMap.values()));
-
-  const mediaMap = new Map<string, MediaItem>();
-  portfolio.members.forEach(member => {
-    member.portfolio.media?.forEach(item => {
-      const key = item.media_id || item.youtube_link;
-      if (key && !mediaMap.has(key)) {
-        mediaMap.set(key, item);
-      }
-    });
-  });
-  teamMedia.push(...Array.from(mediaMap.values()));
-
-  const performanceMap = new Map<string, PerformanceItem>();
-  portfolio.members.forEach(member => {
-    member.portfolio.performances?.forEach(item => {
-      const perfId = item.performance?.performance_id;
-      if (perfId && !performanceMap.has(perfId)) {
-        performanceMap.set(perfId, item);
-      }
-    });
-  });
-  teamPerformances.push(...Array.from(performanceMap.values()));
-
-  const directingMap = new Map<string, DirectingItem>();
-  portfolio.members.forEach(member => {
-    member.portfolio.directing?.forEach(item => {
-      const dirId = item.directing?.directing_id;
-      if (dirId && !directingMap.has(dirId)) {
-        directingMap.set(dirId, item);
-      }
-    });
-  });
-  teamDirecting.push(...Array.from(directingMap.values()));
-
-  const workshopsMap = new Map<string, Workshop>();
-  portfolio.members.forEach(member => {
-    member.portfolio.workshops?.forEach(item => {
-      const key = `${item.class_name}_${item.class_date}`;
-      if (!workshopsMap.has(key)) {
-        workshopsMap.set(key, item);
-      }
-    });
-  });
-  teamWorkshops.push(...Array.from(workshopsMap.values()));
-
-  const awardsMap = new Map<string, Award>();
-  portfolio.members.forEach(member => {
-    member.portfolio.awards?.forEach(item => {
-      const key = `${item.issuing_org}_${item.award_title}`;
-      if (!awardsMap.has(key)) {
-        awardsMap.set(key, item);
-      }
-    });
-  });
-  teamAwards.push(...Array.from(awardsMap.values()));
+  // Use team portfolio data directly from the API response
+  const teamChoreography: ChoreographyItem[] = portfolio.choreography || [];
+  const teamMedia: MediaItem[] = portfolio.media || [];
+  const teamPerformances: PerformanceItem[] = portfolio.performances || [];
+  const teamDirecting: DirectingItem[] = portfolio.directing || [];
+  const teamWorkshops: Workshop[] = portfolio.workshops || [];
+  const teamAwards: Award[] = portfolio.awards || [];
 
   const closeModal = () => {
     setModalState({

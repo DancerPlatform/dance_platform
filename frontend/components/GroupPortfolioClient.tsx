@@ -52,6 +52,13 @@ export interface GroupPortfolio {
   youtube?: string;
   created_at?: string;
   members: GroupMember[];
+  // Team portfolio data (from team_ tables)
+  workshops?: Workshop[];
+  awards?: Award[];
+  choreography?: ChoreographyItem[];
+  media?: MediaItem[];
+  performances?: PerformanceItem[];
+  directing?: DirectingItem[];
 }
 
 type SortOrder = 'display_order' | 'date';
@@ -108,83 +115,17 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
     });
   };
 
-  // Merge portfolio items from all members, removing duplicates
+  // Use team portfolio data directly from the API response
   const mergedPortfolio = useMemo(() => {
-    // Merge choreography items (dedupe by song_id)
-    const choreographyMap = new Map<string, ChoreographyItem>();
-    group.members.forEach(member => {
-      member.portfolio.choreography?.forEach(item => {
-        const songId = item.song?.song_id;
-        if (songId && !choreographyMap.has(songId)) {
-          choreographyMap.set(songId, item);
-        }
-      });
-    });
-
-    // Merge media items (dedupe by media_id or youtube_link)
-    const mediaMap = new Map<string, MediaItem>();
-    group.members.forEach(member => {
-      member.portfolio.media?.forEach(item => {
-        const key = item.media_id || item.youtube_link;
-        if (key && !mediaMap.has(key)) {
-          mediaMap.set(key, item);
-        }
-      });
-    });
-
-    // Merge performances (dedupe by performance_id)
-    const performanceMap = new Map<string, PerformanceItem>();
-    group.members.forEach(member => {
-      member.portfolio.performances?.forEach(item => {
-        const perfId = item.performance?.performance_id;
-        if (perfId && !performanceMap.has(perfId)) {
-          performanceMap.set(perfId, item);
-        }
-      });
-    });
-
-    // Merge directing (dedupe by directing_id)
-    const directingMap = new Map<string, DirectingItem>();
-    group.members.forEach(member => {
-      member.portfolio.directing?.forEach(item => {
-        const dirId = item.directing?.directing_id;
-        if (dirId && !directingMap.has(dirId)) {
-          directingMap.set(dirId, item);
-        }
-      });
-    });
-
-    // Merge workshops (dedupe by class_name + class_date)
-    const workshopMap = new Map<string, Workshop>();
-    group.members.forEach(member => {
-      member.portfolio.workshops?.forEach(item => {
-        const key = `${item.class_name}-${item.class_date}`;
-        if (!workshopMap.has(key)) {
-          workshopMap.set(key, item);
-        }
-      });
-    });
-
-    // Merge awards (dedupe by award_title + issuing_org + received_date)
-    const awardMap = new Map<string, Award>();
-    group.members.forEach(member => {
-      member.portfolio.awards?.forEach(item => {
-        const key = `${item.award_title}-${item.issuing_org}-${item.received_date}`;
-        if (!awardMap.has(key)) {
-          awardMap.set(key, item);
-        }
-      });
-    });
-
     return {
-      choreography: Array.from(choreographyMap.values()),
-      media: Array.from(mediaMap.values()),
-      performances: Array.from(performanceMap.values()),
-      directing: Array.from(directingMap.values()),
-      workshops: Array.from(workshopMap.values()),
-      awards: Array.from(awardMap.values()),
+      choreography: group.choreography || [],
+      media: group.media || [],
+      performances: group.performances || [],
+      directing: group.directing || [],
+      workshops: group.workshops || [],
+      awards: group.awards || [],
     };
-  }, [group.members]);
+  }, [group.choreography, group.media, group.performances, group.directing, group.workshops, group.awards]);
 
   // Sorting helper functions (same as ArtistPortfolioClient)
   const sortChoreographyByDate = (items: { song: { title: string; singer: string; youtube_link: string | null; date: string | null }; role: string[]; is_highlight: boolean; display_order: number }[]) => {
