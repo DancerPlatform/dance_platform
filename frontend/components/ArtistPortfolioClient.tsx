@@ -311,9 +311,9 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                       role: item.role,
                       video_date: item.video_date,
                     })}
-                    className="group w-[320px] shrink-0 text-left"
+                    className="group w-[250px] shrink-0 text-left"
                   >
-                    <div className="overflow-hidden rounded-xl bg-zinc-900">
+                    <div className="overflow-hidden rounded-sm bg-zinc-900">
                       {item.youtube_link && (
                         <YouTubeThumbnail url={item.youtube_link} title={item.title} />
                       )}
@@ -488,7 +488,17 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 <SwiperSlide key={slideIndex}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {chunk.map((workshop, itemIndex) => (
-                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
+                      <div
+                        key={itemIndex}
+                        onClick={() => openItemModal({
+                          type: 'workshop',
+                          class_name: workshop.class_name,
+                          class_role: workshop.class_role || [],
+                          country: workshop.country,
+                          class_date: workshop.class_date,
+                        })}
+                        className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                      >
                         <h3 className="font-semibold">{workshop.class_name}</h3>
                         <p className="text-sm text-gray-400 mt-1">
                           {workshop.class_role.join(', ')} • {workshop.country}
@@ -523,7 +533,16 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 <SwiperSlide key={slideIndex}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {chunk.map((award, itemIndex) => (
-                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
+                      <div
+                        key={itemIndex}
+                        onClick={() => openItemModal({
+                          type: 'award',
+                          award_title: award.award_title,
+                          issuing_org: award.issuing_org,
+                          received_date: award.received_date,
+                        })}
+                        className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                      >
                         <h3 className="font-semibold">{award.award_title}</h3>
                         {award.issuing_org && (
                           <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>

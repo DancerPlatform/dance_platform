@@ -461,7 +461,17 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
             />
             <div className="space-y-3">
               {getWorkshopsData().slice(0, 4).map((workshop, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg">
+                <div
+                  key={index}
+                  onClick={() => openItemModal({
+                    type: 'workshop',
+                    class_name: workshop.class_name,
+                    class_role: workshop.class_role || [],
+                    country: workshop.country,
+                    class_date: workshop.class_date,
+                  })}
+                  className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                >
                   <h3 className="font-semibold">{workshop.class_name}</h3>
                   <p className="text-sm text-gray-400 mt-1">
                     {workshop.class_role?.join(', ')} • {workshop.country}
