@@ -1158,16 +1158,16 @@ export function TeamPortfolioEditableClient({
                 {/* Search Results Dropdown */}
                 {searchResults.length > 0 && (
                   <div className="absolute w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg max-h-60 overflow-y-auto z-10">
-                    {searchResults.map((artist) => (
+                    {searchResults.map((artist, index) => (
                       <button
-                        key={artist.id}
+                        key={artist.id + index}
                         onClick={() => handleSelectArtist(artist)}
                         className="w-full px-4 py-3 hover:bg-zinc-700 transition-colors flex items-center gap-3 text-left"
                       >
                         {artist.photo ? (
                           <Image
                             src={artist.photo}
-                            alt={artist.name}
+                            alt={artist.name || "artist photo"}
                             width={40}
                             height={40}
                             className="w-10 h-10 rounded-full object-cover object-top"
@@ -1201,9 +1201,9 @@ export function TeamPortfolioEditableClient({
                 <div className="space-y-2">
                   <label className="block text-sm font-medium">Selected Artists ({selectedArtists.length})</label>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {selectedArtists.map((artist) => (
+                    {selectedArtists.map((artist, index) => (
                       <div
-                        key={artist.id}
+                        key={artist.id + index}
                         className="flex items-center gap-3 p-3 bg-zinc-800 rounded-lg"
                       >
                         {artist.photo ? (
