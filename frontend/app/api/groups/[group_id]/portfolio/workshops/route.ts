@@ -1,0 +1,63 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ group_id: string }> }
+) {
+  try {
+    const { group_id } = await params;
+    const body = await request.json();
+    const { workshops } = body;
+
+    // Get auth token from request headers
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Create authenticated Supabase client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: authHeader,
+        },
+      },
+    });
+
+    // Update workshops
+    if (workshops && Array.isArray(workshops)) {
+      // Delete all existing workshops
+      await authClient
+        .from('team_workshop')
+        .delete()
+        .eq('team_id', group_id);
+
+      // Insert new workshops with display_order
+      for (let index = 0; index < workshops.length; index++) {
+        const workshop = workshops[index];
+        await authClient.from('team_workshop').insert({
+          team_id: group_id,
+          class_name: workshop.class_name,
+          class_date: workshop.class_date,
+          country: workshop.country,
+          class_role: workshop.class_role || null,
+          display_order: index,
+        });
+      }
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error updating workshops:', error);
+    return NextResponse.json(
+      { error: 'Failed to update workshops' },
+      { status: 500 }
+    );
+  }
+}
