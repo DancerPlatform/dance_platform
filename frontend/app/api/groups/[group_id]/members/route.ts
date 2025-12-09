@@ -38,34 +38,6 @@ export async function POST(
   }
 
   try {
-    // const { data: team, error: teamError } = await supabase
-    //   .from('team_portfolio')
-    //   .select('leader_id')
-    //   .eq('team_id', group_id)
-    //   .single();
-
-    // if (teamError || !team) {
-    //   return NextResponse.json({ error: 'Team not found' }, { status: 404 });
-    // }
-
-    // const { data: artistUser, error: artistUserError } = await supabase
-    //   .from('artist_user')
-    //   .select('artist_id')
-    //   .eq('auth_id', user.id)
-    //   .single();
-
-    // if (artistUserError || !artistUser) {
-    //   return NextResponse.json({ error: 'User not found or is not an artist' }, { status: 404 });
-    // }
-
-    // if (team.leader_id !== artistUser.artist_id) {
-    //   return NextResponse.json({ error: 'You do not have permission to add members to this team.' }, { status: 403 });
-    // }
-
-    // const membersToAdd = artist_ids.map(artist_id => ({
-    //   team_id: group_id,
-    //   artist_id: artist_id,
-    // }));
     console.log(group_id)
 
     artist_ids.forEach(async (id) => {

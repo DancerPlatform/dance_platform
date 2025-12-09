@@ -35,12 +35,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Format data for search results
+    // Format data to match the Artist type expected by the frontend
     const artists = data?.map(artist => ({
-      id: artist.artist_id,
-      name: artist.artist_name,
-      name_eng: artist.artist_name_eng,
-      photo: artist.photo
+      artist_id: artist.artist_id,
+      artist_name: artist.artist_name,
+      artist_name_eng: artist.artist_name_eng,
+      photo: artist.photo,
+      introduction: null,
+      instagram: null,
+      twitter: null,
+      youtube: null,
     })) || [];
 
     return NextResponse.json({
