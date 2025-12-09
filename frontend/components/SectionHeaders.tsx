@@ -7,7 +7,7 @@ interface SectionHeadersProps {
 export function SectionHeaders({ title, sortOrder, onToggleSort }: SectionHeadersProps) {
   return (
     <div className="flex items-center justify-between gap-4 mb-6">
-      <h2 className="text-3xl font-bold">{title}</h2>
+      <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
       <div className="flex gap-4">
         <button
           onClick={onToggleSort}

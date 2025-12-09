@@ -12,7 +12,7 @@ import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, ArrowRight } from '
 import { supabase } from '@/lib/supabase'
 import { PortfolioClaimRequestWithArtist } from '@/lib/types/claims'
 
-export default function MyClaimsPage() {
+export default function MyClaimsClients() {
   const [claims, setClaims] = useState<PortfolioClaimRequestWithArtist[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

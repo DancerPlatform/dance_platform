@@ -22,9 +22,7 @@ export function ChoreographyCard({ song, role, youtubeLink }: ChoreographyCardPr
     : null;
 
   return (
-    <a
-      href={youtubeLink}
-      target="_blank"
+    <div
       rel="noopener noreferrer"
       className="flex gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
     >
@@ -40,7 +38,7 @@ export function ChoreographyCard({ song, role, youtubeLink }: ChoreographyCardPr
           <p className="text-xs text-gray-500 mt-0.5">{formattedDate}</p>
         )}
       </div>
-    </a>
+    </div>
   );
 }
 
@@ -62,9 +60,7 @@ export function MediaCard({ title, role, youtubeLink, videoDate }: MediaCardProp
     : null;
 
   return (
-    <a
-      href={youtubeLink}
-      target="_blank"
+    <div
       rel="noopener noreferrer"
       className="group relative block"
     >
@@ -78,7 +74,7 @@ export function MediaCard({ title, role, youtubeLink, videoDate }: MediaCardProp
         {role.join(', ')}
         {formattedDate && ` · ${formattedDate}`}
       </p>
-    </a>
+    </div>
   );
 }
 
