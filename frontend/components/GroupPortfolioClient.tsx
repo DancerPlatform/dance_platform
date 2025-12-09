@@ -12,6 +12,9 @@ import { ChoreographyCard, MediaCard, TextCard } from './portfolio/PortfolioCard
 import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { SectionHeaders } from './SectionHeaders';
+import Link from 'next/link';
+import { User } from 'lucide-react';
+import Image from 'next/image';
 
 interface ArtistInfo {
   artist_id: string;
@@ -185,6 +188,43 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
           twitter={group.twitter}
           youtube={group.youtube}
         />
+        {/* Members Section */}
+        <section>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Members</h2>
+          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
+            <div className="flex gap-4 sm:gap-6 min-w-max">
+              {group.members && group.members.map((member, index) => (
+                <Link
+                  key={index}
+                  href={`/${member.artist_id}`}
+                  className="flex flex-col items-center group"
+                >
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700 group-hover:border-green-400 transition-colors shrink-0">
+                    {member.portfolio?.photo ? (
+                      <Image
+                        src={member.portfolio.photo}
+                        alt={member.artist.name}
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-10 h-10 sm:w-12 sm:h-12 text-zinc-600" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm sm:text-base font-medium text-white group-hover:text-green-400 transition-colors text-center">
+                    {member.portfolio?.artist_name || member.artist?.name || member.artist_id}
+                  </p>
+                  {member.is_leader && (
+                    <span className="mt-1 text-xs text-blue-400">Leader</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Highlights */}
         {(getHighlightsData().length > 0) && (
@@ -407,28 +447,7 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
           </section>
         )}
 
-        {/* Members Section */}
-        {group.members && group.members.length > 0 && (
-          <section>
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold">Members</h2>
-              <p className="text-gray-400 text-sm mt-2">
-                {group.members.length} member{group.members.length > 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-              {group.members.map((member) => (
-                <ArtistCard
-                  key={member.artist_id}
-                  artistId={member.artist_id}
-                  nameEN={`${member.portfolio.artist_name_eng}`}
-                  nameKR={member.portfolio.artist_name}
-                  imageUrl={member.portfolio.photo as string}
-                />
-              ))}
-            </div>
-          </section>
-        )}
+        
       </div>
 
       {/* Modal */}
