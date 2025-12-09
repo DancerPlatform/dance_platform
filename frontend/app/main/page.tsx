@@ -114,9 +114,9 @@ export default function MainPage() {
                 <div key={index} className='w-full bg-gray-950 animate-pulse aspect-3/4 rounded-lg'></div>
               ))
             :
-            artists.map((artist) => (
+            artists.map((artist, index) => (
               <ArtistCard
-                key={artist.artist_id}
+                key={`${artist.artist_id}-${index}`}
                 artistId={artist.artist_id}
                 nameEN={artist.artist_name_eng}
                 nameKR={artist.artist_name}

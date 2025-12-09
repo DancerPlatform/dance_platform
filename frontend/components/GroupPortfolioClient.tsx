@@ -1,13 +1,20 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import Image from 'next/image';
+import { useMemo } from 'react';
 import { ArtistCard } from './artist-card';
 import SocialSection from './portfolio/SocialSection';
-import { PortfolioModal, PortfolioSectionType, PortfolioData } from './PortfolioModal';
+import { PortfolioModal } from './PortfolioModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
+import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
+import { PortfolioSection } from './portfolio/PortfolioSection';
+import { ChoreographyCard, MediaCard, TextCard } from './portfolio/PortfolioCards';
+import { usePortfolioSort } from '@/hooks/usePortfolioSort';
+import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { SectionHeaders } from './SectionHeaders';
+import Link from 'next/link';
+import { User } from 'lucide-react';
+import Image from 'next/image';
 
 interface ArtistInfo {
   artist_id: string;
@@ -61,59 +68,9 @@ export interface GroupPortfolio {
   directing?: DirectingItem[];
 }
 
-type SortOrder = 'display_order' | 'date';
-
 export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    sectionType: PortfolioSectionType | null;
-    sectionTitle: string;
-    data: PortfolioData;
-  }>({
-    isOpen: false,
-    sectionType: null,
-    sectionTitle: '',
-    data: [],
-  });
-
-  // Sort order state for each section
-  const [sortOrders, setSortOrders] = useState<Record<string, SortOrder>>({
-    highlights: 'display_order',
-    choreographies: 'display_order',
-    media: 'display_order',
-    directing: 'display_order',
-    performances: 'display_order',
-    workshops: 'display_order',
-  });
-
-  const toggleSortOrder = (section: string) => {
-    setSortOrders(prev => ({
-      ...prev,
-      [section]: prev[section] === 'display_order' ? 'date' : 'display_order'
-    }));
-  };
-
-  const openModal = (
-    sectionType: PortfolioSectionType,
-    sectionTitle: string,
-    data: PortfolioData
-  ) => {
-    setModalState({
-      isOpen: true,
-      sectionType,
-      sectionTitle,
-      data,
-    });
-  };
-
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      sectionType: null,
-      sectionTitle: '',
-      data: [],
-    });
-  };
+  const { sortOrders, toggleSortOrder } = usePortfolioSort();
+  const { modalState, openModal, closeModal } = usePortfolioModal();
 
   // Use team portfolio data directly from the API response
   const mergedPortfolio = useMemo(() => {
@@ -127,8 +84,8 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
     };
   }, [group.choreography, group.media, group.performances, group.directing, group.workshops, group.awards]);
 
-  // Sorting helper functions (same as ArtistPortfolioClient)
-  const sortChoreographyByDate = (items: { song: { title: string; singer: string; youtube_link: string | null; date: string | null }; role: string[]; is_highlight: boolean; display_order: number }[]) => {
+  // Sorting helper functions
+  const sortChoreographyByDate = (items: typeof mergedPortfolio.choreography) => {
     return [...items].sort((a, b) => {
       const dateA = a.song?.date ? new Date(a.song.date).getTime() : 0;
       const dateB = b.song?.date ? new Date(b.song.date).getTime() : 0;
@@ -136,7 +93,7 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
     });
   };
 
-  const sortMediaByDate = (items: { youtube_link: string; role: string[]; is_highlight: boolean; display_order: number; title: string; video_date: string | null }[]) => {
+  const sortMediaByDate = (items: typeof mergedPortfolio.media) => {
     return [...items].sort((a, b) => {
       const dateA = a.video_date ? new Date(a.video_date).getTime() : 0;
       const dateB = b.video_date ? new Date(b.video_date).getTime() : 0;
@@ -144,64 +101,21 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
     });
   };
 
-  const sortDirectingByDate = (items: { title: string; date: string | null }[]) => {
-    return [...items].sort((a, b) => {
-      const dateA = a.date ? new Date(a.date).getTime() : 0;
-      const dateB = b.date ? new Date(b.date).getTime() : 0;
-      return dateB - dateA;
-    });
-  };
-
-  const sortPerformancesByDate = (items: { performance_title: string; date: string | null; category: string | null }[]) => {
-    return [...items].sort((a, b) => {
-      const dateA = a.date ? new Date(a.date).getTime() : 0;
-      const dateB = b.date ? new Date(b.date).getTime() : 0;
-      return dateB - dateA;
-    });
-  };
-
-  const sortWorkshopsByDate = (items: { class_name: string; class_role: string[]; country: string | null; class_date: string | null }[]) => {
-    return [...items].sort((a, b) => {
-      const dateA = a.class_date ? new Date(a.class_date).getTime() : 0;
-      const dateB = b.class_date ? new Date(b.class_date).getTime() : 0;
-      return dateB - dateA;
-    });
-  };
-
-  // Transform data for modal (same as ArtistPortfolioClient)
+  // Transform data for display
   const getChoreographyData = () => {
-    const data = mergedPortfolio.choreography.map(item => ({
-      song: {
-        title: item.song?.title || '',
-        singer: item.song?.singer || '',
-        youtube_link: item.song?.youtube_link || null,
-        date: item.song?.date || null,
-      },
-      role: item.role || [],
-      is_highlight: item.is_highlight,
-      display_order: item.display_order,
-    }));
-
+    const data = mergedPortfolio.choreography;
     if (sortOrders.choreographies === 'date') {
       return sortChoreographyByDate(data);
     }
-    return data.sort((a, b) => a.display_order - b.display_order);
+    return [...data].sort((a, b) => a.display_order - b.display_order);
   };
 
   const getMediaData = () => {
-    const data = mergedPortfolio.media.map(item => ({
-      youtube_link: item.youtube_link,
-      role: item.role ? [item.role] : [],
-      is_highlight: item.is_highlight,
-      display_order: item.display_order,
-      title: item.title,
-      video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
-    }));
-
+    const data = mergedPortfolio.media;
     if (sortOrders.media === 'date') {
       return sortMediaByDate(data);
     }
-    return data.sort((a, b) => a.display_order - b.display_order);
+    return [...data].sort((a, b) => a.display_order - b.display_order);
   };
 
   const getHighlightsData = () => {
@@ -210,7 +124,6 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
       .map(item => ({
         youtube_link: item.song?.youtube_link || '',
         role: item.role || [],
-        is_highlight: true,
         display_order: item.display_order,
         title: item.song ? `${item.song.singer} - ${item.song.title}` : 'Untitled',
         video_date: item.song?.date || null,
@@ -221,88 +134,42 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
       .map(item => ({
         youtube_link: item.youtube_link,
         role: item.role ? [item.role] : [],
-        is_highlight: item.is_highlight,
         display_order: item.display_order,
         title: item.title,
-        video_date: item.video_date ? new Date(item.video_date).toISOString() : null,
+        video_date: item.video_date || null,
       }));
 
     const combined = [...choreoHighlights, ...mediaHighlights];
-
     if (sortOrders.highlights === 'date') {
-      return sortMediaByDate(combined);
+      return sortMediaByDate(combined as any);
     }
     return combined.sort((a, b) => a.display_order - b.display_order);
   };
 
   const getDirectingData = () => {
-    const data = mergedPortfolio.directing
+    return mergedPortfolio.directing
       .filter(item => item.directing)
-      .map(item => ({
-        title: item.directing!.title,
-        date: item.directing!.date,
-      }));
-
-    if (sortOrders.directing === 'date') {
-      return sortDirectingByDate(data);
-    }
-    return data;
+      .map(item => item.directing!);
   };
 
   const getPerformancesData = () => {
-    const data = mergedPortfolio.performances
+    return mergedPortfolio.performances
       .filter(item => item.performance)
-      .map(item => ({
-        performance_title: item.performance!.performance_title,
-        date: item.performance!.date,
-        category: item.performance!.category || null,
-      }));
-
-    if (sortOrders.performances === 'date') {
-      return sortPerformancesByDate(data);
-    }
-    return data;
+      .map(item => item.performance!);
   };
 
   const getWorkshopsData = () => {
-    const data = mergedPortfolio.workshops.map(workshop => ({
-      class_name: workshop.class_name,
-      class_role: workshop.class_role || [],
-      country: workshop.country,
-      class_date: workshop.class_date,
-    }));
-
-    if (sortOrders.workshops === 'date') {
-      return sortWorkshopsByDate(data);
-    }
-    return data;
+    return mergedPortfolio.workshops;
   };
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="relative h-[400px] overflow-hidden">
-        {group.photo && (
-          <>
-            <Image
-              src={group.photo}
-              alt={group.group_name}
-              fill
-              className="object-cover object-top"
-              priority
-            />
-            <div className="absolute bottom-0 inset-0 bg-linear-to-b from-transparent via-black/50 to-black"></div>
-          </>
-        )}
-
-        {/* Group Info Section */}
-        <div className="absolute bottom-0 left-0 right-0 text-center flex flex-col items-center">
-          <h1 className="text-4xl font-bold mb-2">{group.group_name}</h1>
-          {group.group_name_eng && (
-            <p className="text-xl text-gray-300">{group.group_name_eng}</p>
-          )}
-        </div>
-      </div>
+      <PortfolioHeroSection
+        photoUrl={group.photo}
+        name={group.group_name}
+        nameEng={group.group_name_eng}
+        heightClass="h-[400px]"
+      />
 
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
@@ -321,6 +188,43 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
           twitter={group.twitter}
           youtube={group.youtube}
         />
+        {/* Members Section */}
+        <section>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Members</h2>
+          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
+            <div className="flex gap-4 sm:gap-6 min-w-max">
+              {group.members && group.members.map((member, index) => (
+                <Link
+                  key={index}
+                  href={`/${member.artist_id}`}
+                  className="flex flex-col items-center group"
+                >
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700 group-hover:border-green-400 transition-colors shrink-0">
+                    {member.portfolio?.photo ? (
+                      <Image
+                        src={member.portfolio.photo}
+                        alt={member.artist.name}
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-10 h-10 sm:w-12 sm:h-12 text-zinc-600" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm sm:text-base font-medium text-white group-hover:text-green-400 transition-colors text-center">
+                    {member.portfolio?.artist_name || member.artist?.name || member.artist_id}
+                  </p>
+                  {member.is_leader && (
+                    <span className="mt-1 text-xs text-blue-400">Leader</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Highlights */}
         {(getHighlightsData().length > 0) && (
@@ -373,127 +277,99 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
 
         {/* Choreographies */}
         {mergedPortfolio.choreography && mergedPortfolio.choreography.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Choreographies"
-              sortOrder={sortOrders.choreographies}
-              onToggleSort={() => toggleSortOrder('choreographies')}
-            />
+          <PortfolioSection
+            title="Choreographies"
+            sortOrder={sortOrders.choreographies}
+            onToggleSort={() => toggleSortOrder('choreographies')}
+            isEmpty={false}
+          >
             <div className="space-y-4">
               {getChoreographyData().slice(0, 4).map((item, index) => (
-                <a
+                <ChoreographyCard
                   key={index}
-                  href={item.song.youtube_link || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
-                >
-                  <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
-                    {item.song.youtube_link && (
-                      <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate group-hover:text-green-400 transition-colors">
-                      {item.song.singer} - {item.song.title}
-                    </h3>
-                    <p className="text-sm text-gray-400">{item.role.join(', ')}</p>
-                    {item.song.date && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(item.song.date).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                </a>
+                  song={{
+                    singer: item.song?.singer || '',
+                    title: item.song?.title || '',
+                    date: item.song?.date || null,
+                  }}
+                  role={item.role || []}
+                  youtubeLink={item.song?.youtube_link || '#'}
+                />
               ))}
             </div>
             {getChoreographyData().length > 4 && (
               <div className="flex justify-center mt-6">
                 <button
-                  onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData())}
+                  onClick={() => openModal('choreographies', 'Choreographies', getChoreographyData() as any)}
                   className="text-green-400 text-sm hover:underline"
                 >
                   View All →
                 </button>
               </div>
             )}
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Media */}
         {mergedPortfolio.media && mergedPortfolio.media.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Media"
-              sortOrder={sortOrders.media}
-              onToggleSort={() => toggleSortOrder('media')}
-            />
+          <PortfolioSection
+            title="Media"
+            sortOrder={sortOrders.media}
+            onToggleSort={() => toggleSortOrder('media')}
+            isEmpty={false}
+          >
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {getMediaData().slice(0, 4).map((item, index) => (
-                <a
+                <MediaCard
                   key={index}
-                  href={item.youtube_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative"
-                >
-                  <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                    <YouTubeThumbnail url={item.youtube_link} />
-                  </div>
-                  <p className="text-sm text-white mt-1 truncate">{item.title}</p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {item.role.join(', ')}
-                    {item.video_date && (
-                      <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
-                    )}
-                  </p>
-                </a>
+                  title={item.title}
+                  role={item.role ? [item.role] : []}
+                  youtubeLink={item.youtube_link}
+                  videoDate={item.video_date ? (typeof item.video_date === 'string' ? item.video_date : item.video_date.toISOString()) : null}
+                />
               ))}
             </div>
             {getMediaData().length > 4 && (
               <div className="flex justify-center mt-6">
                 <button
-                  onClick={() => openModal('media', 'Media', getMediaData())}
+                  onClick={() => openModal('media', 'Media', getMediaData() as any)}
                   className="text-green-400 text-sm hover:underline"
                 >
                   View All →
                 </button>
               </div>
             )}
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Directing */}
         {mergedPortfolio.directing && mergedPortfolio.directing.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Directing"
-              sortOrder={sortOrders.directing}
-              onToggleSort={() => toggleSortOrder('directing')}
-            />
+          <PortfolioSection
+            title="Directing"
+            sortOrder={sortOrders.directing}
+            onToggleSort={() => toggleSortOrder('directing')}
+            isEmpty={false}
+          >
             <div className="space-y-3">
               {getDirectingData().slice(0, 4).map((item, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  {item.date && (
-                    <p className="text-sm text-gray-400 mt-1">
-                      {new Date(item.date).getFullYear()}.{String(new Date(item.date).getMonth() + 1).padStart(2, '0')}
-                    </p>
-                  )}
-                </div>
+                <TextCard
+                  key={index}
+                  title={item.title}
+                  date={item.date}
+                />
               ))}
             </div>
             {getDirectingData().length > 4 && (
               <div className="flex justify-center mt-6">
                 <button
-                  onClick={() => openModal('directing', 'Directing', getDirectingData())}
+                  onClick={() => openModal('directing', 'Directing', getDirectingData() as any)}
                   className="text-green-400 text-sm hover:underline"
                 >
                   View All →
                 </button>
               </div>
             )}
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Performances */}
@@ -548,7 +424,7 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
                 <div key={index} className="p-4 bg-white/5 rounded-lg">
                   <h3 className="font-semibold">{workshop.class_name}</h3>
                   <p className="text-sm text-gray-400 mt-1">
-                    {workshop.class_role.join(', ')} • {workshop.country}
+                    {workshop.class_role?.join(', ')} • {workshop.country}
                   </p>
                   {workshop.class_date && (
                     <p className="text-xs text-gray-500 mt-1">
@@ -571,28 +447,7 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
           </section>
         )}
 
-        {/* Members Section */}
-        {group.members && group.members.length > 0 && (
-          <section>
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold">Members</h2>
-              <p className="text-gray-400 text-sm mt-2">
-                {group.members.length} member{group.members.length > 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-              {group.members.map((member) => (
-                <ArtistCard
-                  key={member.artist_id}
-                  artistId={member.artist_id}
-                  nameEN={`${member.portfolio.artist_name_eng}`}
-                  nameKR={member.portfolio.artist_name}
-                  imageUrl={member.portfolio.photo as string}
-                />
-              ))}
-            </div>
-          </section>
-        )}
+        
       </div>
 
       {/* Modal */}

@@ -1,7 +1,7 @@
 export interface Artist {
   artist_id: string;
   artist_name: string;
-  artist_name_eng: string;
+  artist_name_eng: string | null;
   introduction: string | null;
   photo: string | null;
   instagram: string | null;

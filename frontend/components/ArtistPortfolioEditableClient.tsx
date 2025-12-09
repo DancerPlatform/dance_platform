@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { Edit } from 'lucide-react';
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import './ArtistPortfolioClient.css';
-import { PortfolioModal, PortfolioSectionType } from './PortfolioModal';
+import { PortfolioModal } from './PortfolioModal';
 import { ArtistPortfolio } from './ArtistPortfolioClient';
 import {
   ProfileEditModal,
@@ -25,9 +25,14 @@ import { useRouter } from 'next/navigation';
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
+import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
+import { PortfolioSection } from './portfolio/PortfolioSection';
+import { ChoreographyCard, MediaCard, TextCard } from './portfolio/PortfolioCards';
+import { VideoCarousel } from './portfolio/VideoCarousel';
+import { usePortfolioSort } from '@/hooks/usePortfolioSort';
+import { usePortfolioModal } from '@/hooks/usePortfolioModal';
+import { chunkArray } from '@/lib/portfolioUtils';
 import { SectionHeaders } from './SectionHeaders';
-
-type SortOrder = 'display_order' | 'date';
 
 export function ArtistPortfolioEditableClient({
   portfolio: initialPortfolio,
@@ -38,27 +43,8 @@ export function ArtistPortfolioEditableClient({
 }) {
   const router = useRouter();
   const [portfolio, setPortfolio] = useState<ArtistPortfolio>(initialPortfolio);
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    sectionType: PortfolioSectionType | null;
-    sectionTitle: string;
-    data: any[];
-  }>({
-    isOpen: false,
-    sectionType: null,
-    sectionTitle: '',
-    data: [],
-  });
-
-  // Sort order state for each section
-  const [sortOrders, setSortOrders] = useState<Record<string, SortOrder>>({
-    highlights: 'display_order',
-    choreographies: 'display_order',
-    media: 'display_order',
-    directing: 'display_order',
-    performances: 'display_order',
-    workshops: 'display_order',
-  });
+  const { sortOrders, toggleSortOrder } = usePortfolioSort();
+  const { modalState, closeModal } = usePortfolioModal();
 
   // Edit modal states
   const [showProfileEdit, setShowProfileEdit] = useState(false);
@@ -68,31 +54,6 @@ export function ArtistPortfolioEditableClient({
   const [showDirectingEdit, setShowDirectingEdit] = useState(false);
   const [showWorkshopsEdit, setShowWorkshopsEdit] = useState(false);
   const [showAwardsEdit, setShowAwardsEdit] = useState(false);
-
-  const toggleSortOrder = (section: string) => {
-    setSortOrders(prev => ({
-      ...prev,
-      [section]: prev[section] === 'display_order' ? 'date' : 'display_order'
-    }));
-  };
-
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      sectionType: null,
-      sectionTitle: '',
-      data: [],
-    });
-  };
-
-  // Helper function to chunk array into groups
-  const chunkArray = <T,>(array: T[], size: number): T[][] => {
-    const chunks: T[][] = [];
-    for (let i = 0; i < array.length; i += size) {
-      chunks.push(array.slice(i, i + size));
-    }
-    return chunks;
-  };
 
   // Sorting helper functions
   const sortChoreographyByDate = (items: { song: { title: string; singer: string; youtube_link: string | null; date: string | null }; role: string[]; is_highlight: boolean; display_order: number }[]) => {
@@ -462,36 +423,14 @@ export function ArtistPortfolioEditableClient({
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="relative h-[400px] sm:h-[500px] overflow-hidden">
-        {portfolio.photo && (
-          <>
-            <Image
-              src={portfolio.photo}
-              alt={portfolio.artist_name}
-              fill
-              className="object-cover object-top"
-              priority
-            />
-            <div className="absolute bottom-0 inset-0 bg-linear-to-b from-transparent via-black/50 to-black"></div>
-          </>
-        )}
-
-        {/* Artist Info Section */}
-        <div className="absolute bottom-0 left-0 right-0 text-center flex flex-col items-center px-4">
-          <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">{portfolio.artist_name}</h1>
-          {portfolio.artist_name_eng && (
-            <p className="text-base sm:text-xl text-gray-300">{portfolio.artist_name_eng}</p>
-          )}
-          <button
-            onClick={() => setShowProfileEdit(true)}
-            className="mt-3 sm:mt-4 flex items-center gap-2 px-3 py-2 sm:px-4 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-          >
-            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="text-xs sm:text-sm">프로필 편집</span>
-          </button>
-        </div>
-      </div>
+      <PortfolioHeroSection
+        photoUrl={portfolio.photo}
+        name={portfolio.artist_name}
+        nameEng={portfolio.artist_name_eng}
+        heightClass="h-[400px] sm:h-[500px]"
+        editable={true}
+        onEdit={() => setShowProfileEdit(true)}
+      />
 
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
@@ -577,124 +516,57 @@ export function ArtistPortfolioEditableClient({
         )}
 
         {/* Choreographies */}
-        <section>
-          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-            <SectionHeaders
-              title="Choreographies"
-              sortOrder={sortOrders.choreographies}
-              onToggleSort={() => toggleSortOrder('choreographies')}
-            />
-            <button
-              onClick={() => setShowChoreographyEdit(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
-            >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm">편집</span>
-            </button>
-          </div>
-          {portfolio.choreography && portfolio.choreography.length > 0 ? (
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={16}
-              slidesPerView={1}
-              pagination={{ clickable: true }}
-              navigation
-              className="pb-12!"
-            >
-              {chunkArray(getChoreographyData(), 4).map((chunk, slideIndex) => (
-                <SwiperSlide key={slideIndex}>
-                  <div className="space-y-3 sm:space-y-4">
-                    {chunk.map((item, itemIndex) => (
-                      <a
-                        key={itemIndex}
-                        href={item.song.youtube_link || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex gap-2 sm:gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
-                      >
-                        <div className="w-24 h-14 sm:w-36 sm:h-20 shrink-0 rounded-sm overflow-hidden">
-                          {item.song.youtube_link && (
-                            <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm sm:text-base truncate group-hover:text-green-400 transition-colors">
-                            {item.song.singer} - {item.song.title}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-gray-400">{item.role.join(', ')}</p>
-                          {item.song.date && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(item.song.date).toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <p className="text-sm text-gray-400">아직 안무 작품이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
-          )}
-        </section>
+        <PortfolioSection
+          title="Choreographies"
+          sortOrder={sortOrders.choreographies}
+          onToggleSort={() => toggleSortOrder('choreographies')}
+          editable={true}
+          onEdit={() => setShowChoreographyEdit(true)}
+          isEmpty={!portfolio.choreography || portfolio.choreography.length === 0}
+          emptyMessage="아직 안무 작품이 없습니다. 편집 버튼을 눌러 추가해보세요."
+        >
+          <VideoCarousel
+            items={getChoreographyData()}
+            itemsPerSlide={4}
+            containerClassName="space-y-3 sm:space-y-4"
+            renderItem={(item) => (
+              <ChoreographyCard
+                song={{
+                  singer: item.song.singer,
+                  title: item.song.title,
+                  date: item.song.date,
+                }}
+                role={item.role}
+                youtubeLink={item.song.youtube_link || '#'}
+              />
+            )}
+          />
+        </PortfolioSection>
 
         {/* Media */}
-        <section>
-          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-            <SectionHeaders
-              title="Media"
-              sortOrder={sortOrders.media}
-              onToggleSort={() => toggleSortOrder('media')}
-            />
-            <button
-              onClick={() => setShowMediaEdit(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
-            >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm">편집</span>
-            </button>
-          </div>
-          {portfolio.media && portfolio.media.length > 0 ? (
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={16}
-              slidesPerView={1}
-              pagination={{ clickable: true }}
-              navigation
-              className="pb-12!"
-            >
-              {chunkArray(getMediaData(), 4).map((chunk, slideIndex) => (
-                <SwiperSlide key={slideIndex}>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                    {chunk.map((item, itemIndex) => (
-                      <a
-                        key={itemIndex}
-                        href={item.youtube_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative block"
-                      >
-                        <div className="aspect-video bg-gray-800 rounded-md sm:rounded-lg overflow-hidden">
-                          <YouTubeThumbnail url={item.youtube_link} />
-                        </div>
-                        <p className="text-xs sm:text-sm text-white mt-1 truncate">{item.title}</p>
-                        <p className="text-xs text-gray-400 truncate">
-                          {item.role.join(', ')}
-                          {item.video_date && (
-                            <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
-                          )}
-                        </p>
-                      </a>
-                    ))}
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <p className="text-sm text-gray-400">아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
-          )}
-        </section>
+        <PortfolioSection
+          title="Media"
+          sortOrder={sortOrders.media}
+          onToggleSort={() => toggleSortOrder('media')}
+          editable={true}
+          onEdit={() => setShowMediaEdit(true)}
+          isEmpty={!portfolio.media || portfolio.media.length === 0}
+          emptyMessage="아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요."
+        >
+          <VideoCarousel
+            items={getMediaData()}
+            itemsPerSlide={4}
+            gridClassName="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
+            renderItem={(item) => (
+              <MediaCard
+                title={item.title}
+                role={item.role}
+                youtubeLink={item.youtube_link}
+                videoDate={item.video_date}
+              />
+            )}
+          />
+        </PortfolioSection>
 
         {/* Directing */}
         <section>

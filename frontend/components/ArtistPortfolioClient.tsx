@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
@@ -8,13 +7,18 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import './ArtistPortfolioClient.css';
-import { Instagram, Twitter, Youtube } from 'lucide-react';
-import { PortfolioModal, PortfolioSectionType, PortfolioData } from './PortfolioModal';
+import { PortfolioModal } from './PortfolioModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
-import { SectionHeaders } from './SectionHeaders';
 import { ClaimPortfolioButton } from './ClaimPortfolioButton';
+import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
+import { PortfolioSection } from './portfolio/PortfolioSection';
+import { ChoreographyCard, MediaCard, TextCard } from './portfolio/PortfolioCards';
+import { VideoCarousel } from './portfolio/VideoCarousel';
+import { usePortfolioSort } from '@/hooks/usePortfolioSort';
+import { usePortfolioModal } from '@/hooks/usePortfolioModal';
+import { chunkArray } from '@/lib/portfolioUtils';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -40,62 +44,17 @@ export interface ArtistPortfolio {
   };
 }
 
-type SortOrder = 'display_order' | 'date';
-
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    sectionType: PortfolioSectionType | null;
-    sectionTitle: string;
-    data: PortfolioData;
-  }>({
-    isOpen: false,
-    sectionType: null,
-    sectionTitle: '',
-    data: [],
-  });
+  const { sortOrders, toggleSortOrder } = usePortfolioSort();
+  const { modalState, openModal, closeModal } = usePortfolioModal();
 
-  // Sort order state for each section
-  const [sortOrders, setSortOrders] = useState<Record<string, SortOrder>>({
-    highlights: 'display_order',
-    choreographies: 'display_order',
-    media: 'display_order',
-    directing: 'display_order',
-    performances: 'display_order',
-    workshops: 'display_order',
-  });
-
-  const toggleSortOrder = (section: string) => {
-    setSortOrders(prev => ({
-      ...prev,
-      [section]: prev[section] === 'display_order' ? 'date' : 'display_order'
-    }));
+  // Helper function to chunk array into groups - using imported function
+  const chunkArrayLocal = <T,>(array: T[], size: number): T[][] => {
+    return chunkArray(array, size);
   };
 
-  const openModal = (
-    sectionType: PortfolioSectionType,
-    sectionTitle: string,
-    data: PortfolioData
-  ) => {
-    setModalState({
-      isOpen: true,
-      sectionType,
-      sectionTitle,
-      data,
-    });
-  };
-
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      sectionType: null,
-      sectionTitle: '',
-      data: [],
-    });
-  };
-
-  // Helper function to chunk array into groups
-  const chunkArray = <T,>(array: T[], size: number): T[][] => {
+  // Keep local reference for backward compatibility
+  const chunkArrayFn = <T,>(array: T[], size: number): T[][] => {
     const chunks: T[][] = [];
     for (let i = 0; i < array.length; i += size) {
       chunks.push(array.slice(i, i + size));
@@ -266,41 +225,12 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="relative h-[500px] overflow-hidden">
-        {portfolio.photo && (
-          <>
-            <Image
-              src={portfolio.photo}
-              alt={portfolio.artist_name}
-              fill
-              className="object-cover object-top"
-              priority
-            />
-            <div className="absolute bottom-0 inset-0 bg-linear-to-b from-transparent via-black/50 to-black"></div>
-          </>
-        )}
-
-        {/* Artist Info Section */}
-        <div className="absolute bottom-0 left-0 right-0 text-center flex flex-col items-center">
-          {/* {portfolio.photo && (
-            <div className="w-32 h-32 rounded-full overflow-hidden border border-white shadow-2xl mb-4">
-              <Image
-                src={portfolio.photo}
-                alt={portfolio.artist_name}
-                width={128}
-                height={128}
-                className="object-cover object-top w-full h-full"
-                priority
-              />
-            </div>
-          )} */}
-          <h1 className="text-4xl font-bold mb-2">{portfolio.artist_name}</h1>
-          {portfolio.artist_name_eng && (
-            <p className="text-xl text-gray-300">{portfolio.artist_name_eng}</p>
-          )}
-        </div>
-      </div>
+      <PortfolioHeroSection
+        photoUrl={portfolio.photo}
+        name={portfolio.artist_name}
+        nameEng={portfolio.artist_name_eng}
+        heightClass="h-[500px]"
+      />
 
 
       {/* Content Container */}
@@ -349,12 +279,12 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
 
         {/* Highlights */}
         {(getHighlightsData().length > 0) && (
-          <section>
-            <SectionHeaders
-              title="Highlights"
-              sortOrder={sortOrders.highlights}
-              onToggleSort={() => toggleSortOrder('highlights')}
-            />
+          <PortfolioSection
+            title="Highlights"
+            sortOrder={sortOrders.highlights}
+            onToggleSort={() => toggleSortOrder('highlights')}
+            isEmpty={false}
+          >
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
                 {getHighlightsData().map((item, index) => (
@@ -388,156 +318,94 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 <button
                   onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
                   className="text-green-400 text-sm hover:underline"
-                > 
+                >
                   View All →
                 </button>
               </div>
             )} */}
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Choreographies */}
         {portfolio.choreography && portfolio.choreography.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Choreographies"
-              sortOrder={sortOrders.choreographies}
-              onToggleSort={() => toggleSortOrder('choreographies')}
+          <PortfolioSection
+            title="Choreographies"
+            sortOrder={sortOrders.choreographies}
+            onToggleSort={() => toggleSortOrder('choreographies')}
+            isEmpty={false}
+          >
+            <VideoCarousel
+              items={getChoreographyData()}
+              itemsPerSlide={4}
+              renderItem={(item) => (
+                <ChoreographyCard
+                  song={{
+                    singer: item.song.singer,
+                    title: item.song.title,
+                    date: item.song.date,
+                  }}
+                  role={item.role}
+                  youtubeLink={item.song.youtube_link || '#'}
+                />
+              )}
             />
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={16}
-              slidesPerView={1}
-              pagination={{ clickable: true }}
-              navigation
-              className="pb-12!"
-            >
-              {chunkArray(getChoreographyData(), 4).map((chunk, slideIndex) => (
-                <SwiperSlide key={slideIndex}>
-                  <div className="space-y-4">
-                    {chunk.map((item, itemIndex) => (
-                      <a
-                        key={itemIndex}
-                        href={item.song.youtube_link || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex gap-4 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group items-center"
-                      >
-                        <div className="w-36 h-20 shrink-0 rounded-sm overflow-hidden">
-                          {item.song.youtube_link && (
-                            <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold truncate group-hover:text-green-400 transition-colors">
-                            {item.song.singer} - {item.song.title}
-                          </h3>
-                          <p className="text-sm text-gray-400">{item.role.join(', ')}</p>
-                          {item.song.date && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(item.song.date).toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Media */}
         {portfolio.media && portfolio.media.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Media"
-              sortOrder={sortOrders.media}
-              onToggleSort={() => toggleSortOrder('media')}
+          <PortfolioSection
+            title="Media"
+            sortOrder={sortOrders.media}
+            onToggleSort={() => toggleSortOrder('media')}
+            isEmpty={false}
+          >
+            <VideoCarousel
+              items={getMediaData()}
+              itemsPerSlide={4}
+              gridClassName="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              renderItem={(item) => (
+                <MediaCard
+                  title={item.title}
+                  role={item.role}
+                  youtubeLink={item.youtube_link}
+                  videoDate={item.video_date}
+                />
+              )}
             />
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={16}
-              slidesPerView={1}
-              pagination={{ clickable: true }}
-              navigation
-              className="pb-12!"
-            >
-              {chunkArray(getMediaData(), 4).map((chunk, slideIndex) => (
-                <SwiperSlide key={slideIndex}>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {chunk.map((item, itemIndex) => (
-                      <a
-                        key={itemIndex}
-                        href={item.youtube_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative block"
-                      >
-                        <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                          <YouTubeThumbnail url={item.youtube_link} />
-                        </div>
-                        <p className="text-sm text-white mt-1 truncate">{item.title}</p>
-                        <p className="text-xs text-gray-400 truncate">
-                          {item.role.join(', ')}
-                          {item.video_date && (
-                            <span> · {new Date(item.video_date).getFullYear()}.{String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}</span>
-                          )}
-                        </p>
-                      </a>
-                    ))}
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Directing */}
         {portfolio.directing && portfolio.directing.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Directing"
-              sortOrder={sortOrders.directing}
-              onToggleSort={() => toggleSortOrder('directing')}
+          <PortfolioSection
+            title="Directing"
+            sortOrder={sortOrders.directing}
+            onToggleSort={() => toggleSortOrder('directing')}
+            isEmpty={false}
+          >
+            <VideoCarousel
+              items={getDirectingData()}
+              itemsPerSlide={3}
+              gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+              renderItem={(item) => (
+                <TextCard
+                  title={item.title}
+                  date={item.date}
+                />
+              )}
             />
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={12}
-              slidesPerView={1}
-              pagination={{ clickable: true }}
-              navigation
-              className="pb-12!"
-            >
-              {chunkArray(getDirectingData(), 3).map((chunk, slideIndex) => (
-                <SwiperSlide key={slideIndex}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {chunk.map((item, itemIndex) => (
-                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
-                        <h3 className="font-semibold">{item.title}</h3>
-                        {item.date && (
-                          <p className="text-sm text-gray-400 mt-1">
-                            {new Date(item.date).getFullYear()}.{String(new Date(item.date).getMonth() + 1).padStart(2, '0')}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Performances */}
         {portfolio.performances && portfolio.performances.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Performances"
-              sortOrder={sortOrders.performances}
-              onToggleSort={() => toggleSortOrder('performances')}
-            />
+          <PortfolioSection
+            title="Performances"
+            sortOrder={sortOrders.performances}
+            onToggleSort={() => toggleSortOrder('performances')}
+            isEmpty={false}
+          >
             <Swiper
               modules={[Pagination]}
               spaceBetween={16}
@@ -566,17 +434,17 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </SwiperSlide>
               ))}
             </Swiper>
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Classes/Workshops */}
         {portfolio.workshops && portfolio.workshops.length > 0 && (
-          <section>
-            <SectionHeaders
-              title="Classes"
-              sortOrder={sortOrders.workshops}
-              onToggleSort={() => toggleSortOrder('workshops')}
-            />
+          <PortfolioSection
+            title="Classes"
+            sortOrder={sortOrders.workshops}
+            onToggleSort={() => toggleSortOrder('workshops')}
+            isEmpty={false}
+          >
             <Swiper
               modules={[Pagination]}
               spaceBetween={12}
@@ -605,7 +473,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </SwiperSlide>
               ))}
             </Swiper>
-          </section>
+          </PortfolioSection>
         )}
 
         {/* Awards */}

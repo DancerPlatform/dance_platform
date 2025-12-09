@@ -32,7 +32,7 @@ export function ArtistCard({
         {imageUrl ? (
           <Image
             src={imageUrl}
-            alt={nameEN ?? nameKR}
+            alt={nameEN || nameKR || 'Artist photo'}
             fill
             quality={75}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -54,7 +54,7 @@ export function ArtistCard({
         {/* Artist Name */}
         <div className="">
           {nameEN && <p className="text-sm font-medium tracking-wide">{nameEN}</p>}
-          <h2 className="text-md font-bold tracking-tight">{nameKR}</h2>
+          <h2 className="text-md md:text-lg font-bold tracking-tight">{nameKR}</h2>
         </div>
       </div>
     </Link>
