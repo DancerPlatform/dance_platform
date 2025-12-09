@@ -166,38 +166,31 @@ export default function ClaimPortfolioPage() {
     <div className="min-h-screen bg-black text-white">
       <Header />
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <Link
-          href="/artist/portfolio-setup"
-          className="inline-flex items-center text-gray-400 hover:text-white mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to options
-        </Link>
+      <div className="max-w-4xl mx-auto px-6 pb-12 pt-16 space-y-3">
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Claim Existing Portfolio</h1>
-          <p className="text-gray-400">
+        <div className="">
+          <h1 className="text-2xl font-bold mb-1">Claim Existing Portfolio</h1>
+          <p className="text-gray-400 text-sm">
             Search for your portfolio and submit a claim request
           </p>
         </div>
 
         {/* Success Message */}
         {success && (
-          <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded mb-6">
+          <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded">
             {success}
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded mb-6">
+          <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded">
             {error}
           </div>
         )}
 
         {/* Search Form */}
-        <Card className="bg-zinc-900 border-zinc-800 mb-6">
+        <Card className="bg-zinc-900 border-zinc-800">
           <CardHeader>
             <CardTitle>Search for Portfolio</CardTitle>
             <CardDescription className="text-gray-400">
@@ -237,7 +230,7 @@ export default function ClaimPortfolioPage() {
 
         {/* Search Results */}
         {hasSearched && (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {portfolios.length === 0 ? (
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardContent className="py-8 text-center text-gray-400">
@@ -250,19 +243,19 @@ export default function ClaimPortfolioPage() {
                 {portfolios.map((portfolio) => (
                   <Card
                     key={portfolio.artist_id}
-                    className="bg-zinc-900 border-zinc-800 hover:border-white/20 transition-colors"
+                    className="bg-zinc-900 border-zinc-800 hover:border-white/20 transition-colors py-3 rounded-sm"
                   >
-                    <CardContent className="py-4">
+                    <CardContent className=" px-3">
                       <div className="flex items-center gap-4">
                         {/* Photo */}
-                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center overflow-hidden">
+                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center overflow-hidden border-white border">
                           {portfolio.photo ? (
                             <Image
                               src={portfolio.photo}
                               alt={portfolio.artist_name}
                               width={64}
                               height={64}
-                              className="object-cover w-full h-full"
+                              className="object-cover w-full h-full object-top"
                             />
                           ) : (
                             <User className="w-8 h-8 text-gray-500" />
@@ -271,7 +264,7 @@ export default function ClaimPortfolioPage() {
 
                         {/* Info */}
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold">{portfolio.artist_name}</h3>
+                          <h3 className="text-lg font-semibold text-white">{portfolio.artist_name}</h3>
                           {portfolio.artist_name_eng && (
                             <p className="text-sm text-gray-400">{portfolio.artist_name_eng}</p>
                           )}
@@ -307,7 +300,7 @@ export default function ClaimPortfolioPage() {
             <CardContent className="space-y-4">
               <div className="bg-white/5 p-4 rounded-lg">
                 <p className="text-sm text-gray-400 mb-2">Selected Portfolio:</p>
-                <p className="font-semibold">{selectedPortfolio.artist_name}</p>
+                <p className="font-semibold text-white">{selectedPortfolio.artist_name}</p>
                 <p className="text-sm text-gray-500">ID: {selectedPortfolio.artist_id}</p>
               </div>
 

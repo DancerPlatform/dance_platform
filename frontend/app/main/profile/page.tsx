@@ -10,6 +10,8 @@ import { PermissionsModal } from '@/components/portfolio/PermissionsModal';
 import { ManagedPortfoliosModal } from '@/components/portfolio/ManagedPortfoliosModal';
 import { CreateTeamModal } from '@/components/CreateTeamModal';
 import { MyTeamsModal } from '@/components/MyTeamsModal';
+import MyClaimsClient from '@/components/MyClaimsClient';
+import { supabase } from '@/lib/supabase';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, signOut, loading } = useAuth();
@@ -17,17 +19,55 @@ export default function ProfilePage() {
   const [isManagedPortfoliosModalOpen, setIsManagedPortfoliosModalOpen] = useState(false);
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
   const [isMyTeamsModalOpen, setIsMyTeamsModalOpen] = useState(false);
+  const [hasPendingClaims, setHasPendingClaims] = useState(false);
+  const [checkingClaims, setCheckingClaims] = useState(true);
   const router = useRouter();
+
+
+  // Check for pending claims
+  useEffect(() => {
+    const checkPendingClaims = async () => {
+      if (!user) {
+        setCheckingClaims(false);
+        return;
+      }
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setCheckingClaims(false);
+          return;
+        }
+
+        const response = await fetch('/api/claims?status=pending', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setHasPendingClaims(data.claims && data.claims.length > 0);
+        }
+      } catch (error) {
+        console.error('Error checking pending claims:', error);
+      } finally {
+        setCheckingClaims(false);
+      }
+    };
+
+    checkPendingClaims();
+  }, [user]);
 
   // Redirect to portfolio setup if user doesn't have profile or artist profile
   useEffect(() => {
     if (user && (!profile || !artistUser)) {
       router.push('/artist/portfolio-setup');
     }
-  }, [loading, user, profile, artistUser]);
+  }, [loading, user, profile, artistUser, router]);
 
   // Show loading state
-  if (loading) {
+  if (loading || checkingClaims) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
@@ -57,6 +97,11 @@ export default function ProfilePage() {
     );
   }
 
+  // If user has pending claims, show MyClaimsClient
+  if (hasPendingClaims) {
+    return <MyClaimsClient />;
+  }
+
   // Show artist profile
   if (profile.user_type === 'artist' && artistUser) {
     return (
@@ -69,7 +114,7 @@ export default function ProfilePage() {
         {/* Profile Section */}
         <div className="flex flex-col items-center pt-8">
           {/* Profile Image */}
-          <div className="size-30 rounded-full bg-zinc-400 flex items-center justify-center mb-6 overflow-hidden">
+          <div className="size-26 rounded-full bg-zinc-400 flex items-center justify-center mb-2 overflow-hidden">
             {artistUser.portfolio_photo ? (
               <Image
                 src={artistUser.portfolio_photo}
@@ -84,24 +129,26 @@ export default function ProfilePage() {
           </div>
 
           {/* Username */}
-          <h2 className="text-2xl font-medium mb-2">{artistUser.name}</h2>
-          <p className="text-zinc-400 mb-8">{artistUser.email}</p>
+          <div className='text-center mb-4'>
+            <h2 className="text-2xl font-medium">{artistUser.name}</h2>
+            <p className="text-zinc-400">{artistUser.email}</p>
+          </div>
 
           {/* Artist Info */}
           <div className="w-full px-6 space-y-2">
             {artistUser.phone && (
-              <div className="flex justify-between py-2">
+              <div className="flex justify-between">
                 <span className="text-zinc-400">연락처</span>
                 <span>{artistUser.phone}</span>
               </div>
             )}
             {artistUser.birth && (
-              <div className="flex justify-between py-2">
+              <div className="flex justify-between">
                 <span className="text-zinc-400">생년월일</span>
                 <span>{artistUser.birth}</span>
               </div>
             )}
-            <div className="flex justify-between py-2">
+            <div className="flex justify-between">
               <span className="text-zinc-400">회원 유형</span>
               <span className="text-blue-400">아티스트</span>
             </div>
@@ -109,11 +156,11 @@ export default function ProfilePage() {
         </div>
 
         {/* Menu Items */}
-        <div className="mt-8">
+        <div className="mt-4">
           {/* Edit Portfolio Button */}
           <Link
             href={`/edit-portfolio/${artistUser.artist_id}`}
-            className="block w-full px-6 py-6 text-left text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="block w-full px-6 py-4 text-left text-md md:text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
             내 포트폴리오 수정하기
           </Link>
@@ -121,7 +168,7 @@ export default function ProfilePage() {
           {/* Add users that are allowed to edit my portfolio */}
           <button
             onClick={() => setIsPermissionsModalOpen(true)}
-            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
             포트폴리오 권한 설정
           </button>
@@ -129,7 +176,7 @@ export default function ProfilePage() {
           {/* View managed portfolios */}
           <button
             onClick={() => setIsManagedPortfoliosModalOpen(true)}
-            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
             관리중인 포트폴리오 보기
           </button>
@@ -137,15 +184,15 @@ export default function ProfilePage() {
           {/* My Teams */}
           <button
             onClick={() => setIsMyTeamsModalOpen(true)}
-            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            나의 팀
+            내 팀 관리하기
           </button>
 
           {/* Create Team */}
           <button
             onClick={() => setIsCreateTeamModalOpen(true)}
-            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
             그룹 생성하기
           </button>
@@ -179,7 +226,7 @@ export default function ProfilePage() {
           {profile.is_admin && (
             <Link
               href="/admin"
-              className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
+              className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
             >
               관리자 페이지
             </Link>
@@ -190,7 +237,7 @@ export default function ProfilePage() {
             onClick={()=> {
               signOut()
           }}
-            className="w-full px-6 py-6 text-left text-lg text-red-500 hover:bg-zinc-900 transition-colors"
+            className="w-full px-6 py-4 text-left text-md md:text-lg text-red-500 hover:bg-zinc-900 transition-colors"
           >
             로그아웃
           </button>

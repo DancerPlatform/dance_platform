@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ArtistCard } from './artist-card';
 import SocialSection from './portfolio/SocialSection';
 import { PortfolioModal } from './PortfolioModal';
+import { PortfolioItemDetailModal, PortfolioItemData } from './PortfolioItemDetailModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
 import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
@@ -71,6 +72,18 @@ export interface GroupPortfolio {
 export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
   const { sortOrders, toggleSortOrder } = usePortfolioSort();
   const { modalState, openModal, closeModal } = usePortfolioModal();
+  const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+
+  const openItemModal = (item: PortfolioItemData) => {
+    setSelectedItem(item);
+    setIsItemModalOpen(true);
+  };
+
+  const closeItemModal = () => {
+    setIsItemModalOpen(false);
+    setSelectedItem(null);
+  };
 
   // Use team portfolio data directly from the API response
   const mergedPortfolio = useMemo(() => {
@@ -237,12 +250,16 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
                 {getHighlightsData().slice(0, 4).map((item, index) => (
-                  <a
+                  <button
                     key={index}
-                    href={item.youtube_link || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group w-[320px] shrink-0"
+                    onClick={() => openItemModal({
+                      type: 'highlight',
+                      title: item.title,
+                      youtube_link: item.youtube_link || '',
+                      role: Array.isArray(item.role) ? item.role.filter((r): r is string => r !== undefined) : [item.role].filter((r): r is string => r !== undefined),
+                      video_date: item.video_date ? (typeof item.video_date === 'string' ? item.video_date : item.video_date.toISOString()) : null,
+                    })}
+                    className="group w-[320px] shrink-0 text-left"
                   >
                     <div className="overflow-hidden rounded-xl bg-zinc-900">
                       {item.youtube_link && (
@@ -258,7 +275,7 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
                         {item.video_date && ` · ${new Date(item.video_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
                       </p>
                     </div>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -285,16 +302,30 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
           >
             <div className="space-y-4">
               {getChoreographyData().slice(0, 4).map((item, index) => (
-                <ChoreographyCard
+                <div
                   key={index}
-                  song={{
-                    singer: item.song?.singer || '',
-                    title: item.song?.title || '',
-                    date: item.song?.date || null,
-                  }}
-                  role={item.role || []}
-                  youtubeLink={item.song?.youtube_link || '#'}
-                />
+                  onClick={() => openItemModal({
+                    type: 'choreography',
+                    song: {
+                      title: item.song?.title || '',
+                      singer: item.song?.singer || '',
+                      youtube_link: item.song?.youtube_link || null,
+                      date: item.song?.date || null,
+                    },
+                    role: item.role || [],
+                  })}
+                  className="cursor-pointer"
+                >
+                  <ChoreographyCard
+                    song={{
+                      singer: item.song?.singer || '',
+                      title: item.song?.title || '',
+                      date: item.song?.date || null,
+                    }}
+                    role={item.role || []}
+                    youtubeLink={item.song?.youtube_link || '#'}
+                  />
+                </div>
               ))}
             </div>
             {getChoreographyData().length > 4 && (
@@ -352,11 +383,20 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
           >
             <div className="space-y-3">
               {getDirectingData().slice(0, 4).map((item, index) => (
-                <TextCard
+                <div
                   key={index}
-                  title={item.title}
-                  date={item.date}
-                />
+                  onClick={() => openItemModal({
+                    type: 'directing',
+                    title: item.title,
+                    date: item.date,
+                  })}
+                  className="cursor-pointer"
+                >
+                  <TextCard
+                    title={item.title}
+                    date={item.date}
+                  />
+                </div>
               ))}
             </div>
             {getDirectingData().length > 4 && (
@@ -421,7 +461,17 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
             />
             <div className="space-y-3">
               {getWorkshopsData().slice(0, 4).map((workshop, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-lg">
+                <div
+                  key={index}
+                  onClick={() => openItemModal({
+                    type: 'workshop',
+                    class_name: workshop.class_name,
+                    class_role: workshop.class_role || [],
+                    country: workshop.country,
+                    class_date: workshop.class_date,
+                  })}
+                  className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                >
                   <h3 className="font-semibold">{workshop.class_name}</h3>
                   <p className="text-sm text-gray-400 mt-1">
                     {workshop.class_role?.join(', ')} • {workshop.country}
@@ -460,6 +510,13 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
           data={modalState.data}
         />
       )}
+
+      {/* Item Detail Modal */}
+      <PortfolioItemDetailModal
+        isOpen={isItemModalOpen}
+        onClose={closeItemModal}
+        item={selectedItem}
+      />
     </>
   );
 }

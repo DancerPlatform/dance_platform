@@ -8,6 +8,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import './ArtistPortfolioClient.css';
 import { PortfolioModal } from './PortfolioModal';
+import { PortfolioItemDetailModal, PortfolioItemData } from './PortfolioItemDetailModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
@@ -19,6 +20,7 @@ import { VideoCarousel } from './portfolio/VideoCarousel';
 import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { chunkArray } from '@/lib/portfolioUtils';
+import { useState } from 'react';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -47,6 +49,18 @@ export interface ArtistPortfolio {
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {
   const { sortOrders, toggleSortOrder } = usePortfolioSort();
   const { modalState, openModal, closeModal } = usePortfolioModal();
+  const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+
+  const openItemModal = (item: PortfolioItemData) => {
+    setSelectedItem(item);
+    setIsItemModalOpen(true);
+  };
+
+  const closeItemModal = () => {
+    setIsItemModalOpen(false);
+    setSelectedItem(null);
+  };
 
   // Helper function to chunk array into groups - using imported function
   const chunkArrayLocal = <T,>(array: T[], size: number): T[][] => {
@@ -288,14 +302,18 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             <div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
               <div className="flex gap-4 min-w-max">
                 {getHighlightsData().map((item, index) => (
-                  <a
+                  <button
                     key={index}
-                    href={item.youtube_link || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group w-[320px] shrink-0"
+                    onClick={() => openItemModal({
+                      type: 'highlight',
+                      title: item.title,
+                      youtube_link: item.youtube_link || '',
+                      role: item.role,
+                      video_date: item.video_date,
+                    })}
+                    className="group w-[250px] shrink-0 text-left"
                   >
-                    <div className="overflow-hidden rounded-xl bg-zinc-900">
+                    <div className="overflow-hidden rounded-sm bg-zinc-900">
                       {item.youtube_link && (
                         <YouTubeThumbnail url={item.youtube_link} title={item.title} />
                       )}
@@ -309,20 +327,10 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                         {item.video_date && ` · ${new Date(item.video_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
                       </p>
                     </div>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
-            {/* {getHighlightsData().length > 4 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => openModal('highlights', 'Highlights', getHighlightsData())}
-                  className="text-green-400 text-sm hover:underline"
-                >
-                  View All →
-                </button>
-              </div>
-            )} */}
           </PortfolioSection>
         )}
 
@@ -338,15 +346,29 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               items={getChoreographyData()}
               itemsPerSlide={4}
               renderItem={(item) => (
-                <ChoreographyCard
-                  song={{
-                    singer: item.song.singer,
-                    title: item.song.title,
-                    date: item.song.date,
-                  }}
-                  role={item.role}
-                  youtubeLink={item.song.youtube_link || '#'}
-                />
+                <div
+                  onClick={() => openItemModal({
+                    type: 'choreography',
+                    song: {
+                      title: item.song.title,
+                      singer: item.song.singer,
+                      youtube_link: item.song.youtube_link,
+                      date: item.song.date,
+                    },
+                    role: item.role,
+                  })}
+                  className="cursor-pointer"
+                >
+                  <ChoreographyCard
+                    song={{
+                      singer: item.song.singer,
+                      title: item.song.title,
+                      date: item.song.date,
+                    }}
+                    role={item.role}
+                    youtubeLink={item.song.youtube_link || '#'}
+                  />
+                </div>
               )}
             />
           </PortfolioSection>
@@ -389,10 +411,19 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               itemsPerSlide={3}
               gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
               renderItem={(item) => (
-                <TextCard
-                  title={item.title}
-                  date={item.date}
-                />
+                <div
+                  onClick={() => openItemModal({
+                    type: 'directing',
+                    title: item.title,
+                    date: item.date,
+                  })}
+                  className="cursor-pointer"
+                >
+                  <TextCard
+                    title={item.title}
+                    date={item.date}
+                  />
+                </div>
               )}
             />
           </PortfolioSection>
@@ -457,7 +488,17 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 <SwiperSlide key={slideIndex}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {chunk.map((workshop, itemIndex) => (
-                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
+                      <div
+                        key={itemIndex}
+                        onClick={() => openItemModal({
+                          type: 'workshop',
+                          class_name: workshop.class_name,
+                          class_role: workshop.class_role || [],
+                          country: workshop.country,
+                          class_date: workshop.class_date,
+                        })}
+                        className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                      >
                         <h3 className="font-semibold">{workshop.class_name}</h3>
                         <p className="text-sm text-gray-400 mt-1">
                           {workshop.class_role.join(', ')} • {workshop.country}
@@ -492,7 +533,16 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 <SwiperSlide key={slideIndex}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {chunk.map((award, itemIndex) => (
-                      <div key={itemIndex} className="p-4 bg-white/5 rounded-lg">
+                      <div
+                        key={itemIndex}
+                        onClick={() => openItemModal({
+                          type: 'award',
+                          award_title: award.award_title,
+                          issuing_org: award.issuing_org,
+                          received_date: award.received_date,
+                        })}
+                        className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                      >
                         <h3 className="font-semibold">{award.award_title}</h3>
                         {award.issuing_org && (
                           <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>
@@ -522,6 +572,13 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
           data={modalState.data}
         />
       )}
+
+      {/* Item Detail Modal */}
+      <PortfolioItemDetailModal
+        isOpen={isItemModalOpen}
+        onClose={closeItemModal}
+        item={selectedItem}
+      />
     </>
   );
 }
