@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Upload, FileCheck, LayoutDashboard, Users, X } from 'lucide-react'
+import { Upload, FileCheck, LayoutDashboard, Users, X, UsersRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navigation = [
@@ -15,6 +15,11 @@ const navigation = [
     name: '아티스트 관리',
     href: '/admin/artists',
     icon: Users,
+  },
+  {
+    name: '팀 관리',
+    href: '/admin/teams',
+    icon: UsersRound,
   },
   {
     name: '데이터 업로드',

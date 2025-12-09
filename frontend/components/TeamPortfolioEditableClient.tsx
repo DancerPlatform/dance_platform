@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Edit } from 'lucide-react';
+import { Edit, User } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -10,7 +10,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import './ArtistPortfolioClient.css';
 import { PortfolioModal, PortfolioSectionType } from './PortfolioModal';
-import { ArtistPortfolio } from './ArtistPortfolioClient';
+import { GroupPortfolio } from './GroupPortfolioClient';
 import {
   ProfileEditModal,
   ChoreographyEditModal,
@@ -26,18 +26,19 @@ import YouTubeThumbnail from './YoutubeThumbnail';
 import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
 import { SectionHeaders } from './SectionHeaders';
+import Link from 'next/link';
 
 type SortOrder = 'display_order' | 'date';
 
-export function ArtistPortfolioEditableClient({
+export function TeamPortfolioEditableClient({
   portfolio: initialPortfolio,
-  artistId
+  teamId
 }: {
-  portfolio: ArtistPortfolio;
-  artistId: string;
+  portfolio: GroupPortfolio;
+  teamId: string;
 }) {
   const router = useRouter();
-  const [portfolio, setPortfolio] = useState<ArtistPortfolio>(initialPortfolio);
+  const [portfolio, setPortfolio] = useState<GroupPortfolio>(initialPortfolio);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     sectionType: PortfolioSectionType | null;
@@ -75,6 +76,14 @@ export function ArtistPortfolioEditableClient({
       [section]: prev[section] === 'display_order' ? 'date' : 'display_order'
     }));
   };
+
+  // Use team portfolio data directly from the API response
+  const teamChoreography: ChoreographyItem[] = portfolio.choreography || [];
+  const teamMedia: MediaItem[] = portfolio.media || [];
+  const teamPerformances: PerformanceItem[] = portfolio.performances || [];
+  const teamDirecting: DirectingItem[] = portfolio.directing || [];
+  const teamWorkshops: Workshop[] = portfolio.workshops || [];
+  const teamAwards: Award[] = portfolio.awards || [];
 
   const closeModal = () => {
     setModalState({
@@ -152,7 +161,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/profile`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/portfolio/profile`,
       {
         method: 'PUT',
         headers: {
@@ -167,7 +176,16 @@ export function ArtistPortfolioEditableClient({
       throw new Error('Failed to save profile');
     }
 
-    setPortfolio({ ...portfolio, ...data });
+    setPortfolio({
+      ...portfolio,
+      group_name: data.artist_name,
+      group_name_eng: data.artist_name_eng,
+      introduction: data.introduction,
+      photo: data.photo,
+      instagram: data.instagram,
+      twitter: data.twitter,
+      youtube: data.youtube,
+    });
     alert('프로필이 저장되었습니다.');
     router.refresh();
   };
@@ -180,7 +198,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/choreography`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/portfolio/choreography`,
       {
         method: 'PUT',
         headers: {
@@ -195,7 +213,6 @@ export function ArtistPortfolioEditableClient({
       throw new Error('Failed to save choreography');
     }
 
-    setPortfolio({ ...portfolio, choreography });
     alert('안무 목록이 저장되었습니다.');
     router.refresh();
   };
@@ -207,10 +224,8 @@ export function ArtistPortfolioEditableClient({
       return;
     }
 
-    console.log('Saving media:', media.map(m => ({ media_id: m.media_id, title: m.title, display_order: m.display_order })));
-
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/media`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/portfolio/media`,
       {
         method: 'PUT',
         headers: {
@@ -225,7 +240,6 @@ export function ArtistPortfolioEditableClient({
       throw new Error('Failed to save media');
     }
 
-    setPortfolio({ ...portfolio, media });
     alert('미디어가 저장되었습니다.');
     router.refresh();
   };
@@ -238,7 +252,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/performances`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/portfolio/performances`,
       {
         method: 'PUT',
         headers: {
@@ -253,7 +267,6 @@ export function ArtistPortfolioEditableClient({
       throw new Error('Failed to save performances');
     }
 
-    setPortfolio({ ...portfolio, performances });
     alert('공연 목록이 저장되었습니다.');
     router.refresh();
   };
@@ -266,7 +279,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/directing`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/portfolio/directing`,
       {
         method: 'PUT',
         headers: {
@@ -281,7 +294,6 @@ export function ArtistPortfolioEditableClient({
       throw new Error('Failed to save directing');
     }
 
-    setPortfolio({ ...portfolio, directing });
     alert('연출 목록이 저장되었습니다.');
     router.refresh();
   };
@@ -294,7 +306,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/workshops`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/portfolio/workshops`,
       {
         method: 'PUT',
         headers: {
@@ -309,7 +321,6 @@ export function ArtistPortfolioEditableClient({
       throw new Error('Failed to save workshops');
     }
 
-    setPortfolio({ ...portfolio, workshops });
     alert('워크샵 목록이 저장되었습니다.');
     router.refresh();
   };
@@ -322,7 +333,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/awards`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${teamId}/portfolio/awards`,
       {
         method: 'PUT',
         headers: {
@@ -337,14 +348,13 @@ export function ArtistPortfolioEditableClient({
       throw new Error('Failed to save awards');
     }
 
-    setPortfolio({ ...portfolio, awards });
     alert('수상 경력이 저장되었습니다.');
     router.refresh();
   };
 
   // Transform data functions
   const getChoreographyData = () => {
-    const data = portfolio.choreography.map(item => ({
+    const data = teamChoreography.map(item => ({
       song: {
         title: item.song?.title || '',
         singer: item.song?.singer || '',
@@ -363,7 +373,7 @@ export function ArtistPortfolioEditableClient({
   };
 
   const getMediaData = () => {
-    const data = portfolio.media.map(item => ({
+    const data = teamMedia.map(item => ({
       youtube_link: item.youtube_link,
       role: item.role ? [item.role] : [],
       is_highlight: item.is_highlight,
@@ -379,7 +389,7 @@ export function ArtistPortfolioEditableClient({
   };
 
   const getHighlightsData = () => {
-    const choreoHighlights = portfolio.choreography
+    const choreoHighlights = teamChoreography
       .filter(item => item.is_highlight)
       .map(item => ({
         youtube_link: item.song?.youtube_link || '',
@@ -390,7 +400,7 @@ export function ArtistPortfolioEditableClient({
         video_date: item.song?.date || null,
       }));
 
-    const mediaHighlights = portfolio.media
+    const mediaHighlights = teamMedia
       .filter(item => item.is_highlight)
       .map(item => ({
         youtube_link: item.youtube_link,
@@ -410,7 +420,7 @@ export function ArtistPortfolioEditableClient({
   };
 
   const getDirectingData = () => {
-    const data = portfolio.directing
+    const data = teamDirecting
       .filter(item => item.directing)
       .map(item => ({
         title: item.directing!.title,
@@ -424,7 +434,7 @@ export function ArtistPortfolioEditableClient({
   };
 
   const getPerformancesData = () => {
-    const data = portfolio.performances
+    const data = teamPerformances
       .filter(item => item.performance)
       .map(item => ({
         performance_title: item.performance!.performance_title,
@@ -439,7 +449,7 @@ export function ArtistPortfolioEditableClient({
   };
 
   const getWorkshopsData = () => {
-    const data = portfolio.workshops.map(workshop => ({
+    const data = teamWorkshops.map(workshop => ({
       class_name: workshop.class_name,
       class_role: workshop.class_role || [],
       country: workshop.country,
@@ -453,7 +463,7 @@ export function ArtistPortfolioEditableClient({
   };
 
   const getAwardsData = () => {
-    return portfolio.awards.map(award => ({
+    return teamAwards.map(award => ({
       award_title: award.award_title,
       issuing_org: award.issuing_org,
       received_date: award.received_date,
@@ -468,7 +478,7 @@ export function ArtistPortfolioEditableClient({
           <>
             <Image
               src={portfolio.photo}
-              alt={portfolio.artist_name}
+              alt={portfolio.group_name}
               fill
               className="object-cover object-top"
               priority
@@ -477,11 +487,11 @@ export function ArtistPortfolioEditableClient({
           </>
         )}
 
-        {/* Artist Info Section */}
+        {/* Team Info Section */}
         <div className="absolute bottom-0 left-0 right-0 text-center flex flex-col items-center px-4">
-          <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">{portfolio.artist_name}</h1>
-          {portfolio.artist_name_eng && (
-            <p className="text-base sm:text-xl text-gray-300">{portfolio.artist_name_eng}</p>
+          <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">{portfolio.group_name}</h1>
+          {portfolio.group_name_eng && (
+            <p className="text-base sm:text-xl text-gray-300">{portfolio.group_name_eng}</p>
           )}
           <button
             onClick={() => setShowProfileEdit(true)}
@@ -495,32 +505,6 @@ export function ArtistPortfolioEditableClient({
 
       {/* Content Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Team Info */}
-        {portfolio.teams && portfolio.teams.length > 0 && (
-          <div className="flex w-full items-center gap-3">
-            <div className="size-20 rounded-sm overflow-hidden shrink-0">
-              {portfolio.teams[0]?.team?.photo && (
-                <Image
-                  src={portfolio.teams[0].team.photo}
-                  alt={portfolio.teams[0].team.team_name}
-                  width={100}
-                  height={100}
-                  className="object-cover w-full h-full"
-                />
-              )}
-            </div>
-            <div className="flex flex-col justify-between h-20">
-              <p className="text-xs bg-gray-400 text-black w-fit px-1 rounded-xs font-bold">Team</p>
-              <p className="text-md text-white">
-                {portfolio.teams[0]?.team?.team_name}
-              </p>
-              <p className="text-sm text-gray-400">
-                {portfolio.teams[0]?.team?.leader?.artist_id == portfolio.artist_id ? "리더" : "멤버"}
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Introduction */}
         {portfolio.introduction && (
           <section>
@@ -536,6 +520,46 @@ export function ArtistPortfolioEditableClient({
           twitter={portfolio.twitter}
           youtube={portfolio.youtube}
         />
+
+        {/* Members Section */}
+        {portfolio.members && portfolio.members.length > 0 && (
+          <section>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Members</h2>
+            <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
+              <div className="flex gap-4 sm:gap-6 min-w-max">
+                {portfolio.members.map((member, index) => (
+                  <Link
+                    key={index}
+                    href={`/artist/${member.artist_id}`}
+                    className="flex flex-col items-center group"
+                  >
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700 group-hover:border-green-400 transition-colors shrink-0">
+                      {member.portfolio?.photo ? (
+                        <Image
+                          src={member.portfolio.photo}
+                          alt={member.artist.name}
+                          width={96}
+                          height={96}
+                          className="w-full h-full object-cover object-top"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <User className="w-10 h-10 sm:w-12 sm:h-12 text-zinc-600" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-2 text-sm sm:text-base font-medium text-white group-hover:text-green-400 transition-colors text-center">
+                      {member.portfolio?.artist_name || member.artist?.name || member.artist_id}
+                    </p>
+                    {member.is_leader && (
+                      <span className="mt-1 text-xs text-blue-400">Leader</span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Highlights */}
         {getHighlightsData().length > 0 && (
@@ -592,7 +616,7 @@ export function ArtistPortfolioEditableClient({
               <span className="text-xs sm:text-sm">편집</span>
             </button>
           </div>
-          {portfolio.choreography && portfolio.choreography.length > 0 ? (
+          {teamChoreography && teamChoreography.length > 0 ? (
             <Swiper
               modules={[Pagination]}
               spaceBetween={16}
@@ -655,7 +679,7 @@ export function ArtistPortfolioEditableClient({
               <span className="text-xs sm:text-sm">편집</span>
             </button>
           </div>
-          {portfolio.media && portfolio.media.length > 0 ? (
+          {teamMedia && teamMedia.length > 0 ? (
             <Swiper
               modules={[Pagination]}
               spaceBetween={16}
@@ -712,7 +736,7 @@ export function ArtistPortfolioEditableClient({
               <span className="text-xs sm:text-sm">편집</span>
             </button>
           </div>
-          {portfolio.directing && portfolio.directing.length > 0 ? (
+          {teamDirecting && teamDirecting.length > 0 ? (
             <Swiper
               modules={[Pagination]}
               spaceBetween={12}
@@ -759,7 +783,7 @@ export function ArtistPortfolioEditableClient({
               <span className="text-xs sm:text-sm">편집</span>
             </button>
           </div>
-          {portfolio.performances && portfolio.performances.length > 0 ? (
+          {teamPerformances && teamPerformances.length > 0 ? (
             <Swiper
               modules={[Pagination]}
               spaceBetween={16}
@@ -809,7 +833,7 @@ export function ArtistPortfolioEditableClient({
               <span className="text-xs sm:text-sm">편집</span>
             </button>
           </div>
-          {portfolio.workshops && portfolio.workshops.length > 0 ? (
+          {teamWorkshops && teamWorkshops.length > 0 ? (
             <Swiper
               modules={[Pagination]}
               spaceBetween={12}
@@ -855,7 +879,7 @@ export function ArtistPortfolioEditableClient({
               <span className="text-xs sm:text-sm">편집</span>
             </button>
           </div>
-          {portfolio.awards && portfolio.awards.length > 0 ? (
+          {teamAwards && teamAwards.length > 0 ? (
             <Swiper
               modules={[Pagination]}
               spaceBetween={12}
@@ -907,57 +931,57 @@ export function ArtistPortfolioEditableClient({
         onClose={() => setShowProfileEdit(false)}
         onSave={handleSaveProfile}
         initialData={{
-          artist_name: portfolio.artist_name || "",
-          artist_name_eng: portfolio.artist_name_eng || "",
+          artist_name: portfolio.group_name || "",
+          artist_name_eng: portfolio.group_name_eng || "",
           introduction: portfolio.introduction || "",
           photo: portfolio.photo || "",
           instagram: portfolio.instagram || "",
           twitter: portfolio.twitter || "",
           youtube: portfolio.youtube || "",
         }}
-        artistId={artistId}
+        artistId={teamId}
       />
 
       <ChoreographyEditModal
         isOpen={showChoreographyEdit}
         onClose={() => setShowChoreographyEdit(false)}
         onSave={handleSaveChoreography}
-        initialData={portfolio.choreography}
+        initialData={teamChoreography}
       />
 
       <MediaEditModal
         isOpen={showMediaEdit}
         onClose={() => setShowMediaEdit(false)}
         onSave={handleSaveMedia}
-        initialData={portfolio.media}
+        initialData={teamMedia}
       />
 
       <PerformancesEditModal
         isOpen={showPerformancesEdit}
         onClose={() => setShowPerformancesEdit(false)}
         onSave={handleSavePerformances}
-        initialData={portfolio.performances}
+        initialData={teamPerformances}
       />
 
       <DirectingEditModal
         isOpen={showDirectingEdit}
         onClose={() => setShowDirectingEdit(false)}
         onSave={handleSaveDirecting}
-        initialData={portfolio.directing}
+        initialData={teamDirecting}
       />
 
       <WorkshopsEditModal
         isOpen={showWorkshopsEdit}
         onClose={() => setShowWorkshopsEdit(false)}
         onSave={handleSaveWorkshops}
-        initialData={portfolio.workshops}
+        initialData={teamWorkshops}
       />
 
       <AwardsEditModal
         isOpen={showAwardsEdit}
         onClose={() => setShowAwardsEdit(false)}
         onSave={handleSaveAwards}
-        initialData={portfolio.awards}
+        initialData={teamAwards}
       />
     </>
   );

@@ -67,7 +67,7 @@ export default function AdminPage() {
 
         // Fetch total artists count
         const { count: artistCount } = await supabase
-          .from('user_profiles')
+          .from('artist_portfolio')
           .select('*', { count: 'exact', head: true })
 
         setStats({
@@ -142,34 +142,6 @@ export default function AdminPage() {
                 <div className="text-2xl font-bold text-white">{stats.totalArtists}</div>
                 <p className="text-xs text-gray-500 mt-1">
                   Registered profiles
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Artist Management Card */}
-            <Card className="bg-zinc-900 border-zinc-800 hover:border-green-600/50 transition-colors cursor-pointer" onClick={() => router.push('/admin/artists')}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">아티스트 관리</CardTitle>
-                <Users className="h-4 w-4 text-purple-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">Manage</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Edit artist portfolios
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Bulk Upload Card */}
-            <Card className="bg-zinc-900 border-zinc-800 hover:border-green-600/50 transition-colors cursor-pointer" onClick={() => router.push('/admin/bulk-upload')}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400">Bulk Upload</CardTitle>
-                <Upload className="h-4 w-4 text-blue-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white">CSV</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Import portfolio data
                 </p>
               </CardContent>
             </Card>

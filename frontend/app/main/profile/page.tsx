@@ -8,11 +8,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { PermissionsModal } from '@/components/portfolio/PermissionsModal';
 import { ManagedPortfoliosModal } from '@/components/portfolio/ManagedPortfoliosModal';
+import { CreateTeamModal } from '@/components/CreateTeamModal';
+import { MyTeamsModal } from '@/components/MyTeamsModal';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, signOut, loading } = useAuth();
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
   const [isManagedPortfoliosModalOpen, setIsManagedPortfoliosModalOpen] = useState(false);
+  const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
+  const [isMyTeamsModalOpen, setIsMyTeamsModalOpen] = useState(false);
   const router = useRouter();
 
   // Redirect to portfolio setup if user doesn't have profile or artist profile
@@ -130,6 +134,22 @@ export default function ProfilePage() {
             관리중인 포트폴리오 보기
           </button>
 
+          {/* My Teams */}
+          <button
+            onClick={() => setIsMyTeamsModalOpen(true)}
+            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+          >
+            나의 팀
+          </button>
+
+          {/* Create Team */}
+          <button
+            onClick={() => setIsCreateTeamModalOpen(true)}
+            className="block w-full px-6 py-6 text-left text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+          >
+            그룹 생성하기
+          </button>
+
           {/* Permissions Modal */}
           <PermissionsModal
             isOpen={isPermissionsModalOpen}
@@ -141,6 +161,18 @@ export default function ProfilePage() {
           <ManagedPortfoliosModal
             isOpen={isManagedPortfoliosModalOpen}
             onClose={() => setIsManagedPortfoliosModalOpen(false)}
+          />
+
+          {/* My Teams Modal */}
+          <MyTeamsModal
+            isOpen={isMyTeamsModalOpen}
+            onClose={() => setIsMyTeamsModalOpen(false)}
+          />
+
+          {/* Create Team Modal */}
+          <CreateTeamModal
+            isOpen={isCreateTeamModalOpen}
+            onClose={() => setIsCreateTeamModalOpen(false)}
           />
 
           {/* Admin Button - Only show if user is admin */}
