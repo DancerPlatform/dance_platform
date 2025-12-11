@@ -23,6 +23,7 @@ export function GroupCard({
   return (
     <Link
       href={`/group/${groupId}`}
+      prefetch
       className={cn(
         "relative w-full aspect-3/4 overflow-hidden rounded-lg bg-gray-950 border-gray-400 group hover:scale-105 transition-transform",
         className

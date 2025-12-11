@@ -13,7 +13,7 @@ export default async function GroupPage({
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${group_id}`,
     {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds
     }
   );
 
