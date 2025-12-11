@@ -33,7 +33,10 @@ export function VideoCarousel<T>({
       {chunks.map((chunk, slideIndex) => (
         <SwiperSlide key={slideIndex}>
           <div className={gridClassName || containerClassName}>
-            {chunk.map((item, index) => renderItem(item, index))}
+            {chunk.map((item, index) => {
+              const globalIndex = slideIndex * itemsPerSlide + index;
+              return <div key={globalIndex}>{renderItem(item, globalIndex)}</div>;
+            })}
           </div>
         </SwiperSlide>
       ))}

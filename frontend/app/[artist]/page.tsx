@@ -13,7 +13,7 @@ export default async function ArtistPage({
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}`,
     {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds
     }
   );
 
