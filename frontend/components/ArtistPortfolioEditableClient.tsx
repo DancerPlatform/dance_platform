@@ -433,7 +433,7 @@ export function ArtistPortfolioEditableClient({
       />
 
       {/* Content Container */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-2 sm:space-y-8">
         {/* Team Info */}
         {portfolio.teams && portfolio.teams.length > 0 && (
           <div className="flex w-full items-center gap-3">
@@ -528,7 +528,7 @@ export function ArtistPortfolioEditableClient({
           <VideoCarousel
             items={getChoreographyData()}
             itemsPerSlide={4}
-            containerClassName="space-y-3 sm:space-y-4"
+            containerClassName="space-y-2 sm:space-y-2"
             renderItem={(item) => (
               <ChoreographyCard
                 song={{
