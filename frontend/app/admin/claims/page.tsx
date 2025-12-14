@@ -236,6 +236,21 @@ export default function AdminClaimsPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    {/* Authentication Code Display */}
+                    {claim.authentication_code && (
+                      <div className="bg-blue-500/10 border-2 border-blue-500/50 rounded-lg p-4 space-y-2">
+                        <p className="text-sm font-semibold text-blue-400">Authentication Code:</p>
+                        <div className="bg-black/30 rounded px-4 py-2 text-center">
+                          <p className="text-2xl font-bold text-white tracking-wider font-mono">
+                            {claim.authentication_code}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-400">
+                          User should send this code via their official artist Instagram account
+                        </p>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       {/* <div>
                         <p className="text-gray-500 mb-1">Portfolio Email</p>

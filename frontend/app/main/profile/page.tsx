@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PermissionsModal } from '@/components/portfolio/PermissionsModal';
@@ -11,6 +10,7 @@ import { ManagedPortfoliosModal } from '@/components/portfolio/ManagedPortfolios
 import { CreateTeamModal } from '@/components/CreateTeamModal';
 import { MyTeamsModal } from '@/components/MyTeamsModal';
 import MyClaimsClient from '@/components/MyClaimsClient';
+import { PortfolioSetupClient } from '@/components/PortfolioSetupClient';
 import { supabase } from '@/lib/supabase';
 
 export default function ProfilePage() {
@@ -21,7 +21,6 @@ export default function ProfilePage() {
   const [isMyTeamsModalOpen, setIsMyTeamsModalOpen] = useState(false);
   const [hasPendingClaims, setHasPendingClaims] = useState(false);
   const [checkingClaims, setCheckingClaims] = useState(true);
-  const router = useRouter();
 
 
   // Check for pending claims
@@ -34,7 +33,7 @@ export default function ProfilePage() {
 
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
+        if (!session || profile?.is_admin) {
           setCheckingClaims(false);
           return;
         }
@@ -57,14 +56,7 @@ export default function ProfilePage() {
     };
 
     checkPendingClaims();
-  }, [user]);
-
-  // Redirect to portfolio setup if user doesn't have profile or artist profile
-  useEffect(() => {
-    if (user && (!profile || !artistUser)) {
-      router.push('/artist/portfolio-setup');
-    }
-  }, [loading, user, profile, artistUser, router]);
+  }, [user, profile]);
 
   // Show loading state
   if (loading || checkingClaims) {
@@ -76,6 +68,11 @@ export default function ProfilePage() {
         </div>
       </div>
     );
+  }
+
+  // If user has pending claims, show MyClaimsClient
+  if (hasPendingClaims) {
+    return <MyClaimsClient />;
   }
 
   if (!user || !profile) {
@@ -97,10 +94,10 @@ export default function ProfilePage() {
     );
   }
 
-  // If user has pending claims, show MyClaimsClient
-  if (hasPendingClaims) {
-    return <MyClaimsClient />;
-  }
+  // If user doesn't have artist profile, show portfolio setup
+  // if (user) {
+  //   return <PortfolioSetupClient />;
+  // }
 
   // Show artist profile
   if (profile.user_type === 'artist' && artistUser) {
@@ -247,24 +244,5 @@ export default function ProfilePage() {
   }
 
   // For non-artist users, show a message
-  return (
-    <div className="min-h-screen bg-black text-white pb-32">
-      {/* Header */}
-      <div className="px-6 pt-6 pb-8">
-        <h1 className="text-2xl font-bold">마이페이지</h1>
-      </div>
-
-      <div className="text-center px-6 pt-8">
-        <p className="text-zinc-400 mb-8">
-          이 페이지는 아티스트 전용입니다.
-        </p>
-        <button
-          onClick={signOut}
-          className="bg-red-500 text-white px-8 py-3 rounded-full font-medium hover:bg-red-600 transition-colors"
-        >
-          로그아웃
-        </button>
-      </div>
-    </div>
-  );
+  return <PortfolioSetupClient />;
 }

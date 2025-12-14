@@ -11,12 +11,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, ArrowRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { PortfolioClaimRequestWithArtist } from '@/lib/types/claims'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function MyClaimsClients() {
   const [claims, setClaims] = useState<PortfolioClaimRequestWithArtist[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const {signOut} = useAuth();
 
   useEffect(() => {
     fetchClaims()
@@ -91,7 +93,7 @@ export default function MyClaimsClients() {
           <Alert className="bg-blue-500/10 border-blue-500/30">
             <AlertCircle className="h-4 w-4 text-blue-400" />
             <AlertDescription className="text-blue-400 text-sm">
-              Your claim is pending admin review. You'll be notified once it's processed.
+              Your claim is pending admin review. You&apos;ll be notified once it&apos;s processed.
             </AlertDescription>
           </Alert>
         )
@@ -132,10 +134,10 @@ export default function MyClaimsClients() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header onBack={() => {router.replace('/main')}}/>
+    <div className="min-h-screen bg-black text-white pb-30">
+      {/* <Header onBack={() => {router.replace('/main')}}/> */}
 
-      <div className="max-w-4xl mx-auto px-6 py-12 pt-16 space-y-2">
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-2">
         <div className="">
           <h1 className="text-2xl font-bold">My Claim Requests</h1>
           <p className="text-gray-400 text-sm">Track the status of your portfolio claim requests</p>
@@ -150,7 +152,7 @@ export default function MyClaimsClients() {
 
         {claims.length === 0 ? (
           <Card className="bg-zinc-900 border-zinc-800">
-            <CardContent className="py-12 text-center">
+            <CardContent className="py-12 text-center px-2">
               <div className="max-w-md mx-auto space-y-4">
                 <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto">
                   <AlertCircle className="w-8 h-8 text-gray-400" />
@@ -158,7 +160,7 @@ export default function MyClaimsClients() {
                 <div>
                   <h3 className="text-xl font-semibold mb-2">No Claims Yet</h3>
                   <p className="text-gray-400 mb-6">
-                    You haven't submitted any portfolio claim requests.
+                    You haven&apos;t submitted any portfolio claim requests.
                   </p>
                   <Button asChild className="bg-blue-600 hover:bg-blue-700">
                     <Link href="/">
@@ -173,8 +175,8 @@ export default function MyClaimsClients() {
         ) : (
           <div className="space-y-6">
             {claims.map((claim) => (
-              <Card key={claim.claim_id} className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
+              <Card key={claim.claim_id} className="bg-zinc-900 border-zinc-800 p-2">
+                <CardHeader className='px-2'>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-xl">
@@ -187,7 +189,7 @@ export default function MyClaimsClients() {
                     {getStatusBadge(claim.status)}
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 px-2">
                   {getStatusMessage(claim)}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -235,6 +237,7 @@ export default function MyClaimsClients() {
           </div>
         )}
       </div>
+      <button className='mx-auto w-full py-3 text-red-400 text-center' onClick={signOut}>Logout</button>
     </div>
   )
 }

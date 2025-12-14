@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') // optional filter by status
+    const type = searchParams.get('type')
 
     // Get the auth header
     const authHeader = request.headers.get('authorization')
@@ -48,9 +49,9 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     // If admin, show all claims; otherwise show only user's claims
-    // if (!profile?.is_admin) {
-    //   query = query.eq('requester_auth_id', user.id)
-    // }
+    if (!profile?.is_admin) {
+      query = query.eq('requester_auth_id', user.id)
+    }
 
     // Optional status filter
     if (status) {
@@ -110,19 +111,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for existing pending claim for this portfolio
-    const { data: existingClaim } = await supabase
-      .from('portfolio_claim_requests')
-      .select('claim_id, status')
-      .eq('artist_id', artist_id)
-      .eq('status', 'pending')
-      .single()
+    // const { data: existingClaim } = await supabase
+    //   .from('portfolio_claim_requests')
+    //   .select('claim_id, status')
+    //   .eq('artist_id', artist_id)
+    //   .eq('status', 'pending')
+    //   .single()
 
-    if (existingClaim) {
-      return NextResponse.json(
-        { error: 'There is already a pending claim for this portfolio' },
-        { status: 400 }
-      )
-    }
+    // if (existingClaim) {
+    //   return NextResponse.json(
+    //     { error: 'There is already a pending claim for this portfolio' },
+    //     { status: 400 }
+    //   )
+    // }
 
     // Note: Users CAN claim a new portfolio even if they already have one
     // Upon approval, their account will be switched to the new portfolio
