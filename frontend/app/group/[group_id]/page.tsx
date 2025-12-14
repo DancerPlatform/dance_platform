@@ -11,7 +11,7 @@ export default async function GroupPage({
   const { group_id } = await params;
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/groups/${group_id}`,
+    `/api/groups/${group_id}`,
     {
       next: { revalidate: 60 }, // Cache for 60 seconds
     }

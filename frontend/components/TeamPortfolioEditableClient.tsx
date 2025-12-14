@@ -683,6 +683,9 @@ export function TeamPortfolioEditableClient({
                   {member.is_leader && (
                     <span className="mt-1 text-xs text-blue-400">Leader</span>
                   )}
+                  {member.is_subleader && (
+                    <span className="mt-1 text-xs text-blue-200">Sub Leader</span>
+                  )}
                 </Link>
               ))}
               {/* Add Member Button */}
