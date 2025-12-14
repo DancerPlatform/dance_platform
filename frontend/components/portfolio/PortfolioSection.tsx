@@ -27,11 +27,12 @@ export function PortfolioSection({
   return (
     <section>
       {editable && onEdit ? (
-        <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+        <div className="flex justify-between items-center sm:mb-6 gap-2">
           <SectionHeaders
             title={title}
             sortOrder={sortOrder}
             onToggleSort={onToggleSort}
+            edit={editable}
           />
           <button
             onClick={onEdit}

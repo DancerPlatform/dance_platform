@@ -113,7 +113,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/profile`,
+      `/api/artists/${artistId}/portfolio/profile`,
       {
         method: 'PUT',
         headers: {
@@ -141,7 +141,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/choreography`,
+      `/api/artists/${artistId}/portfolio/choreography`,
       {
         method: 'PUT',
         headers: {
@@ -171,7 +171,7 @@ export function ArtistPortfolioEditableClient({
     console.log('Saving media:', media.map(m => ({ media_id: m.media_id, title: m.title, display_order: m.display_order })));
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/media`,
+      `/api/artists/${artistId}/portfolio/media`,
       {
         method: 'PUT',
         headers: {
@@ -199,7 +199,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/performances`,
+      `/api/artists/${artistId}/portfolio/performances`,
       {
         method: 'PUT',
         headers: {
@@ -227,7 +227,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/directing`,
+      `/api/artists/${artistId}/portfolio/directing`,
       {
         method: 'PUT',
         headers: {
@@ -255,7 +255,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/workshops`,
+      `/api/artists/${artistId}/portfolio/workshops`,
       {
         method: 'PUT',
         headers: {
@@ -283,7 +283,7 @@ export function ArtistPortfolioEditableClient({
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}/portfolio/awards`,
+      `/api/artists/${artistId}/portfolio/awards`,
       {
         method: 'PUT',
         headers: {
@@ -569,21 +569,16 @@ export function ArtistPortfolioEditableClient({
         </PortfolioSection>
 
         {/* Directing */}
-        <section>
-          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-            <SectionHeaders
-              title="Directing"
-              sortOrder={sortOrders.directing}
-              onToggleSort={() => toggleSortOrder('directing')}
-            />
-            <button
-              onClick={() => setShowDirectingEdit(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
-            >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm">편집</span>
-            </button>
-          </div>
+        <PortfolioSection
+          title="Directing"
+          sortOrder={sortOrders.directing}
+          onToggleSort={() => toggleSortOrder('directing')}
+          editable={true}
+          onEdit={() => setShowMediaEdit(true)}
+          isEmpty={!portfolio.directing || portfolio.directing.length === 0}
+          emptyMessage="아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요."
+        >
+          
           {portfolio.directing && portfolio.directing.length > 0 ? (
             <Swiper
               modules={[Pagination]}
@@ -613,24 +608,18 @@ export function ArtistPortfolioEditableClient({
           ) : (
             <p className="text-sm text-gray-400">아직 연출 작품이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
           )}
-        </section>
+        </PortfolioSection>
 
         {/* Performances */}
-        <section>
-          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-            <SectionHeaders
-              title="Performances"
-              sortOrder={sortOrders.performances}
-              onToggleSort={() => toggleSortOrder('performances')}
-            />
-            <button
-              onClick={() => setShowPerformancesEdit(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
-            >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm">편집</span>
-            </button>
-          </div>
+        <PortfolioSection
+          title="Performances"
+          sortOrder={sortOrders.performance}
+          onToggleSort={() => toggleSortOrder('performances')}
+          editable={true}
+          onEdit={() => setShowPerformancesEdit(true)}
+          isEmpty={!portfolio.performances || portfolio.performances.length === 0}
+          emptyMessage="아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요."
+        >
           {portfolio.performances && portfolio.performances.length > 0 ? (
             <Swiper
               modules={[Pagination]}
@@ -663,24 +652,18 @@ export function ArtistPortfolioEditableClient({
           ) : (
             <p className="text-sm text-gray-400">아직 공연 기록이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
           )}
-        </section>
+        </PortfolioSection>
 
         {/* Classes/Workshops */}
-        <section>
-          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-            <SectionHeaders
-              title="Classes"
-              sortOrder={sortOrders.workshops}
-              onToggleSort={() => toggleSortOrder('workshops')}
-            />
-            <button
-              onClick={() => setShowWorkshopsEdit(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
-            >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm">편집</span>
-            </button>
-          </div>
+        <PortfolioSection
+          title="Classes"
+          sortOrder={sortOrders.workshop}
+          onToggleSort={() => toggleSortOrder('workshop')}
+          editable={true}
+          onEdit={() => setShowWorkshopsEdit(true)}
+          isEmpty={!portfolio.workshops || portfolio.workshops.length === 0}
+          emptyMessage="아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요."
+        >
           {portfolio.workshops && portfolio.workshops.length > 0 ? (
             <Swiper
               modules={[Pagination]}
@@ -713,20 +696,18 @@ export function ArtistPortfolioEditableClient({
           ) : (
             <p className="text-sm text-gray-400">아직 클래스 기록이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
           )}
-        </section>
+        </PortfolioSection>
 
         {/* Awards */}
-        <section>
-          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
-            <h2 className="text-2xl sm:text-3xl font-bold">Awards</h2>
-            <button
-              onClick={() => setShowAwardsEdit(true)}
-              className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0"
-            >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm">편집</span>
-            </button>
-          </div>
+        <PortfolioSection
+          title="Awards"
+          sortOrder={sortOrders.awards}
+          onToggleSort={() => toggleSortOrder('awards')}
+          editable={true}
+          onEdit={() => setShowAwardsEdit(true)}
+          isEmpty={!portfolio.awards || portfolio.awards.length === 0}
+          emptyMessage="아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요."
+        >
           {portfolio.awards && portfolio.awards.length > 0 ? (
             <Swiper
               modules={[Pagination]}
@@ -759,7 +740,7 @@ export function ArtistPortfolioEditableClient({
           ) : (
             <p className="text-sm text-gray-400">아직 수상 경력이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
           )}
-        </section>
+        </PortfolioSection>
       </div>
 
       {/* View All Modal */}
