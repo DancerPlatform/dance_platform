@@ -21,6 +21,8 @@ import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { chunkArray } from '@/lib/portfolioUtils';
 import { useState } from 'react';
+import { Home, MoreVertical, X } from 'lucide-react';
+import Link from 'next/link';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -51,6 +53,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
   const { modalState, openModal, closeModal } = usePortfolioModal();
   const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
   const openItemModal = (item: PortfolioItemData) => {
     setSelectedItem(item);
@@ -239,12 +242,30 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
 
   return (
     <>
-      <PortfolioHeroSection
-        photoUrl={portfolio.photo}
-        name={portfolio.artist_name}
-        nameEng={portfolio.artist_name_eng}
-        heightClass="h-[500px]"
-      />
+      {/* Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="text-white hover:text-green-400 transition-colors">
+            <Home size={24} />
+          </Link>
+          <button
+            onClick={() => setIsSignupModalOpen(true)}
+            className="text-white hover:text-green-400 transition-colors"
+          >
+            <MoreVertical size={24} />
+          </button>
+        </div>
+      </div>
+
+      {/* Add padding to account for fixed header */}
+      <div className="pt-16">
+        <PortfolioHeroSection
+          photoUrl={portfolio.photo}
+          name={portfolio.artist_name}
+          nameEng={portfolio.artist_name_eng}
+          heightClass="h-[500px]"
+        />
+      </div>
 
 
       {/* Content Container */}
@@ -579,6 +600,36 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         onClose={closeItemModal}
         item={selectedItem}
       />
+
+      {/* Signup Modal */}
+      {isSignupModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="relative bg-zinc-900 rounded-lg p-8 max-w-md w-full mx-4 border border-white/10">
+            <button
+              onClick={() => setIsSignupModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+            <div className="mt-2">
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Create Your Portfolio
+              </h2>
+              <div className='mb-6 text-center'>
+                <p className="text-gray-300">
+                  Want to make your own portfolio or claim this portfolio? <span className='text-white'>Join us now</span>
+                </p>
+              </div>
+              <Link
+                href="/signup"
+                className="block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors"
+              >
+                Sign Up Now
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
