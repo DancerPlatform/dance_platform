@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') // optional filter by status
+    const type = searchParams.get('type')
 
     // Get the auth header
     const authHeader = request.headers.get('authorization')
@@ -110,19 +111,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for existing pending claim for this portfolio
-    const { data: existingClaim } = await supabase
-      .from('portfolio_claim_requests')
-      .select('claim_id, status')
-      .eq('artist_id', artist_id)
-      .eq('status', 'pending')
-      .single()
+    // const { data: existingClaim } = await supabase
+    //   .from('portfolio_claim_requests')
+    //   .select('claim_id, status')
+    //   .eq('artist_id', artist_id)
+    //   .eq('status', 'pending')
+    //   .single()
 
-    if (existingClaim) {
-      return NextResponse.json(
-        { error: 'There is already a pending claim for this portfolio' },
-        { status: 400 }
-      )
-    }
+    // if (existingClaim) {
+    //   return NextResponse.json(
+    //     { error: 'There is already a pending claim for this portfolio' },
+    //     { status: 400 }
+    //   )
+    // }
 
     // Note: Users CAN claim a new portfolio even if they already have one
     // Upon approval, their account will be switched to the new portfolio
@@ -132,6 +133,13 @@ export async function POST(request: NextRequest) {
     const phoneMatches = requester_phone && artist.phone
       ? artist.phone.replace(/\D/g, '') === requester_phone.replace(/\D/g, '')
       : null
+
+    // Generate random alphanumeric authentication code (8 characters)
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let authCode = ''
+    for (let i = 0; i < 8; i++) {
+      authCode += characters.charAt(Math.floor(Math.random() * characters.length))
+    }
 
     // Create claim request
     const { data: claim, error: claimError } = await supabase
@@ -144,6 +152,7 @@ export async function POST(request: NextRequest) {
         email_matches: emailMatches,
         phone_matches: phoneMatches,
         status: 'pending',
+        authentication_code: authCode,
       })
       .select()
       .single()

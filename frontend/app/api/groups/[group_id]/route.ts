@@ -54,6 +54,7 @@ export async function GET(
         return {
           artist_id,
           is_leader: artist_id === teamData.leader_id,
+          is_subleader: artist_id === teamData.subleader_id,
           joined_date: null,
           artist: artistData,
           portfolio: {

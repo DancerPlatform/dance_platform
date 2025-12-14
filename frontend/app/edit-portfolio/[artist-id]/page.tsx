@@ -80,7 +80,7 @@ export default function EditPortfolioPage() {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}`,
+          `/api/artists/${artistId}`,
           {
             cache: 'no-store',
           }
@@ -155,9 +155,9 @@ export default function EditPortfolioPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header onBack={() => {router.push('/main/profile')}} />
+      <Header />
       <ArtistPortfolioEditableClient portfolio={portfolio} artistId={artistId} />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

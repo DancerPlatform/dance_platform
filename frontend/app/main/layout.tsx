@@ -11,7 +11,7 @@ export default function MainLayout({
     <div>
       {children}
       <BottomNav />
-      <Footer /> 
+      {/* <Footer />  */}
     </div>
   )
 }

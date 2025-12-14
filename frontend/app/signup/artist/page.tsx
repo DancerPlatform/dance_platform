@@ -149,8 +149,8 @@ export default function ArtistSignupPage() {
     }
 
     if (user) {
-      // Redirect to portfolio choice page
-      router.push('/artist/portfolio-setup')
+      // Redirect to profile page
+      router.push('/main/profile')
     }
   }
 

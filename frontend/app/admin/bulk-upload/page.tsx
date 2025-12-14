@@ -24,11 +24,29 @@ interface UploadResult {
   errors?: string[]
 }
 
+interface TeamUploadResult {
+  success: boolean
+  message: string
+  processed?: {
+    team_profile: number
+    team_choreography: number
+    team_media: number
+    team_performance: number
+    team_directing: number
+    team_workshop: number
+    team_award: number
+    team_members: number
+  }
+  errors?: string[]
+}
+
 export default function BulkUploadPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [uploadLoading, setUploadLoading] = useState(false)
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null)
+  const [teamUploadLoading, setTeamUploadLoading] = useState(false)
+  const [teamUploadResult, setTeamUploadResult] = useState<TeamUploadResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
@@ -96,6 +114,40 @@ export default function BulkUploadPage() {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setUploadLoading(false)
+    }
+  }
+
+  const handleTeamFileUpload = async (file: File) => {
+    setTeamUploadLoading(true)
+    setTeamUploadResult(null)
+    setError(null)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('Not authenticated')
+
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/admin/bulk-upload/team', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload team file')
+      }
+
+      setTeamUploadResult(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setTeamUploadLoading(false)
     }
   }
 
@@ -287,6 +339,149 @@ export default function BulkUploadPage() {
               </p>
             </CardContent>
           </Card>
+
+          {/* Team Portfolio Section */}
+          <div className="mt-12 pt-8 border-t border-zinc-800">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold mb-2">Team Portfolio Data</h2>
+              <p className="text-gray-400">Upload team portfolio information separately</p>
+            </div>
+
+            {teamUploadResult && (
+              <Alert className={teamUploadResult.success ? "bg-green-500/10 border-green-500/50 mb-6" : "bg-yellow-500/10 border-yellow-500/50 mb-6"}>
+                {teamUploadResult.success ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 text-yellow-400" />
+                )}
+                <AlertDescription className={teamUploadResult.success ? "text-green-400" : "text-yellow-400"}>
+                  <div className="font-semibold mb-2">{teamUploadResult.message}</div>
+                  {teamUploadResult.processed && (
+                    <div className="text-sm space-y-1 mt-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        {teamUploadResult.processed.team_profile > 0 && <div>• Team Profiles: {teamUploadResult.processed.team_profile}</div>}
+                        {teamUploadResult.processed.team_choreography > 0 && <div>• Team Choreography: {teamUploadResult.processed.team_choreography}</div>}
+                        {teamUploadResult.processed.team_media > 0 && <div>• Team Media: {teamUploadResult.processed.team_media}</div>}
+                        {teamUploadResult.processed.team_performance > 0 && <div>• Team Performances: {teamUploadResult.processed.team_performance}</div>}
+                        {teamUploadResult.processed.team_directing > 0 && <div>• Team Directing: {teamUploadResult.processed.team_directing}</div>}
+                        {teamUploadResult.processed.team_workshop > 0 && <div>• Team Workshops: {teamUploadResult.processed.team_workshop}</div>}
+                        {teamUploadResult.processed.team_award > 0 && <div>• Team Awards: {teamUploadResult.processed.team_award}</div>}
+                        {teamUploadResult.processed.team_members > 0 && <div>• Team Members: {teamUploadResult.processed.team_members}</div>}
+                      </div>
+                    </div>
+                  )}
+                  {teamUploadResult.errors && teamUploadResult.errors.length > 0 && (
+                    <div className="mt-3 text-sm">
+                      <div className="font-semibold mb-1">Errors ({teamUploadResult.errors.length}):</div>
+                      <ul className="list-disc list-inside space-y-0.5 max-h-40 overflow-y-auto">
+                        {teamUploadResult.errors.map((err, idx) => (
+                          <li key={idx} className="text-xs">{err}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="grid gap-6">
+              {/* Team Instructions Card */}
+              <Card className="bg-zinc-900 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Team Portfolio Format
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-gray-300">
+                  <ol className="list-decimal list-inside space-y-2">
+                    <li>Download the team portfolio CSV template below</li>
+                    <li>Fill in your team data following the template format</li>
+                    <li>Each row must specify a <code className="bg-zinc-800 px-1 py-0.5 rounded">section</code> type</li>
+                    <li>Upload your completed CSV file</li>
+                  </ol>
+                  <div className="bg-zinc-800 border border-zinc-700 rounded p-3 mt-4">
+                    <div className="text-xs text-gray-400 mb-2">Template sections:</div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>• <strong>team_profile</strong> - Team info</div>
+                      <div>• <strong>team_choreography</strong> - Team choreo</div>
+                      <div>• <strong>team_media</strong> - Team videos</div>
+                      <div>• <strong>team_performance</strong> - Team performances</div>
+                      <div>• <strong>team_directing</strong> - Team directing</div>
+                      <div>• <strong>team_workshop</strong> - Team workshops</div>
+                      <div>• <strong>team_award</strong> - Team awards</div>
+                      <div>• <strong>team_members</strong> - Team members</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Team Upload Card */}
+              <Card className="bg-zinc-900 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white">Upload Team Portfolio Data</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Upload a CSV file containing team portfolio records
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Button
+                      variant="outline"
+                      className="bg-transparent border-zinc-700 text-white hover:bg-zinc-800"
+                      onClick={() => {
+                        const link = document.createElement('a')
+                        link.href = '/csv_templates/team_portfolio_template.csv'
+                        link.download = 'team_portfolio_template.csv'
+                        link.click()
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Team CSV Template
+                    </Button>
+                  </div>
+
+                  <div className="border-t border-zinc-800 pt-4">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      id="team-csv-upload"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleTeamFileUpload(file)
+                      }}
+                      disabled={teamUploadLoading}
+                    />
+                    <label htmlFor="team-csv-upload">
+                      <Button
+                        asChild
+                        disabled={teamUploadLoading}
+                        className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                      >
+                        <span>
+                          {teamUploadLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload Team CSV File
+                            </>
+                          )}
+                        </span>
+                      </Button>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-2">
+                      CSV files only. The file will be processed row by row.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
         </div>
       </div>

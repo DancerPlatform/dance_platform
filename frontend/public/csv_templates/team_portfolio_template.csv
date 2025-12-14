@@ -1,0 +1,17 @@
+section,team_id,team_name,team_introduction,leader_id,subleader_id,photo,instagram,twitter,youtube,song_title,singer,youtube_link,song_date,role,is_highlight,display_order,media_title,video_date,performance_title,performance_date,category,directing_title,directing_date,class_name,class_role,country,class_date,issuing_org,award_title,received_date,artist_id
+team_profile,team001,Dance Crew Alpha,Professional dance crew specializing in urban and contemporary styles,artist001,artist002,https://example.com/team-photo.jpg,https://instagram.com/dancecrewalpla,https://twitter.com/dancecrewalpla,https://youtube.com/@dancecrewalpla,,,,,,,,,,,,,,,,,,,,,,
+team_choreography,team001,,,,,,,,,DNA,BTS,https://www.youtube.com/watch?v=example1,2017-09-18,"Choreographer,Performance",TRUE,1,,,,,,,,,,,,,,,
+team_choreography,team001,,,,,,,,,Feel Special,TWICE,https://www.youtube.com/watch?v=example2,2019-09-23,Choreographer,FALSE,2,,,,,,,,,,,,,,,
+team_media,team001,,,,,,,,,,,https://www.youtube.com/watch?v=example3,,,TRUE,1,Crew Showcase,2023-06-15,,,,,,,,,,,,
+team_media,team001,,,,,,,,,,,https://www.youtube.com/watch?v=example4,,,FALSE,2,Performance Video,2023-08-20,,,,,,,,,,,,
+team_performance,team001,,,,,,,,,,,,,,,,,,Seoul Dance Festival 2023,2023-05-10,참가,,,,,,,,,,
+team_performance,team001,,,,,,,,,,,,,,,,,,K-Pop World Festival,2023-09-15,수상,,,,,,,,,,
+team_directing,team001,,,,,,,,,,,,,,,,,,,,,,Spring Concert 2023,2023-03-20,,,,,,,,
+team_directing,team001,,,,,,,,,,,,,,,,,,,,,,Dance Showcase,2023-11-05,,,,,,,,
+team_workshop,team001,,,,,,,,,,,,,,,,,,,,,,,Urban Dance Intensive,"Instructor,Choreographer",South Korea,2023-07-10,,,,,
+team_workshop,team001,,,,,,,,,,,,,,,,,,,,,,,Contemporary Masterclass,Instructor,Japan,2023-10-15,,,,,
+team_award,team001,,,,,,,,,,,,,,,,,,,,,,,,,,,Korea Dance Association,Best Crew Award,2023-04-25,
+team_award,team001,,,,,,,,,,,,,,,,,,,,,,,,,,,Seoul Arts Center,Excellence Prize,2023-12-01,
+team_members,team001,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,artist001
+team_members,team001,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,artist002
+team_members,team001,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,artist003

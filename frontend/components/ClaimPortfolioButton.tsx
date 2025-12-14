@@ -33,6 +33,7 @@ export function ClaimPortfolioButton({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [authenticationCode, setAuthenticationCode] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -68,11 +69,9 @@ export function ClaimPortfolioButton({
         throw new Error(data.error || 'Failed to submit claim request')
       }
 
+      // Store the authentication code from the response
+      setAuthenticationCode(data.claim?.authentication_code || null)
       setSuccess(true)
-      setTimeout(() => {
-        setIsOpen(false)
-        router.push('/my-claims')
-      }, 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -102,7 +101,38 @@ export function ClaimPortfolioButton({
             </DialogDescription>
           </DialogHeader>
 
-          {success ? (
+          {success && authenticationCode ? (
+            <div className="space-y-4 py-4">
+              <Alert className="bg-green-500/10 border-green-500/50 text-green-400">
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>
+                  Claim request submitted successfully!
+                </AlertDescription>
+              </Alert>
+
+              <div className="bg-blue-500/10 border-2 border-blue-500/50 rounded-lg p-4 space-y-3">
+                <p className="text-sm font-semibold text-blue-400">Your Authentication Code:</p>
+                <div className="bg-black/30 rounded px-4 py-3 text-center">
+                  <p className="text-2xl font-bold text-white tracking-wider font-mono">
+                    {authenticationCode}
+                  </p>
+                </div>
+                <p className="text-sm text-gray-300">
+                  Send us your authentication code through your official artist account on Instagram.
+                </p>
+              </div>
+
+              <Button
+                onClick={() => {
+                  setIsOpen(false)
+                  router.push('/my-claims')
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Go to My Claims
+              </Button>
+            </div>
+          ) : success ? (
             <Alert className="bg-green-500/10 border-green-500/50 text-green-400">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>

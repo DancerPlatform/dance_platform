@@ -37,7 +37,7 @@ export default async function GroupPage({
     <div className="min-h-screen bg-black text-white">
       <Header />
       <GroupPortfolioClient group={group} />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

@@ -16,7 +16,7 @@ export function Header({ onBack, className }: HeaderProps) {
     if (onBack) {
       onBack();
     } else {
-      router.back();
+      router.push('/main');
     }
   };
 

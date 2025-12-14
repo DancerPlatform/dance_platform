@@ -62,13 +62,13 @@ export default function MainPage() {
     <div className="min-h-screen bg-black text-white pb-10 select-none">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
-        <h1 className="text-2xl md:text-3xl font-bold">dee<span className='text-green-500'>&apos;</span>tz</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">dancer<span className='text-green-500'>.</span>bio</h1>
         <button className="rounded-full" onClick={() => {router.push("/main/search")}}>
           <Search className='size-6 md:size-8'/>
         </button>
       </header>
 
-      <main className="space-y-8">
+      <main className="space-y-5">
         {/* Banner Section - Full width on mobile, constrained on desktop */}
         {/* <section className="w-full">
           <div className="md:px-6 lg:px-8 px-6">
@@ -90,7 +90,7 @@ export default function MainPage() {
         <section className="px-6">
           <h2 className="text-3xl md:text-4xl font-normal">
             Discover<br />
-            Our <span className="font-bold">Artists</span>
+            Our <span className="font-bold">Dancers</span>
           </h2>
         </section>
 
@@ -100,10 +100,10 @@ export default function MainPage() {
             <h3 className="text-2xl font-normal">Popular Artists</h3>
             <Link
               href="/main/search"
-              className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+              className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors text-sm"
             >
-              <span>View All</span>
-              <ArrowRight className="w-5 h-5" />
+              <span className='text-green-500'>View All</span>
+              <ArrowRight className="size-4 text-green-500" />
             </Link>
           </div>
 
@@ -135,10 +135,10 @@ export default function MainPage() {
               <h3 className="text-2xl font-normal">Groups & Crews</h3>
               <Link
                 href="/main/search"
-                className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm"
               >
-                <span>View All</span>
-                <ArrowRight className="w-5 h-5" />
+                <span className='text-green-500'>View All</span>
+              <ArrowRight className="size-4 text-green-500" />
               </Link>
             </div>
 

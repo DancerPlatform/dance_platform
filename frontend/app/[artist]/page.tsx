@@ -35,9 +35,9 @@ export default async function ArtistPage({
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Header />
+      {/* <Header /> */}
       <ArtistPortfolioClient portfolio={portfolio} />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

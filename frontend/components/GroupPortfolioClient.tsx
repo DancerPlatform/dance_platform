@@ -44,6 +44,7 @@ interface PortfolioInfo {
 interface GroupMember {
   artist_id: string;
   is_leader: boolean;
+  is_subleader: boolean;
   joined_date: string | null;
   artist: ArtistInfo;
   portfolio: PortfolioInfo;
@@ -232,6 +233,9 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
                   </p>
                   {member.is_leader && (
                     <span className="mt-1 text-xs text-blue-400">Leader</span>
+                  )}
+                  {member.is_subleader && (
+                    <span className="mt-1 text-xs text-blue-200">Leader</span>
                   )}
                 </Link>
               ))}

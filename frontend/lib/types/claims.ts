@@ -6,6 +6,7 @@ export interface PortfolioClaimRequest {
   requester_auth_id: string
   requester_email: string
   requester_phone: string | null
+  authentication_code: string | null
   email_matches: boolean | null
   phone_matches: boolean | null
   status: ClaimStatus

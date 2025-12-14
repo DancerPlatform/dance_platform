@@ -229,34 +229,33 @@ export default function AdminClaimsPage() {
                       <div className="flex-1">
                         <CardTitle className="text-xl text-white">Trying to claim: {claim.artist_user.name}&apos;s profile</CardTitle>
                         <CardDescription className="text-gray-400">
-                          Requestion to claim portfolio ID: {claim.artist_id}
+                          Request to claim portfolio ID: {claim.artist_id}
                         </CardDescription>
                       </div>
                       {getStatusBadge(claim.status)}
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    {/* Authentication Code Display */}
+                    {claim.authentication_code && (
+                      <div className="bg-blue-500/10 border-2 border-blue-500/50 rounded-lg p-4 space-y-2">
+                        <p className="text-sm font-semibold text-blue-400">Authentication Code:</p>
+                        <div className="bg-black/30 rounded px-4 py-2 text-center">
+                          <p className="text-2xl font-bold text-white tracking-wider font-mono">
+                            {claim.authentication_code}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-400">
+                          User should send this code via their official artist Instagram account
+                        </p>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      {/* <div>
-                        <p className="text-gray-500 mb-1">Portfolio Email</p>
-                        <p className="text-white">{claim.artist_user.email}</p>
-                      </div> */}
                       <div>
                         <p className="text-gray-500 mb-1">Requester Email</p>
                         <div className="flex items-center gap-2">
                           <p className="text-white">{claim.requester_email}</p>
-                          {/* {getMatchIndicator(claim.email_matches)} */}
-                        </div>
-                      </div>
-                      {/* <div>
-                        <p className="text-gray-500 mb-1">Portfolio Phone</p>
-                        <p className="text-white">{claim.artist_user.phone || '-'}</p>
-                      </div> */}
-                      <div>
-                        <p className="text-gray-500 mb-1">Requester Phone</p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-white">{claim.requester_phone || '-'}</p>
-                          {/* {getMatchIndicator(claim.phone_matches)} */}
                         </div>
                       </div>
                     </div>
@@ -265,7 +264,7 @@ export default function AdminClaimsPage() {
                       Requested: {new Date(claim.created_at).toLocaleString()}
                     </div>
 
-                    <div className="flex gap-2 pt-4">
+                    <div className="flex gap-2">
                       <Button
                         onClick={() => handleApprove(claim.claim_id)}
                         disabled={actionLoading}
