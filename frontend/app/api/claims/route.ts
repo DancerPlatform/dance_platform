@@ -48,9 +48,9 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     // If admin, show all claims; otherwise show only user's claims
-    if (!profile?.is_admin) {
-      query = query.eq('requester_auth_id', user.id)
-    }
+    // if (!profile?.is_admin) {
+    //   query = query.eq('requester_auth_id', user.id)
+    // }
 
     // Optional status filter
     if (status) {
