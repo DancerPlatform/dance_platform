@@ -49,7 +49,7 @@ export default function GroupLoading() {
         </div>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

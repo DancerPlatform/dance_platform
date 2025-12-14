@@ -345,15 +345,16 @@ function ChoreographySortableItem({
   item,
   onToggleHighlight,
   onRemove,
-  onEdit,
+  onUpdate,
 }: {
   id: string;
   item: ChoreographyItem;
   onToggleHighlight: () => void;
   onRemove: () => void;
-  onEdit: () => void;
+  onUpdate: (data: { song: Song; role: string[] }) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -361,45 +362,63 @@ function ChoreographySortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex gap-1 sm:gap-2 p-2 bg-white/5 rounded-lg group items-center">
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
-      >
-        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
-      </button>
+    <>
+      <div ref={setNodeRef} style={style} className="flex gap-1 sm:gap-2 p-2 bg-white/5 rounded-lg group items-center">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+        >
+          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+        </button>
 
-      <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
-        {item.song?.youtube_link ? (
-          <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
-        ) : (
-          <div className='bg-gray-600 w-full h-6'></div>
-        )}
+        <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
+          {item.song?.youtube_link ? (
+            <YouTubeThumbnail url={item.song.youtube_link} title={item.song.title} />
+          ) : (
+            <div className='bg-gray-600 w-full h-6'></div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+          <h3 className="font-semibold max-w-40 truncate text-sm sm:text-base hover:text-green-400 transition-colors">
+            {item.song?.singer} - {item.song?.title}
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-400 truncate">{item.role?.join(', ')}</p>
+          {item.song?.date && (
+            <p className="text-xs text-gray-500 mt-1">
+              {new Date(item.song.date).toLocaleDateString()}
+            </p>
+          )}
+        </div>
+
+        <button onClick={onToggleHighlight} className="p-1 sm:p-2 hover:bg-white/10 rounded shrink-0">
+          <Star
+            className={`w-5 h-5 sm:w-6 sm:h-6 ${item.is_highlight ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}
+          />
+        </button>
+
+        <button onClick={onRemove} className="p-1 sm:p-2 hover:bg-red-500/20 rounded text-red-500 shrink-0">
+          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+        </button>
       </div>
 
-      <div className="flex-1 min-w-0 cursor-pointer" onClick={onEdit}>
-        <h3 className="font-semibold max-w-40 truncate text-sm sm:text-base hover:text-green-400 transition-colors">
-          {item.song?.singer} - {item.song?.title}
-        </h3>
-        <p className="text-xs sm:text-sm text-gray-400 truncate">{item.role?.join(', ')}</p>
-        {item.song?.date && (
-          <p className="text-xs text-gray-500 mt-1">
-            {new Date(item.song.date).toLocaleDateString()}
-          </p>
-        )}
-      </div>
-
-      <button onClick={onToggleHighlight} className="p-1 sm:p-2 hover:bg-white/10 rounded shrink-0">
-        <Star
-          className={`w-5 h-5 sm:w-6 sm:h-6 ${item.is_highlight ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}
+      {/* Edit Modal */}
+      {item.song && (
+        <EditChoreographySubModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={(data) => {
+            onUpdate(data);
+            setIsEditModalOpen(false);
+          }}
+          initialData={{
+            song: item.song,
+            role: item.role || [],
+          }}
         />
-      </button>
-
-      <button onClick={onRemove} className="p-1 sm:p-2 hover:bg-red-500/20 rounded text-red-500 shrink-0">
-        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-      </button>
-    </div>
+      )}
+    </>
   );
 }
 
@@ -407,7 +426,6 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
   const [choreography, setChoreography] = useState<ChoreographyItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -498,7 +516,7 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
                       item={item}
                       onToggleHighlight={() => toggleHighlight(index)}
                       onRemove={() => remove(index)}
-                      onEdit={() => setEditingIndex(index)}
+                      onUpdate={(data) => updateItem(index, data)}
                     />
                   ))}
                 </div>
@@ -528,22 +546,6 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
           setShowAddModal(false);
         }}
       />
-
-      {/* Edit Choreography Modal */}
-      {editingIndex !== null && (
-        <EditChoreographySubModal
-          isOpen={editingIndex !== null}
-          onClose={() => setEditingIndex(null)}
-          onUpdate={(data) => {
-            updateItem(editingIndex, data);
-            setEditingIndex(null);
-          }}
-          initialData={{
-            song: choreography[editingIndex].song!,
-            role: choreography[editingIndex].role || [],
-          }}
-        />
-      )}
     </>
   );
 }
@@ -665,11 +667,24 @@ function EditChoreographySubModal({
   onUpdate: (data: { song: Song; role: string[] }) => void;
   initialData: { song: Song; role: string[] };
 }) {
+  const [internalOpen, setInternalOpen] = useState(isOpen);
   const [title, setTitle] = useState(initialData.song.title || '');
   const [singer, setSinger] = useState(initialData.song.singer || '');
   const [youtubeLink, setYoutubeLink] = useState(initialData.song.youtube_link || '');
   const [date, setDate] = useState(initialData.song.date || '');
   const [role, setRole] = useState(initialData.role.join(', ') || '');
+
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setInternalOpen(isOpen);
+  }, [isOpen]);
+
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      setInternalOpen(false);
+      onClose();
+    }
+  };
 
   const handleSubmit = () => {
     if (!title || !singer || !youtubeLink || !date) {
@@ -687,10 +702,11 @@ function EditChoreographySubModal({
       },
       role: role.split(',').map((r) => r.trim()).filter(Boolean),
     });
+    handleClose(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={internalOpen} onOpenChange={handleClose} modal={true}>
       <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">안무 편집</DialogTitle>
@@ -748,7 +764,7 @@ function EditChoreographySubModal({
           </div>
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
-          <Button variant="outline" onClick={onClose} className="border-zinc-700 w-full sm:w-auto">
+          <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
             취소
           </Button>
           <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
@@ -773,15 +789,16 @@ function MediaSortableItem({
   item,
   onToggleHighlight,
   onRemove,
-  onEdit,
+  onUpdate,
 }: {
   id: string;
   item: MediaItem;
   onToggleHighlight: () => void;
   onRemove: () => void;
-  onEdit: () => void;
+  onUpdate: (data: { youtube_link: string; title: string; role?: string; video_date?: string }) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -789,46 +806,68 @@ function MediaSortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group flex justify-between  w-full items-center gap-1 sm:gap-2 bg-white/5 p-2 rounded-lg">
-      <div className='flex items-center gap-4'>
-        <button
-          {...attributes}
-          {...listeners}
-          className="z-10 cursor-grab active:cursor-grabbing p-1 sm:p-2 bg-black/50 hover:bg-black/70 rounded shrink-0"
-        >
-          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-        </button>
-        <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
-        {item.youtube_link ? (
-          <YouTubeThumbnail url={item.youtube_link} title={item.title} />
-        ) : (
-          <div className='bg-gray-600 w-full h-6'></div>
-        )}
-      </div>
-        <p className="text-xs sm:text-sm text-white truncate flex-1 min-w-0 max-w-[150px] cursor-pointer hover:text-green-400 transition-colors" onClick={onEdit}>{item.title}</p>
-        <p className="text-xs text-gray-400 truncate hidden sm:block">
-          {item.role}
-          {item.video_date && (
-            <span>
-              {' '}
-              · {new Date(item.video_date).getFullYear()}.
-              {String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}
-            </span>
+    <>
+      <div ref={setNodeRef} style={style} className="relative group flex justify-between  w-full items-center gap-1 sm:gap-2 bg-white/5 p-2 rounded-lg">
+        <div className='flex items-center gap-4'>
+          <button
+            {...attributes}
+            {...listeners}
+            className="z-10 cursor-grab active:cursor-grabbing p-1 sm:p-2 bg-black/50 hover:bg-black/70 rounded shrink-0"
+          >
+            <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          </button>
+          <div className="w-12 sm:w-14 shrink-0 rounded-sm overflow-hidden">
+          {item.youtube_link ? (
+            <YouTubeThumbnail url={item.youtube_link} title={item.title} />
+          ) : (
+            <div className='bg-gray-600 w-full h-6'></div>
           )}
-        </p>
+        </div>
+          <p className="text-xs sm:text-sm text-white truncate flex-1 min-w-0 max-w-[150px] cursor-pointer hover:text-green-400 transition-colors" onClick={() => setIsEditModalOpen(true)}>{item.title}</p>
+          <p className="text-xs text-gray-400 truncate hidden sm:block">
+            {item.role}
+            {item.video_date && (
+              <span>
+                {' '}
+                · {new Date(item.video_date).getFullYear()}.
+                {String(new Date(item.video_date).getMonth() + 1).padStart(2, '0')}
+              </span>
+            )}
+          </p>
+        </div>
+
+        <div className="flex gap-1 sm:gap-2 shrink-0">
+          <button onClick={onToggleHighlight} className="p-1 sm:p-2 bg-black/50 hover:bg-black/70 rounded">
+            <Star
+              className={`w-4 h-4 sm:w-5 sm:h-5 ${item.is_highlight ? 'text-yellow-400 fill-yellow-400' : 'text-white'}`}
+            />
+          </button>
+          <button onClick={onRemove} className="p-1 sm:p-2 bg-red-500/50 hover:bg-red-500/70 rounded">
+            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          </button>
+        </div>
       </div>
 
-      <div className="flex gap-1 sm:gap-2 shrink-0">
-        <button onClick={onToggleHighlight} className="p-1 sm:p-2 bg-black/50 hover:bg-black/70 rounded">
-          <Star
-            className={`w-4 h-4 sm:w-5 sm:h-5 ${item.is_highlight ? 'text-yellow-400 fill-yellow-400' : 'text-white'}`}
-          />
-        </button>
-        <button onClick={onRemove} className="p-1 sm:p-2 bg-red-500/50 hover:bg-red-500/70 rounded">
-          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-        </button>
-      </div>
-    </div>
+      {/* Edit Modal */}
+      <EditMediaSubModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onUpdate={(data) => {
+          onUpdate(data);
+          setIsEditModalOpen(false);
+        }}
+        initialData={{
+          youtube_link: item.youtube_link,
+          title: item.title,
+          role: item.role,
+          video_date: item.video_date
+            ? (typeof item.video_date === 'string'
+                ? item.video_date
+                : new Date(item.video_date).toISOString().split('T')[0])
+            : undefined,
+        }}
+      />
+    </>
   );
 }
 
@@ -836,7 +875,6 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
   const [media, setMedia] = useState<MediaItem[]>(initialData);
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   // Update local state when initialData changes
   useEffect(() => {
@@ -940,7 +978,7 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
                       item={item}
                       onToggleHighlight={() => toggleHighlight(index)}
                       onRemove={() => remove(index)}
-                      onEdit={() => setEditingIndex(index)}
+                      onUpdate={(data) => updateItem(index, data)}
                     />
                   ))}
                 </div>
@@ -970,28 +1008,6 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
           setShowAddModal(false);
         }}
       />
-
-      {/* Edit Media Modal */}
-      {editingIndex !== null && (
-        <EditMediaSubModal
-          isOpen={editingIndex !== null}
-          onClose={() => setEditingIndex(null)}
-          onUpdate={(data) => {
-            updateItem(editingIndex, data);
-            setEditingIndex(null);
-          }}
-          initialData={{
-            youtube_link: media[editingIndex].youtube_link,
-            title: media[editingIndex].title,
-            role: media[editingIndex].role,
-            video_date: media[editingIndex].video_date
-              ? (typeof media[editingIndex].video_date === 'string'
-                  ? media[editingIndex].video_date as string
-                  : new Date(media[editingIndex].video_date as Date).toISOString().split('T')[0])
-              : undefined,
-          }}
-        />
-      )}
     </>
   );
 }
@@ -1103,10 +1119,23 @@ function EditMediaSubModal({
   onUpdate: (data: { youtube_link: string; title: string; role?: string; video_date?: string }) => void;
   initialData: { youtube_link: string; title: string; role?: string; video_date?: string };
 }) {
+  const [internalOpen, setInternalOpen] = useState(isOpen);
   const [title, setTitle] = useState(initialData.title || '');
   const [youtubeLink, setYoutubeLink] = useState(initialData.youtube_link || '');
   const [role, setRole] = useState(initialData.role || '');
   const [videoDate, setVideoDate] = useState(initialData.video_date || '');
+
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setInternalOpen(isOpen);
+  }, [isOpen]);
+
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      setInternalOpen(false);
+      onClose();
+    }
+  };
 
   const handleSubmit = () => {
     if (!youtubeLink || !title) {
@@ -1120,10 +1149,11 @@ function EditMediaSubModal({
       role: role || undefined,
       video_date: videoDate || undefined,
     });
+    handleClose(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={internalOpen} onOpenChange={handleClose} modal={true}>
       <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">미디어 편집</DialogTitle>
@@ -1171,7 +1201,7 @@ function EditMediaSubModal({
           </div>
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
-          <Button variant="outline" onClick={onClose} className="border-zinc-700 w-full sm:w-auto">
+          <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
             취소
           </Button>
           <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
@@ -1195,12 +1225,15 @@ function PerformanceSortableItem({
   id,
   item,
   onRemove,
+  onUpdate,
 }: {
   id: string;
   item: PerformanceItem;
   onRemove: () => void;
+  onUpdate: (data: { performance_title: string; date: string; category?: string }) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1208,32 +1241,51 @@ function PerformanceSortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="p-6 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
-      >
-        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
-      </button>
-      <div className="flex-1">
-        <h3 className="font-semibold text-lg mb-2">{item.performance?.performance_title}</h3>
-        {item.performance?.date && (
-          <p className="text-sm text-gray-400">
-            {new Date(item.performance.date).toLocaleDateString()}
-          </p>
-        )}
-        {item.performance?.category && (
-          <p className="text-xs text-gray-500 mt-1">{item.performance.category}</p>
-        )}
+    <>
+      <div ref={setNodeRef} style={style} className="p-6 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+        >
+          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+        </button>
+        <div className="flex-1 cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+          <h3 className="font-semibold text-lg mb-2 hover:text-green-400 transition-colors">{item.performance?.performance_title}</h3>
+          {item.performance?.date && (
+            <p className="text-sm text-gray-400">
+              {new Date(item.performance.date).toLocaleDateString()}
+            </p>
+          )}
+          {item.performance?.category && (
+            <p className="text-xs text-gray-500 mt-1">{item.performance.category}</p>
+          )}
+        </div>
+        <button
+          onClick={onRemove}
+          className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
-      <button
-        onClick={onRemove}
-        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
-    </div>
+
+      {/* Edit Modal */}
+      {item.performance && (
+        <EditPerformanceSubModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={(data) => {
+            onUpdate(data);
+            setIsEditModalOpen(false);
+          }}
+          initialData={{
+            performance_title: item.performance.performance_title,
+            date: item.performance.date,
+            category: item.performance.category,
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -1270,6 +1322,19 @@ export function PerformancesEditModal({ isOpen, onClose, onSave, initialData }: 
       },
     };
     setPerformances([...performances, newItem]);
+  };
+
+  const updateItem = (index: number, data: { performance_title: string; date: string; category?: string }) => {
+    const updated = [...performances];
+    updated[index] = {
+      ...updated[index],
+      performance: {
+        performance_title: data.performance_title,
+        date: data.date,
+        category: data.category,
+      },
+    };
+    setPerformances(updated);
   };
 
   const handleSubmit = async () => {
@@ -1314,6 +1379,7 @@ export function PerformancesEditModal({ isOpen, onClose, onSave, initialData }: 
                       id={`performance-${index}`}
                       item={item}
                       onRemove={() => remove(index)}
+                      onUpdate={(data) => updateItem(index, data)}
                     />
                   ))}
                 </div>
@@ -1427,6 +1493,100 @@ function AddPerformanceSubModal({
   );
 }
 
+// Edit Performance Sub Modal
+function EditPerformanceSubModal({
+  isOpen,
+  onClose,
+  onUpdate,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (data: { performance_title: string; date: string; category?: string }) => void;
+  initialData: { performance_title: string; date: string; category?: string };
+}) {
+  const [internalOpen, setInternalOpen] = useState(isOpen);
+  const [title, setTitle] = useState(initialData.performance_title || '');
+  const [date, setDate] = useState(initialData.date || '');
+  const [category, setCategory] = useState(initialData.category || '');
+
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setInternalOpen(isOpen);
+  }, [isOpen]);
+
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      setInternalOpen(false);
+      onClose();
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!title || !date) {
+      alert('제목과 날짜를 입력해주세요.');
+      return;
+    }
+
+    onUpdate({
+      performance_title: title,
+      date,
+      category: category || undefined,
+    });
+    handleClose(false);
+  };
+
+  return (
+    <Dialog open={internalOpen} onOpenChange={handleClose} modal={true}>
+      <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
+        <DialogHeader>
+          <DialogTitle className="text-base sm:text-lg">공연 편집</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div>
+            <Label htmlFor="edit-perf-title">공연 제목 *</Label>
+            <Input
+              id="edit-perf-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="공연 이름"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-perf-date">날짜 *</Label>
+            <Input
+              id="edit-perf-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-perf-category">카테고리</Label>
+            <Input
+              id="edit-perf-category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="예: 참가, 주최"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
+            취소
+          </Button>
+          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+            저장
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Similar modals for Directing, Workshops, Awards
 interface DirectingEditModalProps {
   isOpen: boolean;
@@ -1439,12 +1599,15 @@ function DirectingSortableItem({
   id,
   item,
   onRemove,
+  onUpdate,
 }: {
   id: string;
   item: DirectingItem;
   onRemove: () => void;
+  onUpdate: (data: { title: string; date: string }) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1452,30 +1615,48 @@ function DirectingSortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors flex gap-2 items-center">
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
-      >
-        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
-      </button>
-      <div className="flex-1">
-        <h3 className="font-semibold">{item.directing?.title}</h3>
-        {item.directing?.date && (
-          <p className="text-sm text-gray-400 mt-1">
-            {new Date(item.directing.date).getFullYear()}.
-            {String(new Date(item.directing.date).getMonth() + 1).padStart(2, '0')}
-          </p>
-        )}
+    <>
+      <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group relative hover:bg-white/10 transition-colors flex gap-2 items-center">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+        >
+          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+        </button>
+        <div className="flex-1 cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+          <h3 className="font-semibold hover:text-green-400 transition-colors">{item.directing?.title}</h3>
+          {item.directing?.date && (
+            <p className="text-sm text-gray-400 mt-1">
+              {new Date(item.directing.date).getFullYear()}.
+              {String(new Date(item.directing.date).getMonth() + 1).padStart(2, '0')}
+            </p>
+          )}
+        </div>
+        <button
+          onClick={onRemove}
+          className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
-      <button
-        onClick={onRemove}
-        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
-    </div>
+
+      {/* Edit Modal */}
+      {item.directing && (
+        <EditDirectingSubModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={(data) => {
+            onUpdate(data);
+            setIsEditModalOpen(false);
+          }}
+          initialData={{
+            title: item.directing.title,
+            date: item.directing.date,
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -1508,6 +1689,15 @@ export function DirectingEditModal({ isOpen, onClose, onSave, initialData }: Dir
       directing: { title: data.title, date: data.date },
     };
     setDirecting([...directing, newItem]);
+  };
+
+  const updateItem = (index: number, data: { title: string; date: string }) => {
+    const updated = [...directing];
+    updated[index] = {
+      ...updated[index],
+      directing: { title: data.title, date: data.date },
+    };
+    setDirecting(updated);
   };
 
   const handleSubmit = async () => {
@@ -1548,6 +1738,7 @@ export function DirectingEditModal({ isOpen, onClose, onSave, initialData }: Dir
                       id={`directing-${index}`}
                       item={item}
                       onRemove={() => remove(index)}
+                      onUpdate={(data) => updateItem(index, data)}
                     />
                   ))}
                 </div>
@@ -1643,6 +1834,84 @@ function AddDirectingSubModal({
   );
 }
 
+// Edit Directing Sub Modal
+function EditDirectingSubModal({
+  isOpen,
+  onClose,
+  onUpdate,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (data: { title: string; date: string }) => void;
+  initialData: { title: string; date: string };
+}) {
+  const [internalOpen, setInternalOpen] = useState(isOpen);
+  const [title, setTitle] = useState(initialData.title || '');
+  const [date, setDate] = useState(initialData.date || '');
+
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setInternalOpen(isOpen);
+  }, [isOpen]);
+
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      setInternalOpen(false);
+      onClose();
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!title || !date) {
+      alert('제목과 날짜를 입력해주세요.');
+      return;
+    }
+    onUpdate({ title, date });
+    handleClose(false);
+  };
+
+  return (
+    <Dialog open={internalOpen} onOpenChange={handleClose} modal={true}>
+      <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
+        <DialogHeader>
+          <DialogTitle className="text-base sm:text-lg">연출 작품 편집</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div>
+            <Label htmlFor="edit-dir-title">작품 제목 *</Label>
+            <Input
+              id="edit-dir-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="연출 작품명"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-dir-date">날짜 *</Label>
+            <Input
+              id="edit-dir-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
+            취소
+          </Button>
+          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+            저장
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Workshops Edit Modal
 interface WorkshopsEditModalProps {
   isOpen: boolean;
@@ -1655,12 +1924,15 @@ function WorkshopSortableItem({
   id,
   item,
   onRemove,
+  onUpdate,
 }: {
   id: string;
   item: Workshop;
   onRemove: () => void;
+  onUpdate: (data: { class_name: string; class_date: string; country: string; class_role?: string[] }) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1668,31 +1940,49 @@ function WorkshopSortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
-      >
-        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
-      </button>
-      <div className="flex-1">
-        <h3 className="font-semibold">{item.class_name}</h3>
-        <p className="text-sm text-gray-400 mt-1">
-          {item.class_role?.join(', ')} • {item.country}
-        </p>
-        <p className="text-xs text-gray-500 mt-1">
-          {new Date(item.class_date).getFullYear()}.
-          {String(new Date(item.class_date).getMonth() + 1).padStart(2, '0')}
-        </p>
+    <>
+      <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+        >
+          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+        </button>
+        <div className="flex-1 cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+          <h3 className="font-semibold hover:text-green-400 transition-colors">{item.class_name}</h3>
+          <p className="text-sm text-gray-400 mt-1">
+            {item.class_role?.join(', ')} • {item.country}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            {new Date(item.class_date).getFullYear()}.
+            {String(new Date(item.class_date).getMonth() + 1).padStart(2, '0')}
+          </p>
+        </div>
+        <button
+          onClick={onRemove}
+          className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
-      <button
-        onClick={onRemove}
-        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
-    </div>
+
+      {/* Edit Modal */}
+      <EditWorkshopSubModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onUpdate={(data) => {
+          onUpdate(data);
+          setIsEditModalOpen(false);
+        }}
+        initialData={{
+          class_name: item.class_name,
+          class_date: item.class_date,
+          country: item.country,
+          class_role: item.class_role,
+        }}
+      />
+    </>
   );
 }
 
@@ -1722,6 +2012,12 @@ export function WorkshopsEditModal({ isOpen, onClose, onSave, initialData }: Wor
 
   const addNew = (data: { class_name: string; class_date: string; country: string; class_role?: string[] }) => {
     setWorkshops([...workshops, data]);
+  };
+
+  const updateItem = (index: number, data: { class_name: string; class_date: string; country: string; class_role?: string[] }) => {
+    const updated = [...workshops];
+    updated[index] = data;
+    setWorkshops(updated);
   };
 
   const handleSubmit = async () => {
@@ -1762,6 +2058,7 @@ export function WorkshopsEditModal({ isOpen, onClose, onSave, initialData }: Wor
                       id={`workshop-${index}`}
                       item={workshop}
                       onRemove={() => remove(index)}
+                      onUpdate={(data) => updateItem(index, data)}
                     />
                   ))}
                 </div>
@@ -1886,6 +2183,111 @@ function AddWorkshopSubModal({
   );
 }
 
+// Edit Workshop Sub Modal
+function EditWorkshopSubModal({
+  isOpen,
+  onClose,
+  onUpdate,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (data: { class_name: string; class_date: string; country: string; class_role?: string[] }) => void;
+  initialData: { class_name: string; class_date: string; country: string; class_role?: string[] };
+}) {
+  const [internalOpen, setInternalOpen] = useState(isOpen);
+  const [className, setClassName] = useState(initialData.class_name || '');
+  const [classDate, setClassDate] = useState(initialData.class_date || '');
+  const [country, setCountry] = useState(initialData.country || '');
+  const [classRole, setClassRole] = useState(initialData.class_role?.join(', ') || '');
+
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setInternalOpen(isOpen);
+  }, [isOpen]);
+
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      setInternalOpen(false);
+      onClose();
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!className || !classDate || !country) {
+      alert('모든 필수 필드를 입력해주세요.');
+      return;
+    }
+    onUpdate({
+      class_name: className,
+      class_date: classDate,
+      country,
+      class_role: classRole.split(',').map((r) => r.trim()).filter(Boolean),
+    });
+    handleClose(false);
+  };
+
+  return (
+    <Dialog open={internalOpen} onOpenChange={handleClose} modal={true}>
+      <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
+        <DialogHeader>
+          <DialogTitle className="text-base sm:text-lg">워크샵/클래스 편집</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div>
+            <Label htmlFor="edit-class-name">클래스 이름 *</Label>
+            <Input
+              id="edit-class-name"
+              value={className}
+              onChange={(e) => setClassName(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="워크샵 또는 클래스명"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-class-date">날짜 *</Label>
+            <Input
+              id="edit-class-date"
+              type="date"
+              value={classDate}
+              onChange={(e) => setClassDate(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-class-country">국가 *</Label>
+            <Input
+              id="edit-class-country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="예: 한국, USA"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-class-role">역할 (쉼표로 구분)</Label>
+            <Input
+              id="edit-class-role"
+              value={classRole}
+              onChange={(e) => setClassRole(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="예: 강사, 게스트"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
+            취소
+          </Button>
+          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+            저장
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Awards Edit Modal
 interface AwardsEditModalProps {
   isOpen: boolean;
@@ -1898,12 +2300,15 @@ function AwardSortableItem({
   id,
   item,
   onRemove,
+  onUpdate,
 }: {
   id: string;
   item: Award;
   onRemove: () => void;
+  onUpdate: (data: { award_title: string; issuing_org: string; received_date: string }) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1911,28 +2316,45 @@ function AwardSortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
-      >
-        <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
-      </button>
-      <div className="flex-1">
-        <h3 className="font-semibold">{item.award_title}</h3>
-        <p className="text-sm text-gray-400 mt-1">{item.issuing_org}</p>
-        <p className="text-xs text-gray-500 mt-1">
-          {new Date(item.received_date).toLocaleDateString()}
-        </p>
+    <>
+      <div ref={setNodeRef} style={style} className="p-4 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors flex gap-2 items-center">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+        >
+          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
+        </button>
+        <div className="flex-1 cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+          <h3 className="font-semibold hover:text-green-400 transition-colors">{item.award_title}</h3>
+          <p className="text-sm text-gray-400 mt-1">{item.issuing_org}</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {new Date(item.received_date).toLocaleDateString()}
+          </p>
+        </div>
+        <button
+          onClick={onRemove}
+          className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
-      <button
-        onClick={onRemove}
-        className="p-2 bg-red-500/50 hover:bg-red-500/70 rounded shrink-0"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
-    </div>
+
+      {/* Edit Modal */}
+      <EditAwardSubModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onUpdate={(data) => {
+          onUpdate(data);
+          setIsEditModalOpen(false);
+        }}
+        initialData={{
+          award_title: item.award_title,
+          issuing_org: item.issuing_org,
+          received_date: item.received_date,
+        }}
+      />
+    </>
   );
 }
 
@@ -1962,6 +2384,12 @@ export function AwardsEditModal({ isOpen, onClose, onSave, initialData }: Awards
 
   const addNew = (data: { award_title: string; issuing_org: string; received_date: string }) => {
     setAwards([...awards, data]);
+  };
+
+  const updateItem = (index: number, data: { award_title: string; issuing_org: string; received_date: string }) => {
+    const updated = [...awards];
+    updated[index] = data;
+    setAwards(updated);
   };
 
   const handleSubmit = async () => {
@@ -2002,6 +2430,7 @@ export function AwardsEditModal({ isOpen, onClose, onSave, initialData }: Awards
                       id={`award-${index}`}
                       item={award}
                       onRemove={() => remove(index)}
+                      onUpdate={(data) => updateItem(index, data)}
                     />
                   ))}
                 </div>
@@ -2106,6 +2535,99 @@ function AddAwardSubModal({
           </Button>
           <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
             추가
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Edit Award Sub Modal
+function EditAwardSubModal({
+  isOpen,
+  onClose,
+  onUpdate,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (data: { award_title: string; issuing_org: string; received_date: string }) => void;
+  initialData: { award_title: string; issuing_org: string; received_date: string };
+}) {
+  const [internalOpen, setInternalOpen] = useState(isOpen);
+  const [awardTitle, setAwardTitle] = useState(initialData.award_title || '');
+  const [issuingOrg, setIssuingOrg] = useState(initialData.issuing_org || '');
+  const [receivedDate, setReceivedDate] = useState(initialData.received_date || '');
+
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setInternalOpen(isOpen);
+  }, [isOpen]);
+
+  const handleClose = (open: boolean) => {
+    if (!open) {
+      setInternalOpen(false);
+      onClose();
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!awardTitle || !issuingOrg || !receivedDate) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+    onUpdate({
+      award_title: awardTitle,
+      issuing_org: issuingOrg,
+      received_date: receivedDate,
+    });
+    handleClose(false);
+  };
+
+  return (
+    <Dialog open={internalOpen} onOpenChange={handleClose} modal={true}>
+      <DialogContent className="bg-zinc-900 text-white border-zinc-800 w-[calc(100vw-2rem)] sm:w-full">
+        <DialogHeader>
+          <DialogTitle className="text-base sm:text-lg">수상 경력 편집</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div>
+            <Label htmlFor="edit-award-title">수상명 *</Label>
+            <Input
+              id="edit-award-title"
+              value={awardTitle}
+              onChange={(e) => setAwardTitle(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="상 이름"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-award-org">수여 기관 *</Label>
+            <Input
+              id="edit-award-org"
+              value={issuingOrg}
+              onChange={(e) => setIssuingOrg(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="수여한 조직/기관"
+            />
+          </div>
+          <div>
+            <Label htmlFor="edit-award-date">수상 날짜 *</Label>
+            <Input
+              id="edit-award-date"
+              type="date"
+              value={receivedDate}
+              onChange={(e) => setReceivedDate(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
+            취소
+          </Button>
+          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+            저장
           </Button>
         </DialogFooter>
       </DialogContent>

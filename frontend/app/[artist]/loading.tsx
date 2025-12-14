@@ -40,7 +40,7 @@ export default function ArtistLoading() {
         </div>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

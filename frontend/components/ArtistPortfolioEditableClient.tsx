@@ -574,7 +574,7 @@ export function ArtistPortfolioEditableClient({
           sortOrder={sortOrders.directing}
           onToggleSort={() => toggleSortOrder('directing')}
           editable={true}
-          onEdit={() => setShowMediaEdit(true)}
+          onEdit={() => setShowDirectingEdit(true)}
           isEmpty={!portfolio.directing || portfolio.directing.length === 0}
           emptyMessage="아직 미디어가 없습니다. 편집 버튼을 눌러 추가해보세요."
         >

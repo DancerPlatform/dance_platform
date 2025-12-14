@@ -153,7 +153,7 @@ export default function EditTeamPage() {
     <div className="min-h-screen bg-black text-white">
       <Header onBack={() => {router.push('/main/profile')}} />
       <TeamPortfolioEditableClient portfolio={portfolio} teamId={teamId} />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

@@ -157,7 +157,7 @@ export default function EditPortfolioPage() {
     <div className="min-h-screen bg-black text-white">
       <Header onBack={() => {router.push('/main/profile')}} />
       <ArtistPortfolioEditableClient portfolio={portfolio} artistId={artistId} />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
