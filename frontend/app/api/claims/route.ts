@@ -134,6 +134,13 @@ export async function POST(request: NextRequest) {
       ? artist.phone.replace(/\D/g, '') === requester_phone.replace(/\D/g, '')
       : null
 
+    // Generate random alphanumeric authentication code (8 characters)
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let authCode = ''
+    for (let i = 0; i < 8; i++) {
+      authCode += characters.charAt(Math.floor(Math.random() * characters.length))
+    }
+
     // Create claim request
     const { data: claim, error: claimError } = await supabase
       .from('portfolio_claim_requests')
@@ -145,6 +152,7 @@ export async function POST(request: NextRequest) {
         email_matches: emailMatches,
         phone_matches: phoneMatches,
         status: 'pending',
+        authentication_code: authCode,
       })
       .select()
       .single()

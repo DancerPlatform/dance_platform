@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, ArrowRight } from 'lucide-react'
+import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, ArrowRight, Timer } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { PortfolioClaimRequestWithArtist } from '@/lib/types/claims'
 import { useAuth } from '@/contexts/AuthContext'
@@ -175,22 +175,26 @@ export default function MyClaimsClients() {
         ) : (
           <div className="space-y-6">
             {claims.map((claim) => (
-              <Card key={claim.claim_id} className="bg-zinc-900 border-zinc-800 p-2">
+              <Card key={claim.claim_id} className="bg-zinc-900 border-zinc-800 p-2 gap-1">
                 <CardHeader className='px-2'>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-xl">
-                        {claim.artist_user.name}
+                      <CardTitle className="text-xl font-bold">
+                        {claim.artist_user.name} <span className='text-gray-400 text-sm'>Portfolio ID: {claim.artist_id}</span>
                       </CardTitle>
-                      <CardDescription className="text-gray-400 mt-1">
-                        Portfolio ID: {claim.artist_id}
-                      </CardDescription>
+                      <div className="bg-blue-500/10 border-blue-500/30 w-full border rounded-sm py-2 px-3">
+                        {/* <AlertCircle className="h-4 w-4 text-blue-400" /> */}
+                        <p className='text-white font-bold text-2xl'>{claim.authentication_code}</p>
+                        <p className="text-blue-400 text-sm">
+                          Send the authentication code to our instagram with your official account
+                        </p>
+                      </div>  
                     </div>
-                    {getStatusBadge(claim.status)}
+                    {/* {getStatusBadge(claim.status)} */}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 px-2">
-                  {getStatusMessage(claim)}
+                  {/* {getStatusMessage(claim)} */}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
