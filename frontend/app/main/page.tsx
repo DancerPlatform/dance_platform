@@ -62,7 +62,7 @@ export default function MainPage() {
     <div className="min-h-screen bg-black text-white pb-10 select-none">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
-        <h1 className="text-2xl md:text-3xl font-bold">dancer<span className='text-green-500'>.</span>bio</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">dancers<span className='text-green-500'>.</span>bio</h1>
         <button className="rounded-full" onClick={() => {router.push("/main/search")}}>
           <Search className='size-6 md:size-8'/>
         </button>
@@ -89,8 +89,8 @@ export default function MainPage() {
         {/* Hero Section */}
         <section className="px-6">
           <h2 className="text-3xl md:text-4xl font-normal">
-            Discover<br />
-            Our <span className="font-bold">Dancers</span>
+            Discover
+            <span className="font-bold"> Dancers</span>
           </h2>
         </section>
 
