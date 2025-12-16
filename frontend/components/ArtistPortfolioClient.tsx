@@ -621,7 +621,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 </p>
               </div>
               <Link
-                href="/signup"
+                href="/signup/artist"
                 className="block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors"
               >
                 Sign Up Now
