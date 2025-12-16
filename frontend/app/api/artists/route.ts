@@ -9,7 +9,9 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('artist_portfolio')
-      .select('artist_id, artist_name, artist_name_eng, photo');
+      .select('artist_id, artist_name, artist_name_eng, photo')
+      .neq('is_hidden', true)
+      ;
 
     // Add search filter if query provided
     if (searchQuery) {

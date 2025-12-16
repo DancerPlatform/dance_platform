@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
         // Search for dancers from artist_portfolio
         let dancerQuery = supabase
           .from('artist_portfolio')
-          .select('*', { count: 'exact' });
+          .select('*', { count: 'exact' })
+          .eq('is_hidden', false);
 
         // Only apply keyword filter if keyword is provided
         if (keyword.trim()) {

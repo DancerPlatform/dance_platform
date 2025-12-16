@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, AlertCircle, Edit, Search } from 'lucide-react'
+import { Loader2, AlertCircle, Edit, Search, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface Artist {
@@ -16,6 +16,7 @@ interface Artist {
   instagram: string | null
   twitter: string | null
   youtube: string | null
+  is_hidden: boolean | null
 }
 
 export default function ArtistsManagementPage() {
@@ -65,7 +66,7 @@ export default function ArtistsManagementPage() {
       // Fetch all artist portfolios
       const { data: artistsData, error: artistsError } = await supabase
         .from('artist_portfolio')
-        .select('artist_id, artist_name, artist_name_eng, introduction, photo, instagram, twitter, youtube')
+        .select('artist_id, artist_name, artist_name_eng, introduction, photo, instagram, twitter, youtube, is_hidden')
         .order('artist_name', { ascending: true, nullsFirst: false })
 
       if (artistsError) throw artistsError
@@ -74,6 +75,42 @@ export default function ArtistsManagementPage() {
     } catch (err) {
       console.error('Failed to fetch artists:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch artists')
+    }
+  }
+
+  const toggleHidden = async (artistId: string, currentHiddenState: boolean | null) => {
+    try {
+      // Optimistic update
+      setArtists(prevArtists =>
+        prevArtists.map(artist =>
+          artist.artist_id === artistId
+            ? { ...artist, is_hidden: !currentHiddenState }
+            : artist
+        )
+      )
+
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        throw new Error('Not authenticated')
+      }
+
+      const response = await fetch(`/api/artists/${artistId}/toggle-hidden`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ is_hidden: !currentHiddenState }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle hidden status')
+      }
+    } catch (err) {
+      console.error('Failed to toggle hidden status:', err)
+      setError(err instanceof Error ? err.message : 'Failed to toggle hidden status')
+      // Revert optimistic update on error
+      await fetchArtists()
     }
   }
 
@@ -139,26 +176,28 @@ export default function ArtistsManagementPage() {
             {filteredArtists.map((artist) => (
               <Card
                 key={artist.artist_id}
-                className="bg-zinc-900 border-zinc-800 hover:border-green-600/50 transition-colors cursor-pointer"
+                className={`bg-zinc-900 border-zinc-800 hover:border-green-600/50 transition-colors cursor-pointer ${
+                  artist.is_hidden ? 'opacity-60' : ''
+                }`}
                 onClick={() => router.push(`/edit-portfolio/${artist.artist_id}`)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       {artist.photo ? (
                         <img
                           src={artist.photo}
                           alt={artist.artist_name || artist.artist_id}
-                          className="w-12 h-12 rounded-full object-cover"
+                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0">
                           <span className="text-xl text-gray-400">
                             {(artist.artist_name || artist.artist_id).charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <CardTitle className="text-white text-lg">
                           {artist.artist_name || artist.artist_id}
                         </CardTitle>
@@ -169,7 +208,20 @@ export default function ArtistsManagementPage() {
                         )}
                       </div>
                     </div>
-                    <Edit className="h-5 w-5 text-green-400" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleHidden(artist.artist_id, artist.is_hidden)
+                      }}
+                      className="flex-shrink-0 p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+                      title={artist.is_hidden ? 'Show artist' : 'Hide artist'}
+                    >
+                      {artist.is_hidden ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-green-400" />
+                      )}
+                    </button>
                   </div>
                 </CardHeader>
                 <CardContent>
