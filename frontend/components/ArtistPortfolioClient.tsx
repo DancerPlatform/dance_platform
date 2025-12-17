@@ -583,7 +583,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </Swiper>
           </section>
         )}
-        <Link href="/signup/artist" className='py-3 bg-green-600 w-full block text-center rounded-sm hover:bg-green-800'>
+        <Link href="/signup/artist" className={`${user ? 'hidden' : 'block'} py-3 bg-green-600 w-full text-center rounded-sm hover:bg-green-800`}>
           Create your own portfolio
         </Link>
       </div>

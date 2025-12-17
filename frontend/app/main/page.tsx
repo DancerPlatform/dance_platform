@@ -59,7 +59,7 @@ export default function MainPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-10 select-none">
+    <div className="min-h-screen bg-black text-white pb-30 select-none">
       {/* Header */}
       <header className="flex items-center justify-between p-6">
         <h1 className="text-2xl md:text-3xl font-bold">dancers<span className='text-green-500'>.</span>bio</h1>
