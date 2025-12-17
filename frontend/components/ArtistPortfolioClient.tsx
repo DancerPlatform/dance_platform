@@ -21,8 +21,9 @@ import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { chunkArray } from '@/lib/portfolioUtils';
 import { useState } from 'react';
-import { Home, MoreVertical, X } from 'lucide-react';
+import { Home, MoreVertical, Plus, X } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -49,6 +50,7 @@ export interface ArtistPortfolio {
 }
 
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {
+  const {user} = useAuth();
   const { sortOrders, toggleSortOrder } = usePortfolioSort();
   const { modalState, openModal, closeModal } = usePortfolioModal();
   const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
@@ -243,14 +245,14 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
   return (
     <>
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
+      <div className="sticky top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-white hover:text-green-400 transition-colors">
             <Home size={24} />
           </Link>
           <button
             onClick={() => setIsSignupModalOpen(true)}
-            className="text-white hover:text-green-400 transition-colors"
+            className={`${user ? "hidden" : "block"} text-white hover:text-green-400 transition-colors`}
           >
             <MoreVertical size={24} />
           </button>
@@ -258,7 +260,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
       </div>
 
       {/* Add padding to account for fixed header */}
-      <div className="pt-16">
+      <div className="">
         <PortfolioHeroSection
           photoUrl={portfolio.photo}
           name={portfolio.artist_name}
@@ -581,7 +583,11 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </Swiper>
           </section>
         )}
+        <Link href="/signup/artist" className='py-3 bg-green-600 w-full block text-center rounded-sm hover:bg-green-800'>
+          Create your own portfolio
+        </Link>
       </div>
+
 
       {/* Modal */}
       {modalState.sectionType && (

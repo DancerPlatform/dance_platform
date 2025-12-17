@@ -186,7 +186,7 @@ export default function ArtistSignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <Header />
-      <div className="w-full max-w-md bg-black/80 py-20 border-white/20 flex flex-col gap-6">
+      <div className="w-full max-w-md py-20 border-white/20 flex flex-col gap-6">
         <CardHeader className="text-center text-white space-y-2">
           {/* <div className="flex justify-center mb-2">
             <Music className="h-12 w-12 text-white" />
@@ -197,8 +197,8 @@ export default function ArtistSignupPage() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4 pb-10">
+        <CardContent className='px-3'>
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-2 rounded">
                 {error}
@@ -331,7 +331,7 @@ export default function ArtistSignupPage() {
               />
             </div>
 
-            <div className='fixed bottom-0 w-full left-0 bg-black px-5 pb-10 pt-6 border-t border-white/40'>
+            <div className='w-full bg-black pt-6 border-t border-white/40'>
               <Button
                 type="submit"
                 className="w-full bg-white text-black hover:bg-white/90 h-12 text-lg"
@@ -342,9 +342,9 @@ export default function ArtistSignupPage() {
             </div>
           </form>
 
-          <div className="mt-4 text-center">
+          <div className="text-center mt-3">
             <Link href="/login/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
-              Already have an account? Sign in
+              Already have an account? <span className='text-white'>Sign in</span>
             </Link>
           </div>
         </CardContent>
