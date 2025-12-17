@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { ArtistCard } from "@/components/artist-card";
 import { GroupCard } from "@/components/group-card";
 
@@ -44,38 +44,58 @@ export default function SearchPage() {
   const [activeTab, setActiveTab] = useState('dancer');
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [searchResults, setSearchResults] = useState<(ArtistResult | CrewResult)[]>([]);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const limit = 10;
 
-  const fetchSearchResults = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const url = `/api/search?type=${activeTab}&keyword=${encodeURIComponent(searchKeyword)}&limit=${limit}&offset=${offset}`;
-      const response = await fetch(url);
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      const isLoadingMore = offset > 0;
 
-      if (!response.ok) {
-        throw new Error('Search failed');
+      if (isLoadingMore) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
       }
 
-      const data: SearchResponse = await response.json();
-      setSearchResults(data.results);
-      setTotal(data.total);
-      setHasMore(data.hasMore);
-    } catch (error) {
-      console.error('Search error:', error);
-      setSearchResults([]);
-      setTotal(0);
-      setHasMore(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [activeTab, searchKeyword, limit, offset]);
+      try {
+        const url = `/api/search?type=${activeTab}&keyword=${encodeURIComponent(searchKeyword)}&limit=${limit}&offset=${offset}`;
+        const response = await fetch(url);
 
-  useEffect(() => {
+        if (!response.ok) {
+          throw new Error('Search failed');
+        }
+
+        const data: SearchResponse = await response.json();
+
+        if (isLoadingMore) {
+          setSearchResults(prev => [...prev, ...data.results]);
+        } else {
+          setSearchResults(data.results);
+        }
+
+        setTotal(data.total);
+        setHasMore(data.hasMore);
+      } catch (error) {
+        console.error('Search error:', error);
+        if (!isLoadingMore) {
+          setSearchResults([]);
+          setTotal(0);
+          setHasMore(false);
+        }
+      } finally {
+        if (isLoadingMore) {
+          setIsLoadingMore(false);
+        } else {
+          setIsLoading(false);
+        }
+      }
+    };
+
     fetchSearchResults();
-  }, [fetchSearchResults]);
+  }, [offset, activeTab, searchKeyword, limit]);
 
   const handleSearch = () => {
     setOffset(0);
@@ -158,8 +178,10 @@ export default function SearchPage() {
               {hasMore && (
                 <button
                   onClick={handleLoadMore}
-                  className="w-full py-2 text-center text-zinc-400 hover:text-white transition-colors"
+                  disabled={isLoadingMore}
+                  className="w-full py-2 text-center text-zinc-400 hover:text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
+                  {isLoadingMore && <Loader2 className="size-4 animate-spin" />}
                   더 보기
                 </button>
               )}
@@ -198,8 +220,10 @@ export default function SearchPage() {
               {hasMore && (
                 <button
                   onClick={handleLoadMore}
-                  className="w-full py-2 text-center text-zinc-400 hover:text-white transition-colors"
+                  disabled={isLoadingMore}
+                  className="w-full py-2 text-center text-zinc-400 hover:text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
+                  {isLoadingMore && <Loader2 className="size-4 animate-spin" />}
                   더 보기
                 </button>
               )}
@@ -238,8 +262,10 @@ export default function SearchPage() {
               {hasMore && (
                 <button
                   onClick={handleLoadMore}
-                  className="w-full py-2 text-center text-zinc-400 hover:text-white transition-colors"
+                  disabled={isLoadingMore}
+                  className="w-full py-2 text-center text-zinc-400 hover:text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
+                  {isLoadingMore && <Loader2 className="size-4 animate-spin" />}
                   더 보기
                 </button>
               )}
