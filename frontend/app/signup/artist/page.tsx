@@ -10,8 +10,10 @@ import { Header } from '@/components/header'
 import { Music } from 'lucide-react'
 import { signUp } from '@/lib/auth'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function ArtistSignupPage() {
+  const { refreshUser } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -142,6 +144,7 @@ export default function ArtistSignupPage() {
     }
 
     if (user) {
+      refreshUser();
       // Redirect to profile page
       router.push('/main/profile')
     }
