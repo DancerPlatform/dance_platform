@@ -410,12 +410,22 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               itemsPerSlide={4}
               gridClassName="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
               renderItem={(item) => (
-                <MediaCard
-                  title={item.title}
-                  role={item.role}
-                  youtubeLink={item.youtube_link}
-                  videoDate={item.video_date}
-                />
+                <div
+                  onClick={() => openItemModal({
+                    type: 'media',
+                    title: item.title,
+                    youtube_link: item.youtube_link,
+                    role: item.role
+                  })}
+                  className="cursor-pointer"
+                >
+                  <MediaCard
+                    title={item.title}
+                    role={item.role}
+                    youtubeLink={item.youtube_link}
+                    videoDate={item.video_date}
+                  />
+                </div>
               )}
             />
           </PortfolioSection>
@@ -583,7 +593,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </Swiper>
           </section>
         )}
-        <Link href="/signup/artist" className='py-3 bg-green-600 w-full block text-center rounded-sm hover:bg-green-800'>
+        <Link href="/signup/artist" className={`${user ? 'hidden' : 'block'} py-3 bg-green-600 w-full text-center rounded-sm hover:bg-green-800`}>
           Create your own portfolio
         </Link>
       </div>
