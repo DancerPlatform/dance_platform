@@ -428,7 +428,11 @@ export function ChoreographyEditModal({ isOpen, onClose, onSave, initialData }: 
   const [showAddModal, setShowAddModal] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -882,7 +886,11 @@ export function MediaEditModal({ isOpen, onClose, onSave, initialData }: MediaEd
   }, [initialData]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -1295,7 +1303,11 @@ export function PerformancesEditModal({ isOpen, onClose, onSave, initialData }: 
   const [showAddModal, setShowAddModal] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -1666,7 +1678,11 @@ export function DirectingEditModal({ isOpen, onClose, onSave, initialData }: Dir
   const [showAddModal, setShowAddModal] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -1992,7 +2008,11 @@ export function WorkshopsEditModal({ isOpen, onClose, onSave, initialData }: Wor
   const [showAddModal, setShowAddModal] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -2364,7 +2384,11 @@ export function AwardsEditModal({ isOpen, onClose, onSave, initialData }: Awards
   const [showAddModal, setShowAddModal] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
