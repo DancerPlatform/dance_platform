@@ -92,7 +92,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div>
+    <div className="pb-20">
       {/* Header */}
       <div>
         <div className="flex items-center gap-4 py-4 px-4 border-white/20">

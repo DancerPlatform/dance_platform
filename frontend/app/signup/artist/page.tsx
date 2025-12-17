@@ -10,8 +10,10 @@ import { Header } from '@/components/header'
 import { Music } from 'lucide-react'
 import { signUp } from '@/lib/auth'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function ArtistSignupPage() {
+  const { refreshUser } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -110,13 +112,6 @@ export default function ArtistSignupPage() {
       return
     }
 
-    // Validate phone availability if phone is provided
-    // if (formData.phone.trim() && phoneValidation.checked && !phoneValidation.available) {
-    //   setError('Phone number is already registered. Please use another number.')
-    //   setIsLoading(false)
-    //   return
-    // }
-
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
@@ -149,6 +144,7 @@ export default function ArtistSignupPage() {
     }
 
     if (user) {
+      refreshUser();
       // Redirect to profile page
       router.push('/main/profile')
     }
@@ -188,9 +184,6 @@ export default function ArtistSignupPage() {
       <Header />
       <div className="w-full max-w-md py-20 border-white/20 flex flex-col gap-6">
         <CardHeader className="text-center text-white space-y-2">
-          {/* <div className="flex justify-center mb-2">
-            <Music className="h-12 w-12 text-white" />
-          </div> */}
           <CardTitle className="text-3xl">Sign Up Now</CardTitle>
           <CardDescription className="text-gray-400">
             Create your dancer account
@@ -251,50 +244,6 @@ export default function ArtistSignupPage() {
                 </p>
               )}
             </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="phone" className="text-white">
-                Phone Number
-              </Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="Enter your phone number"
-                value={formData.phone}
-                onChange={handleChange}
-                onBlur={handlePhoneBlur}
-                disabled={isLoading || phoneValidation.isChecking}
-                className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
-              />
-              {phoneValidation.isChecking && (
-                <p className="text-xs text-gray-400">Checking availability...</p>
-              )}
-              {phoneValidation.checked && (
-                <p
-                  className={`text-xs ${
-                    phoneValidation.available ? 'text-green-400' : 'text-red-400'
-                  }`}
-                >
-                  {phoneValidation.message}
-                </p>
-              )}
-            </div> */}
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="birth" className="text-white">
-                Date of Birth
-              </Label>
-              <Input
-                id="birth"
-                name="birth"
-                type="date"
-                value={formData.birth}
-                onChange={handleChange}
-                disabled={isLoading}
-                className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
-              />
-            </div> */}
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-white">

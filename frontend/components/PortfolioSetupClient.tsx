@@ -4,9 +4,12 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search } from 'lucide-react';
+import { signOut } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function PortfolioSetupClient() {
   const router = useRouter();
+  const {signOut} = useAuth();
 
   const handleCreateNew = () => {
     router.push('/artist/portfolio-setup/create');
@@ -20,7 +23,7 @@ export function PortfolioSetupClient() {
     <div className="min-h-screen bg-black text-white pb-32">
       <div className="max-w-4xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Welcome to dee<span className='text-green-400'>&apos;</span>tz</h1>
+          <h1 className="text-4xl font-bold mb-4">Welcome to dancers<span className='text-green-400'>.</span>bio</h1>
           <p className="text-gray-400 text-lg">
             Choose how you&apos;d like to set up your artist portfolio
           </p>
@@ -84,6 +87,11 @@ export function PortfolioSetupClient() {
             </CardContent>
           </Card>
         </div>
+
+        <button onClick={signOut} className='text-red-500 w-full mt-10'>
+          Sign Out
+        </button>
+
 
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500">

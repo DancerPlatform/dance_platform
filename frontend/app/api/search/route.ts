@@ -104,7 +104,8 @@ export async function GET(request: NextRequest) {
           const { data: allArtists, error: allArtistsError, count: allArtistsCount } = await supabase
             .from('artist_portfolio')
             .select('*', { count: 'exact' })
-            .range(offset, offset + limit - 1);
+            .range(offset, offset + limit - 1)
+            .eq('is_hidden', false);
 
           if (allArtistsError) {
             return NextResponse.json(
@@ -212,7 +213,8 @@ export async function GET(request: NextRequest) {
           const { data: artistPortfolios, error: careerError } = await supabase
             .from('artist_portfolio')
             .select('*')
-            .in('artist_id', paginatedArtistIds);
+            .in('artist_id', paginatedArtistIds)
+            .eq('is_hidden', false);;
 
           if (careerError) {
             return NextResponse.json(
