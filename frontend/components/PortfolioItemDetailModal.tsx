@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Calendar, Play, Users, MapPin, Trophy } from 'lucide-react';
-import YouTubeThumbnail from './YoutubeThumbnail';
+import YoutubePlayer from './YoutubePlayer';
 
 export type PortfolioItemType = 'highlight' | 'choreography' | 'media' | 'directing' | 'workshop' | 'award';
 
@@ -106,7 +106,7 @@ export function PortfolioItemDetailModal({
         {/* YouTube Video Embed */}
         {data.youtube_link && (
           <div className="aspect-video bg-gray-900 rounded-md overflow-hidden max-w-md mx-auto">
-            <YouTubeThumbnail url={data.youtube_link} title={data.title} />
+            <YoutubePlayer url={data.youtube_link} title={data.title} />
           </div>
         )}
 
@@ -138,20 +138,6 @@ export function PortfolioItemDetailModal({
             )}
           </div>
 
-          {/* YouTube Link */}
-          {data.youtube_link && (
-            <div className="pt-2">
-              <a
-                href={data.youtube_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-green-400 text-black text-sm font-semibold rounded-lg hover:bg-green-500 transition-colors"
-              >
-                <Play className="h-3.5 w-3.5" />
-                Watch on YouTube
-              </a>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -163,7 +149,7 @@ export function PortfolioItemDetailModal({
         {/* YouTube Video Embed */}
         {data.song.youtube_link && (
           <div className="aspect-video bg-gray-900 rounded-md overflow-hidden max-w-md mx-auto">
-            <YouTubeThumbnail
+            <YoutubePlayer
               url={data.song.youtube_link}
               title={`${data.song.singer} - ${data.song.title}`}
             />
@@ -198,21 +184,6 @@ export function PortfolioItemDetailModal({
               </div>
             )}
           </div>
-
-          {/* YouTube Link */}
-          {data.song.youtube_link && (
-            <div className="pt-2">
-              <a
-                href={data.song.youtube_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-green-400 text-black text-sm font-semibold rounded-lg hover:bg-green-500 transition-colors"
-              >
-                <Play className="h-3.5 w-3.5" />
-                Watch on YouTube
-              </a>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -224,7 +195,7 @@ export function PortfolioItemDetailModal({
         {/* YouTube Video Embed */}
         {data.youtube_link && (
           <div className="aspect-video bg-gray-900 rounded-md overflow-hidden max-w-md mx-auto">
-            <YouTubeThumbnail url={data.youtube_link} title={data.title} />
+            <YoutubePlayer url={data.youtube_link} title={data.title} />
           </div>
         )}
 
@@ -256,20 +227,6 @@ export function PortfolioItemDetailModal({
             )}
           </div>
 
-          {/* YouTube Link */}
-          {data.youtube_link && (
-            <div className="pt-2">
-              <a
-                href={data.youtube_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-green-400 text-black text-sm font-semibold rounded-lg hover:bg-green-500 transition-colors"
-              >
-                <Play className="h-3.5 w-3.5" />
-                Watch on YouTube
-              </a>
-            </div>
-          )}
         </div>
       </div>
     );
