@@ -367,7 +367,7 @@ function ChoreographySortableItem({
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0 touch-none"
         >
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
         </button>
@@ -816,7 +816,7 @@ function MediaSortableItem({
           <button
             {...attributes}
             {...listeners}
-            className="z-10 cursor-grab active:cursor-grabbing p-1 sm:p-2 bg-black/50 hover:bg-black/70 rounded shrink-0"
+            className="z-10 cursor-grab active:cursor-grabbing p-1 sm:p-2 bg-black/50 hover:bg-black/70 rounded shrink-0 touch-none"
           >
             <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </button>
@@ -1254,7 +1254,7 @@ function PerformanceSortableItem({
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0 touch-none"
         >
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
         </button>
@@ -1632,7 +1632,7 @@ function DirectingSortableItem({
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0 touch-none"
         >
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
         </button>
@@ -1961,7 +1961,7 @@ function WorkshopSortableItem({
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0 touch-none"
         >
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
         </button>
@@ -2341,7 +2341,7 @@ function AwardSortableItem({
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0"
+          className="cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-white/10 rounded shrink-0 touch-none"
         >
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
         </button>
