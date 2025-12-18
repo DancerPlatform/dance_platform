@@ -72,7 +72,7 @@ VALIDATION INSTRUCTIONS:
     - Empty strings: ""
     - Dates with only year: "2023" (should be "2023-01-01" or complete date)
     - Dates with year-month: "2023-08" (missing day)
-    - Placeholder dates: "9999-01-01"
+    - Placeholder dates: "1111-01-01"
     - Missing or unavailable information
 14. Examples of VALID fields:
     - Complete dates: "2023-08-15"
@@ -89,7 +89,7 @@ Respond ONLY with valid JSON matching the template structure. Do not include any
 
     // Call Gemini API
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       contents: `${prompt}`
     })
 
