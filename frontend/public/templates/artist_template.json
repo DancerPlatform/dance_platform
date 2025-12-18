@@ -1,0 +1,60 @@
+{
+  "profile": {
+    "artist_id": "",
+    "artist_name": "",
+    "artist_name_eng": "",
+    "introduction": "",
+    "photo": "",
+    "instagram": "",
+    "twitter": "",
+    "youtube": ""
+  },
+  "choreography": [
+    {
+      "song_title": "",
+      "singer": "",
+      "youtube_link": "",
+      "song_date": "",
+      "role": "",
+      "is_highlight": false,
+      "display_order": 0
+    }
+  ],
+  "media": [
+    {
+      "youtube_link": "",
+      "media_title": "",
+      "video_date": "",
+      "is_highlight": false,
+      "display_order": 0
+    }
+  ],
+  "performance": [
+    {
+      "performance_title": "",
+      "performance_date": "",
+      "category": ""
+    }
+  ],
+  "directing": [
+    {
+      "directing_title": "",
+      "directing_date": ""
+    }
+  ],
+  "workshop": [
+    {
+      "class_name": "",
+      "class_role": "",
+      "country": "",
+      "class_date": ""
+    }
+  ],
+  "awards": [
+    {
+      "issuing_org": "",
+      "award_title": "",
+      "received_date": ""
+    }
+  ]
+}
