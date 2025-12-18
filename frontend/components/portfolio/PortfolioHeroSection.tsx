@@ -79,8 +79,8 @@ export function PortfolioHeroSection({
             <Image
               src={`https://flagsapi.com/${nationalityCodeUpper}/flat/48.png`}
               alt={`${nationalityCodeUpper} flag`}
-              width={48}
-              height={32}
+              width={30}
+              height={30}
               className="rounded-sm shadow-lg"
             />
           )}
