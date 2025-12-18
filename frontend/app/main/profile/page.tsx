@@ -12,6 +12,7 @@ import { MyTeamsModal } from '@/components/MyTeamsModal';
 import MyClaimsClient from '@/components/MyClaimsClient';
 import { PortfolioSetupClient } from '@/components/PortfolioSetupClient';
 import { supabase } from '@/lib/supabase';
+import { Header } from '@/components/header';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, signOut, loading } = useAuth();
@@ -102,7 +103,8 @@ export default function ProfilePage() {
   // Show artist profile
   if (profile.user_type === 'artist' && artistUser) {
     return (
-      <div className="min-h-screen bg-black text-white pb-32">
+      <div className="min-h-screen bg-black text-white pb-32 pt-10">
+        <Header />
         {/* Header */}
         <div className="px-6 pt-6 pb-8">
           <h1 className="text-2xl font-bold">마이페이지</h1>
@@ -191,7 +193,7 @@ export default function ProfilePage() {
             onClick={() => setIsCreateTeamModalOpen(true)}
             className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            그룹 생성하기
+            팀 생성하기
           </button>
 
           {/* Permissions Modal */}

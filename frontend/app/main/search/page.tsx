@@ -133,7 +133,7 @@ export default function SearchPage() {
       </div>
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full px-2">
-        <TabsList className="w-full grid grid-cols-3 bg-zinc-900 border-white/20 rounded-sm p-1">
+        <TabsList className="w-full grid grid-cols-2 bg-zinc-900 border-white/20 rounded-sm p-1">
           <TabsTrigger
             value="dancer"
             className="data-[state=active]:bg-white/20 rounded-sm"
@@ -146,12 +146,12 @@ export default function SearchPage() {
           >
             크루
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="career"
             className="data-[state=active]:bg-white/20 rounded-sm"
           >
             경력
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="dancer" className="p-4">

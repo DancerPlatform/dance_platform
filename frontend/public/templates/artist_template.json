@@ -1,0 +1,92 @@
+{
+  "profile": {
+    "artist_id": "",
+    "artist_name": "",
+    "artist_name_eng": "",
+    "introduction": "",
+    "photo": "",
+    "instagram": "",
+    "twitter": "",
+    "youtube": ""
+  },
+  "choreography": [
+    {
+      "song_title": "",
+      "singer": "",
+      "youtube_link": "",
+      "song_date": "",
+      "role": "",
+      "is_highlight": false,
+      "display_order": 0,
+      "_validation": {
+        "song_title": "valid",
+        "singer": "valid",
+        "youtube_link": "valid",
+        "song_date": "valid",
+        "role": "valid"
+      }
+    }
+  ],
+  "media": [
+    {
+      "youtube_link": "",
+      "media_title": "",
+      "video_date": "",
+      "is_highlight": false,
+      "display_order": 0,
+      "_validation": {
+        "youtube_link": "valid",
+        "media_title": "valid",
+        "video_date": "valid"
+      }
+    }
+  ],
+  "performance": [
+    {
+      "performance_title": "",
+      "performance_date": "",
+      "category": "",
+      "_validation": {
+        "performance_title": "valid",
+        "performance_date": "valid",
+        "category": "valid"
+      }
+    }
+  ],
+  "directing": [
+    {
+      "directing_title": "",
+      "directing_date": "",
+      "_validation": {
+        "directing_title": "valid",
+        "directing_date": "valid"
+      }
+    }
+  ],
+  "workshop": [
+    {
+      "class_name": "",
+      "class_role": "",
+      "country": "",
+      "class_date": "",
+      "_validation": {
+        "class_name": "valid",
+        "class_role": "valid",
+        "country": "valid",
+        "class_date": "valid"
+      }
+    }
+  ],
+  "awards": [
+    {
+      "issuing_org": "",
+      "award_title": "",
+      "received_date": "",
+      "_validation": {
+        "issuing_org": "valid",
+        "award_title": "valid",
+        "received_date": "valid"
+      }
+    }
+  ]
+}

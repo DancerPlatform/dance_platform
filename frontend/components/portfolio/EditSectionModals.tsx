@@ -13,6 +13,7 @@ import { CSS } from '@dnd-kit/utilities';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { MediaItem } from '@/types/portfolio';
+import { YouTubeSearchInput } from '@/components/YouTubeSearchInput';
 
 // Types
 interface Song {
@@ -616,13 +617,11 @@ function AddChoreographySubModal({
             />
           </div>
           <div>
-            <Label htmlFor="youtube">YouTube 링크 *</Label>
-            <Input
-              id="youtube"
+            <YouTubeSearchInput
+              label="YouTube 링크"
               value={youtubeLink}
-              onChange={(e) => setYoutubeLink(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="https://www.youtube.com/watch?v=..."
+              onChange={setYoutubeLink}
+              required
             />
           </div>
           <div>
@@ -737,13 +736,11 @@ function EditChoreographySubModal({
             />
           </div>
           <div>
-            <Label htmlFor="edit-youtube">YouTube 링크 *</Label>
-            <Input
-              id="edit-youtube"
+            <YouTubeSearchInput
+              label="YouTube 링크"
               value={youtubeLink}
-              onChange={(e) => setYoutubeLink(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="https://www.youtube.com/watch?v=..."
+              onChange={setYoutubeLink}
+              required
             />
           </div>
           <div>

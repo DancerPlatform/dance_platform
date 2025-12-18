@@ -108,7 +108,7 @@ function ArtistLoginForm() {
 
           <div className="mt-4 text-center">
             <Link href="/signup/artist" className="text-sm text-gray-400 hover:text-white transition-colors">
-              Don&apos;t have an account? Sign up
+              Don&apos;t have an account? <span className='text-white underline'>Sign up</span>
             </Link>
           </div>
         </CardContent>

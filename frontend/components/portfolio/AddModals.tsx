@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { YouTubeSearchInput } from '@/components/YouTubeSearchInput';
 
 // Add Choreography Modal
 interface AddChoreographyModalProps {
@@ -82,13 +82,11 @@ export function AddChoreographyModal({ isOpen, onClose, onAdd }: AddChoreography
             />
           </div>
           <div>
-            <Label htmlFor="youtube">YouTube 링크 *</Label>
-            <Input
-              id="youtube"
+            <YouTubeSearchInput
+              label="YouTube 링크"
               value={youtubeLink}
-              onChange={(e) => setYoutubeLink(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="https://www.youtube.com/watch?v=..."
+              onChange={setYoutubeLink}
+              required
             />
           </div>
           <div>
@@ -182,13 +180,11 @@ export function AddMediaModal({ isOpen, onClose, onAdd }: AddMediaModalProps) {
             />
           </div>
           <div>
-            <Label htmlFor="media-youtube">YouTube 링크 *</Label>
-            <Input
-              id="media-youtube"
+            <YouTubeSearchInput
+              label="YouTube 링크"
               value={youtubeLink}
-              onChange={(e) => setYoutubeLink(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="https://www.youtube.com/watch?v=..."
+              onChange={setYoutubeLink}
+              required
             />
           </div>
           <div>

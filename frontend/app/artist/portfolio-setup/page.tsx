@@ -114,6 +114,12 @@ export default function PortfolioSetupPage() {
               >
                 Create New Portfolio
               </Button>
+              <Button
+                onClick={handleCreateNew}
+                className="w-full bg-white text-black hover:bg-white/90"
+              >
+                Create with AI
+              </Button>
             </CardContent>
           </Card>
 
