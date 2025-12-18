@@ -191,7 +191,7 @@ export default function ProfilePage() {
             onClick={() => setIsCreateTeamModalOpen(true)}
             className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            그룹 생성하기
+            팀 생성하기
           </button>
 
           {/* Permissions Modal */}
