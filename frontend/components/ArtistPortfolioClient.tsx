@@ -21,7 +21,7 @@ import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { chunkArray } from '@/lib/portfolioUtils';
 import { useState } from 'react';
-import { Home, MoreVertical, Plus, X } from 'lucide-react';
+import { Home, MoreVertical, Pencil, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -50,7 +50,7 @@ export interface ArtistPortfolio {
 }
 
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {
-  const {user} = useAuth();
+  const {user, artistUser} = useAuth();
   const { sortOrders, toggleSortOrder } = usePortfolioSort();
   const { modalState, openModal, closeModal } = usePortfolioModal();
   const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
@@ -257,12 +257,21 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
           <Link href="/" className="text-white hover:text-green-400 transition-colors">
             <Home size={24} />
           </Link>
-          <button
-            onClick={() => setIsSignupModalOpen(true)}
-            className={`${user ? "hidden" : "block"} text-white hover:text-green-400 transition-colors`}
-          >
-            <MoreVertical size={24} />
-          </button>
+          {artistUser?.artist_id === portfolio.artist_id ? (
+            <Link
+              href={`/edit-portfolio/${portfolio.artist_id}`}
+              className="text-white hover:text-green-400 transition-colors"
+            >
+              <Pencil size={24} />
+            </Link>
+          ) : (
+            <button
+              onClick={() => setIsSignupModalOpen(true)}
+              className={`${user ? "hidden" : "block"} text-white hover:text-green-400 transition-colors`}
+            >
+              <MoreVertical size={24} />
+            </button>
+          )}
         </div>
       </div>
 

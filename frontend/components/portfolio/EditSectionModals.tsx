@@ -14,6 +14,7 @@ import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { MediaItem } from '@/types/portfolio';
 import { YouTubeSearchInput } from '@/components/YouTubeSearchInput';
+import { RoleTagInput } from './RoleTagInput';
 
 // Types
 interface Song {
@@ -569,7 +570,7 @@ function AddChoreographySubModal({
   const [singer, setSinger] = useState('');
   const [youtubeLink, setYoutubeLink] = useState('');
   const [date, setDate] = useState('');
-  const [role, setRole] = useState('');
+  const [roles, setRoles] = useState<string[]>([]);
 
   const handleSubmit = () => {
     if (!title || !singer || !youtubeLink || !date) {
@@ -579,14 +580,14 @@ function AddChoreographySubModal({
 
     onAdd({
       song: { title, singer, youtube_link: youtubeLink, date },
-      role: role.split(',').map((r) => r.trim()).filter(Boolean),
+      role: roles,
     });
 
     setTitle('');
     setSinger('');
     setYoutubeLink('');
     setDate('');
-    setRole('');
+    setRoles([]);
   };
 
   return (
@@ -634,16 +635,13 @@ function AddChoreographySubModal({
               className="bg-zinc-800 border-zinc-700"
             />
           </div>
-          <div>
-            <Label htmlFor="role">역할 (쉼표로 구분)</Label>
-            <Input
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="예: 안무가, 퍼포머"
-            />
-          </div>
+          <RoleTagInput
+            id="role"
+            label="역할"
+            roles={roles}
+            onChange={setRoles}
+            placeholder="역할을 입력하고 쉼표(,)를 누르세요 (예: 안무가, 퍼포머)"
+          />
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button variant="outline" onClick={onClose} className="border-zinc-700 w-full sm:w-auto">
@@ -675,7 +673,7 @@ function EditChoreographySubModal({
   const [singer, setSinger] = useState(initialData.song.singer || '');
   const [youtubeLink, setYoutubeLink] = useState(initialData.song.youtube_link || '');
   const [date, setDate] = useState(initialData.song.date || '');
-  const [role, setRole] = useState(initialData.role.join(', ') || '');
+  const [roles, setRoles] = useState<string[]>(initialData.role || []);
 
   // Sync internal state with prop changes
   useEffect(() => {
@@ -703,7 +701,7 @@ function EditChoreographySubModal({
         youtube_link: youtubeLink,
         date
       },
-      role: role.split(',').map((r) => r.trim()).filter(Boolean),
+      role: roles,
     });
     handleClose(false);
   };
@@ -753,16 +751,13 @@ function EditChoreographySubModal({
               className="bg-zinc-800 border-zinc-700"
             />
           </div>
-          <div>
-            <Label htmlFor="edit-role">역할 (쉼표로 구분)</Label>
-            <Input
-              id="edit-role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="예: 안무가, 퍼포머"
-            />
-          </div>
+          <RoleTagInput
+            id="edit-role"
+            label="역할"
+            roles={roles}
+            onChange={setRoles}
+            placeholder="역할을 입력하고 쉼표(,)를 누르세요 (예: 안무가, 퍼포머)"
+          />
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
@@ -2120,7 +2115,7 @@ function AddWorkshopSubModal({
   const [className, setClassName] = useState('');
   const [classDate, setClassDate] = useState('');
   const [country, setCountry] = useState('');
-  const [classRole, setClassRole] = useState('');
+  const [classRoles, setClassRoles] = useState<string[]>([]);
 
   const handleSubmit = () => {
     if (!className || !classDate || !country) {
@@ -2131,12 +2126,12 @@ function AddWorkshopSubModal({
       class_name: className,
       class_date: classDate,
       country,
-      class_role: classRole.split(',').map((r) => r.trim()).filter(Boolean),
+      class_role: classRoles,
     });
     setClassName('');
     setClassDate('');
     setCountry('');
-    setClassRole('');
+    setClassRoles([]);
   };
 
   return (
@@ -2176,16 +2171,13 @@ function AddWorkshopSubModal({
               placeholder="예: 한국, USA"
             />
           </div>
-          <div>
-            <Label htmlFor="class-role">역할 (쉼표로 구분)</Label>
-            <Input
-              id="class-role"
-              value={classRole}
-              onChange={(e) => setClassRole(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="예: 강사, 게스트"
-            />
-          </div>
+          <RoleTagInput
+            id="class-role"
+            label="역할"
+            roles={classRoles}
+            onChange={setClassRoles}
+            placeholder="역할을 입력하고 쉼표(,)를 누르세요 (예: 강사, 게스트)"
+          />
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button variant="outline" onClick={onClose} className="border-zinc-700 w-full sm:w-auto">
@@ -2216,7 +2208,7 @@ function EditWorkshopSubModal({
   const [className, setClassName] = useState(initialData.class_name || '');
   const [classDate, setClassDate] = useState(initialData.class_date || '');
   const [country, setCountry] = useState(initialData.country || '');
-  const [classRole, setClassRole] = useState(initialData.class_role?.join(', ') || '');
+  const [classRoles, setClassRoles] = useState<string[]>(initialData.class_role || []);
 
   // Sync internal state with prop changes
   useEffect(() => {
@@ -2239,7 +2231,7 @@ function EditWorkshopSubModal({
       class_name: className,
       class_date: classDate,
       country,
-      class_role: classRole.split(',').map((r) => r.trim()).filter(Boolean),
+      class_role: classRoles,
     });
     handleClose(false);
   };
@@ -2281,16 +2273,13 @@ function EditWorkshopSubModal({
               placeholder="예: 한국, USA"
             />
           </div>
-          <div>
-            <Label htmlFor="edit-class-role">역할 (쉼표로 구분)</Label>
-            <Input
-              id="edit-class-role"
-              value={classRole}
-              onChange={(e) => setClassRole(e.target.value)}
-              className="bg-zinc-800 border-zinc-700"
-              placeholder="예: 강사, 게스트"
-            />
-          </div>
+          <RoleTagInput
+            id="edit-class-role"
+            label="역할"
+            roles={classRoles}
+            onChange={setClassRoles}
+            placeholder="역할을 입력하고 쉼표(,)를 누르세요 (예: 강사, 게스트)"
+          />
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button variant="outline" onClick={() => handleClose(false)} className="border-zinc-700 w-full sm:w-auto">
