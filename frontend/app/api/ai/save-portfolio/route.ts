@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
               song_id,
               title: choreo.song_title,
               singer: choreo.singer,
-              date: choreo.song_date || null,
+              date: choreo.song_date || "",
               youtube_link: choreo.youtube_link || "",
             });
 

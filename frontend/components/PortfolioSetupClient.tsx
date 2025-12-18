@@ -61,7 +61,7 @@ export function PortfolioSetupClient() {
               </Button>
               <Button
                 onClick={handleCreateAI}
-                className="w-full bg-white text-black hover:bg-white/90 mt-2"
+                className="w-full text-white font-bold hover:bg-white/90 mt-2 from-purple-800 to-blue-800 bg-linear-to-tr"
               >
                 Create with AI
                 <span><StarsIcon /></span>
