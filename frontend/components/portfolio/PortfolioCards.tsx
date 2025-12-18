@@ -13,7 +13,8 @@ interface ChoreographyCardProps {
 }
 
 export function ChoreographyCard({ song, role, youtubeLink }: ChoreographyCardProps) {
-  const formattedDate = song.date
+  const shouldShowDate = song.date && new Date(song.date).getFullYear() !== 1111;
+  const formattedDate = shouldShowDate && song.date
     ? new Date(song.date).toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
@@ -51,7 +52,8 @@ interface MediaCardProps {
 }
 
 export function MediaCard({ title, role, youtubeLink, videoDate }: MediaCardProps) {
-  const formattedDate = videoDate
+  const shouldShowDate = videoDate && new Date(videoDate).getFullYear() !== 1111;
+  const formattedDate = shouldShowDate && videoDate
     ? new Date(videoDate).toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
@@ -86,7 +88,8 @@ interface TextCardProps {
 }
 
 export function TextCard({ title, date, dateLabel }: TextCardProps) {
-  const formattedDate = date
+  const shouldShowDate = date && new Date(date).getFullYear() !== 1111;
+  const formattedDate = shouldShowDate && date
     ? new Date(date).toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: '2-digit',

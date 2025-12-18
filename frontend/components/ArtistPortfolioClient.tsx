@@ -81,6 +81,13 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
     return chunks;
   };
 
+  // Helper function to check if date should be shown (hide if year is 1111)
+  const shouldShowDate = (dateString: string | null): boolean => {
+    if (!dateString) return false;
+    const year = new Date(dateString).getFullYear();
+    return year !== 1111;
+  };
+
   // Sorting helper functions
   const sortChoreographyByDate = (items: { song: { title: string; singer: string; youtube_link: string | null; date: string | null }; role: string[]; is_highlight: boolean; display_order: number }[]) => {
     return [...items].sort((a, b) => {
@@ -347,7 +354,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                       </h3>
                       <p className="text-xs text-zinc-400 mt-1">
                         {item.role}
-                        {item.video_date && ` · ${new Date(item.video_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
+                        {shouldShowDate(item.video_date) && ` · ${new Date(item.video_date!).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
                       </p>
                     </div>
                   </button>
@@ -484,9 +491,9 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                     {chunk.map((item, itemIndex) => (
                       <div key={itemIndex} className="p-6 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                         <h3 className="font-semibold text-lg mb-2">{item.performance_title}</h3>
-                        {item.date && (
+                        {shouldShowDate(item.date) && (
                           <p className="text-sm text-gray-400">
-                            {new Date(item.date).toLocaleDateString()}
+                            {new Date(item.date!).toLocaleDateString()}
                           </p>
                         )}
                         {item.category && (
@@ -536,9 +543,9 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                         <p className="text-sm text-gray-400 mt-1">
                           {workshop.class_role.join(', ')} • {workshop.country}
                         </p>
-                        {workshop.class_date && (
+                        {shouldShowDate(workshop.class_date) && (
                           <p className="text-xs text-gray-500 mt-1">
-                            {new Date(workshop.class_date).getFullYear()}.{String(new Date(workshop.class_date).getMonth() + 1).padStart(2, '0')}
+                            {new Date(workshop.class_date!).getFullYear()}.{String(new Date(workshop.class_date!).getMonth() + 1).padStart(2, '0')}
                           </p>
                         )}
                       </div>
@@ -580,9 +587,9 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                         {award.issuing_org && (
                           <p className="text-sm text-gray-400 mt-1">{award.issuing_org}</p>
                         )}
-                        {award.received_date && (
+                        {shouldShowDate(award.received_date) && (
                           <p className="text-xs text-gray-500 mt-1">
-                            {new Date(award.received_date).toLocaleDateString()}
+                            {new Date(award.received_date!).toLocaleDateString()}
                           </p>
                         )}
                       </div>
