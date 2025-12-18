@@ -1,10 +1,12 @@
 'use client'
+import { useState } from 'react'
 import useSWR from 'swr'
 import Link from "next/link"
 import { ArrowRight, Menu, Search } from "lucide-react"
 import { ArtistCard } from "@/components/artist-card";
 import { GroupCard } from "@/components/group-card";
 import { SlidingBanner, BannerItem } from "@/components/sliding-banner";
+import { SideMenu } from "@/components/side-menu";
 import { Artist } from "@/types/artist"
 import { useRouter } from 'next/navigation'
 
@@ -17,6 +19,7 @@ interface Group {
 }
 
 export default function MainPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const fetcher = (url: string) => fetch(url).then(res => res.json())
   const router = useRouter();
   const { data: artistData, error: artistError, isLoading: artistLoading } = useSWR<{ artists: Artist[] }>('/api/artists?limit=4', fetcher)
@@ -35,9 +38,12 @@ export default function MainPage() {
 
   return (
     <div className="min-h-screen bg-black text-white pb-30 select-none">
+      {/* Side Menu */}
+      <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
       {/* Header */}
       <header className="flex items-center justify-between p-6">
-        <button className="rounded-full" onClick={() => {router.push("/main/search")}}>
+        <button className="rounded-full" onClick={() => setIsMenuOpen(true)}>
           <Menu className='size-6 md:size-8'/>
         </button>
         <h1 className="text-2xl md:text-3xl font-bold">dancers<span className='text-green-500'>.</span>bio</h1>

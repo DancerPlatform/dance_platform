@@ -10,7 +10,7 @@ export default function MainLayout({
   return (
     <div>
       {children}
-      <BottomNav />
+      {/* <BottomNav /> */}
       {/* <Footer />  */}
     </div>
   )
