@@ -12,6 +12,7 @@ import { MyTeamsModal } from '@/components/MyTeamsModal';
 import MyClaimsClient from '@/components/MyClaimsClient';
 import { PortfolioSetupClient } from '@/components/PortfolioSetupClient';
 import { supabase } from '@/lib/supabase';
+import { Header } from '@/components/header';
 
 export default function ProfilePage() {
   const { user, profile, artistUser, signOut, loading } = useAuth();
@@ -102,7 +103,8 @@ export default function ProfilePage() {
   // Show artist profile
   if (profile.user_type === 'artist' && artistUser) {
     return (
-      <div className="min-h-screen bg-black text-white pb-32">
+      <div className="min-h-screen bg-black text-white pb-32 pt-10">
+        <Header />
         {/* Header */}
         <div className="px-6 pt-6 pb-8">
           <h1 className="text-2xl font-bold">마이페이지</h1>
