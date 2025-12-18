@@ -17,6 +17,7 @@ export async function PUT(
       instagram,
       twitter,
       youtube,
+      nationality,
     } = body;
 
     // Get auth token from request headers
@@ -50,6 +51,7 @@ export async function PUT(
         instagram,
         twitter,
         youtube,
+        nationality,
       })
       .eq('artist_id', artist_id);
 

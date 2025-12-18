@@ -35,6 +35,7 @@ export interface ArtistPortfolio {
   instagram?: string;
   twitter?: string;
   youtube?: string;
+  nationality?: string | null;
   workshops: Workshop[];
   awards: Award[];
   choreography: ChoreographyItem[];
@@ -283,6 +284,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
           photoUrl={portfolio.photo}
           name={portfolio.artist_name}
           nameEng={portfolio.artist_name_eng}
+          nationalityCode={portfolio.nationality}
           heightClass="h-[500px]"
         />
       </div>

@@ -108,6 +108,7 @@ export function ArtistPortfolioEditableClient({
     instagram: string;
     twitter: string;
     youtube: string;
+    nationality?: string;
   }) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -458,6 +459,7 @@ export function ArtistPortfolioEditableClient({
         photoUrl={portfolio.photo}
         name={portfolio.artist_name}
         nameEng={portfolio.artist_name_eng}
+        nationalityCode={portfolio.nationality}
         heightClass="h-[400px] sm:h-[500px]"
         editable={true}
         onEdit={() => setShowProfileEdit(true)}
@@ -847,6 +849,7 @@ export function ArtistPortfolioEditableClient({
           instagram: portfolio.instagram || "",
           twitter: portfolio.twitter || "",
           youtube: portfolio.youtube || "",
+          nationality: portfolio.nationality || "",
         }}
         artistId={artistId}
       />

@@ -112,6 +112,7 @@ interface ProfileEditModalProps {
     instagram: string;
     twitter: string;
     youtube: string;
+    nationality?: string;
   }) => Promise<void>;
   initialData: {
     artist_name: string;
@@ -121,6 +122,7 @@ interface ProfileEditModalProps {
     instagram?: string;
     twitter?: string;
     youtube?: string;
+    nationality?: string;
   };
   artistId: string;
 }
@@ -133,8 +135,20 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
   const [instagram, setInstagram] = useState(initialData.instagram || '');
   const [twitter, setTwitter] = useState(initialData.twitter || '');
   const [youtube, setYoutube] = useState(initialData.youtube || '');
+  const [nationality, setNationality] = useState((initialData.nationality || '').toUpperCase());
+  const [nationalitySearchTerm, setNationalitySearchTerm] = useState('');
+  const [isNationalityDropdownOpen, setIsNationalityDropdownOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const selectedNationality = nationality
+    ? COUNTRY_CODES.find(country => country.code === nationality)
+    : undefined;
+  const normalizedSearch = nationalitySearchTerm.toLowerCase();
+  const filteredNationalities = COUNTRY_CODES.filter(country =>
+    country.name.toLowerCase().includes(normalizedSearch) ||
+    country.code.toLowerCase().includes(normalizedSearch)
+  );
 
   // Update state when initialData changes
   useEffect(() => {
@@ -145,6 +159,9 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
     setInstagram(initialData.instagram || '');
     setTwitter(initialData.twitter || '');
     setYoutube(initialData.youtube || '');
+    setNationality((initialData.nationality || '').toUpperCase());
+    setNationalitySearchTerm('');
+    setIsNationalityDropdownOpen(false);
   }, [initialData]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,6 +223,7 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
         instagram,
         twitter,
         youtube,
+        nationality,
       });
       onClose();
     } catch (error) {
@@ -273,6 +291,76 @@ export function ProfileEditModal({ isOpen, onClose, onSave, initialData, artistI
               onChange={(e) => setArtistNameEng(e.target.value)}
               className="bg-zinc-800 border-zinc-700"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="nationality">Nationality</Label>
+            {nationality ? (
+              <div className="flex items-center gap-3 p-3 bg-zinc-800 border border-zinc-700 rounded-md">
+                <Image
+                  src={`https://flagsapi.com/${nationality}/flat/32.png`}
+                  alt={`${selectedNationality?.name || nationality} flag`}
+                  width={32}
+                  height={24}
+                  className="rounded-sm"
+                />
+                <span className="flex-1 text-sm sm:text-base">
+                  {selectedNationality?.name || nationality}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setNationality('')}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  Clear
+                </Button>
+              </div>
+            ) : (
+              <div className="relative">
+                <Input
+                  id="nationality"
+                  value={nationalitySearchTerm}
+                  onChange={(e) => {
+                    setNationalitySearchTerm(e.target.value);
+                    setIsNationalityDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsNationalityDropdownOpen(true)}
+                  className="bg-zinc-800 border-zinc-700"
+                  placeholder="Search nationality..."
+                />
+                {isNationalityDropdownOpen && (
+                  <div className="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {filteredNationalities.length > 0 ? (
+                      filteredNationalities.map((country) => (
+                        <div
+                          key={country.code}
+                          onClick={() => {
+                            setNationality(country.code);
+                            setNationalitySearchTerm('');
+                            setIsNationalityDropdownOpen(false);
+                          }}
+                          className="flex items-center gap-3 px-3 py-2 hover:bg-zinc-700 cursor-pointer transition-colors"
+                        >
+                          <Image
+                            src={`https://flagsapi.com/${country.code}/flat/24.png`}
+                            alt={country.name}
+                            width={24}
+                            height={18}
+                            className="rounded-sm"
+                          />
+                          <span className="text-white text-sm">{country.name}</span>
+                          <span className="text-gray-500 text-xs ml-auto">{country.code}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-gray-400 text-sm">국가를 찾을 수 없습니다</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
