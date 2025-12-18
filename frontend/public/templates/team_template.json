@@ -18,7 +18,14 @@
       "song_date": "",
       "role": "",
       "is_highlight": false,
-      "display_order": 0
+      "display_order": 0,
+      "_validation": {
+        "song_title": "valid",
+        "singer": "valid",
+        "youtube_link": "valid",
+        "song_date": "valid",
+        "role": "valid"
+      }
     }
   ],
   "team_media": [
@@ -27,20 +34,34 @@
       "media_title": "",
       "video_date": "",
       "is_highlight": false,
-      "display_order": 0
+      "display_order": 0,
+      "_validation": {
+        "youtube_link": "valid",
+        "media_title": "valid",
+        "video_date": "valid"
+      }
     }
   ],
   "team_performance": [
     {
       "performance_title": "",
       "performance_date": "",
-      "category": ""
+      "category": "",
+      "_validation": {
+        "performance_title": "valid",
+        "performance_date": "valid",
+        "category": "valid"
+      }
     }
   ],
   "team_directing": [
     {
       "directing_title": "",
-      "directing_date": ""
+      "directing_date": "",
+      "_validation": {
+        "directing_title": "valid",
+        "directing_date": "valid"
+      }
     }
   ],
   "team_workshop": [
@@ -48,19 +69,33 @@
       "class_name": "",
       "class_role": "",
       "country": "",
-      "class_date": ""
+      "class_date": "",
+      "_validation": {
+        "class_name": "valid",
+        "class_role": "valid",
+        "country": "valid",
+        "class_date": "valid"
+      }
     }
   ],
   "team_awards": [
     {
       "issuing_org": "",
       "award_title": "",
-      "received_date": ""
+      "received_date": "",
+      "_validation": {
+        "issuing_org": "valid",
+        "award_title": "valid",
+        "received_date": "valid"
+      }
     }
   ],
   "team_members": [
     {
-      "artist_id": ""
+      "artist_id": "",
+      "_validation": {
+        "artist_id": "valid"
+      }
     }
   ]
 }

@@ -62,6 +62,22 @@ IMPORTANT INSTRUCTIONS:
 9. If the provided dates don't contain all the required info fill in the dates with the first day of january.
 10. Make sure none of the fields in the template are null. For example if there are no dates provided you can fill it in with the date 9999-01-01.
 
+VALIDATION INSTRUCTIONS:
+11. Each item in the arrays contains a "_validation" object that tracks field validity
+12. For each field in "_validation", set the value to either "valid" or "invalid":
+    - "valid": The field has complete, accurate information extracted from the text
+    - "invalid": The field is empty, incomplete (e.g., year-only date like "2023"), or contains placeholder data
+13. Examples of INVALID fields:
+    - Empty strings: ""
+    - Dates with only year: "2023" (should be "2023-01-01" or complete date)
+    - Dates with year-month: "2023-08" (missing day)
+    - Placeholder dates: "9999-01-01"
+    - Missing or unavailable information
+14. Examples of VALID fields:
+    - Complete dates: "2023-08-15"
+    - Complete information: "Swan Lake", "John Doe", "https://youtube.com/..."
+15. The _validation object should reflect the actual completeness of the data, helping users identify what needs to be filled in manually
+
 Template structure to follow:
 ${JSON.stringify(template, null, 2)}
 

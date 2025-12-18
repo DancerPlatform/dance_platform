@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, Search, StarsIcon } from 'lucide-react';
 import { signOut } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
+import { Header } from './header';
 
 export function PortfolioSetupClient() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export function PortfolioSetupClient() {
 
   return (
     <div className="min-h-screen bg-black text-white pb-32">
+      <Header />
       <div className="max-w-4xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Welcome to dancers<span className='text-green-400'>.</span>bio</h1>

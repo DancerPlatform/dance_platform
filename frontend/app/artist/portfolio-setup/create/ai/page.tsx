@@ -7,12 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState } from "react";
-import { Loader2, Upload, FileText, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Upload, FileText, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { Header } from "@/components/header";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type PortfolioType = "artist" | "team";
+
+interface MissingField {
+  section: string;
+  field: string;
+  path: string;
+}
 
 export default function CreateWithAiPage() {
   const [portfolioType, setPortfolioType] = useState<PortfolioType>("artist");
@@ -135,6 +141,103 @@ export default function CreateWithAiPage() {
     } finally {
       setIsExtracting(false);
     }
+  };
+
+  // Analyze extracted data using AI validation metadata
+  const analyzeMissingFields = (data: Record<string, unknown>): MissingField[] => {
+    const missingFields: MissingField[] = [];
+
+    const analyzeArrayItems = (
+      items: unknown[],
+      sectionName: string,
+      itemName: string
+    ) => {
+      items.forEach((item, index) => {
+        if (typeof item === "object" && item !== null) {
+          const obj = item as Record<string, unknown>;
+
+          // Check if the item has a _validation object
+          const validation = obj._validation as Record<string, string> | undefined;
+
+          if (validation) {
+            // Use AI-provided validation metadata
+            Object.entries(validation).forEach(([key, status]) => {
+              if (status === "invalid") {
+                const fieldName = key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+                const fieldValue = obj[key];
+                let reason = "";
+
+                // Add reason based on the actual value
+                if (fieldValue === "" || fieldValue === null || fieldValue === undefined) {
+                  reason = "empty";
+                } else if (typeof fieldValue === "string") {
+                  if (fieldValue === "9999-01-01") {
+                    reason = "placeholder date";
+                  } else if (/^\d{4}$/.test(fieldValue.trim())) {
+                    reason = "missing month and day";
+                  } else if (/^\d{4}-\d{2}$/.test(fieldValue.trim())) {
+                    reason = "missing day";
+                  } else {
+                    reason = "incomplete";
+                  }
+                }
+
+                missingFields.push({
+                  section: `${sectionName} #${index + 1}`,
+                  field: reason ? `${fieldName} (${reason})` : fieldName,
+                  path: `${itemName}[${index}].${key}`,
+                });
+              }
+            });
+          }
+        }
+      });
+    };
+
+    if (portfolioType === "artist") {
+      if (data.choreography && Array.isArray(data.choreography)) {
+        analyzeArrayItems(data.choreography, "Choreography", "choreography");
+      }
+      if (data.media && Array.isArray(data.media)) {
+        analyzeArrayItems(data.media, "Media", "media");
+      }
+      if (data.performance && Array.isArray(data.performance)) {
+        analyzeArrayItems(data.performance, "Performance", "performance");
+      }
+      if (data.directing && Array.isArray(data.directing)) {
+        analyzeArrayItems(data.directing, "Directing", "directing");
+      }
+      if (data.workshop && Array.isArray(data.workshop)) {
+        analyzeArrayItems(data.workshop, "Workshop", "workshop");
+      }
+      if (data.awards && Array.isArray(data.awards)) {
+        analyzeArrayItems(data.awards, "Award", "awards");
+      }
+    } else {
+      if (data.team_members && Array.isArray(data.team_members)) {
+        analyzeArrayItems(data.team_members, "Member", "team_members");
+      }
+      if (data.team_choreography && Array.isArray(data.team_choreography)) {
+        analyzeArrayItems(data.team_choreography, "Choreography", "team_choreography");
+      }
+      if (data.team_media && Array.isArray(data.team_media)) {
+        analyzeArrayItems(data.team_media, "Media", "team_media");
+      }
+      if (data.team_performance && Array.isArray(data.team_performance)) {
+        analyzeArrayItems(data.team_performance, "Performance", "team_performance");
+      }
+      if (data.team_directing && Array.isArray(data.team_directing)) {
+        analyzeArrayItems(data.team_directing, "Directing", "team_directing");
+      }
+      if (data.team_workshop && Array.isArray(data.team_workshop)) {
+        analyzeArrayItems(data.team_workshop, "Workshop", "team_workshop");
+      }
+      if (data.team_awards && Array.isArray(data.team_awards)) {
+        analyzeArrayItems(data.team_awards, "Award", "team_awards");
+      }
+    }
+
+    return missingFields;
   };
 
   // Handle saving portfolio to database
@@ -350,51 +453,95 @@ export default function CreateWithAiPage() {
         </Card>
 
         {/* Step 4: Results */}
-        {extractedData && (
-          <Card className="p-6 bg-black text-white">
-            <h2 className="text-xl font-semibold mb-4">Step 4: Review Extracted Data</h2>
-            <div className="bg-gray-900 rounded-lg p-4 max-h-[600px] overflow-auto">
-              <pre className="text-sm whitespace-pre-wrap text-gray-300">
-                {JSON.stringify(extractedData, null, 2)}
-              </pre>
-            </div>
+        {extractedData && (() => {
+          const missingFields = analyzeMissingFields(extractedData);
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4">
-                {error}
+          return (
+            <Card className="p-6 bg-black text-white">
+              <h2 className="text-xl font-semibold mb-4">Step 4: Review Extracted Data</h2>
+
+              {missingFields.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
+                    <AlertCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-greeb-500 mb-2">
+                        Portfolio created succesfully
+                      </h3>
+                      <p className="text-sm text-gray-300 mb-3">
+                        But there is some missing information {missingFields.length}
+                        You can fill them in on the edit page after saving.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-900 rounded-lg p-4 max-h-[400px] overflow-auto">
+                    <ul className="space-y-2">
+                      {missingFields.map((field, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <span className="text-gray-500 font-mono mt-1">•</span>
+                          <div className="flex-1">
+                            <span className="text-white font-medium">{field.field}</span>
+                            <span className="text-gray-500 text-xs ml-2">
+                              ({field.section})
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start gap-3 p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-green-500 mb-1">
+                      All Fields Extracted Successfully
+                    </h3>
+                    <p className="text-sm text-gray-300">
+                      All required information has been extracted from your input.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4">
+                  {error}
+                </div>
+              )}
+
+              <div className="mt-6 flex gap-2">
+                <Button
+                  className="flex-1 bg-green-500 hover:bg-green-600"
+                  onClick={handleSavePortfolio}
+                  disabled={isSaving}
+                  size="lg"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save & Go to Edit Page"
+                  )}
+                </Button>
+                <Button variant="outline" onClick={() => {
+                  const blob = new Blob([JSON.stringify(extractedData, null, 2)], { type: "application/json" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `${portfolioType}_${artistId}_portfolio.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}>
+                  Download JSON
+                </Button>
               </div>
-            )}
-
-            <div className="mt-4 flex gap-2">
-              <Button
-                className="flex-1 bg-green-500 hover:bg-green-600"
-                onClick={handleSavePortfolio}
-                disabled={isSaving}
-                size="lg"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save & Go to Edit Page"
-                )}
-              </Button>
-              <Button variant="outline" onClick={() => {
-                const blob = new Blob([JSON.stringify(extractedData, null, 2)], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${portfolioType}_${artistId}_portfolio.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-              }}>
-                Download JSON
-              </Button>
-            </div>
-          </Card>
-        )}
+            </Card>
+          );
+        })()}
       </div>
     </div>
   );
