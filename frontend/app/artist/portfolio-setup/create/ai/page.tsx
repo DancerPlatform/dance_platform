@@ -21,6 +21,7 @@ interface MissingField {
 }
 
 export default function CreateWithAiPage() {
+  const [currentStep, setCurrentStep] = useState(1);
   const [portfolioType, setPortfolioType] = useState<PortfolioType>("artist");
   const [artistId, setArtistId] = useState("");
   const [isValidatingId, setIsValidatingId] = useState(false);
@@ -135,6 +136,7 @@ export default function CreateWithAiPage() {
       }
 
       setExtractedData(result.data);
+      setCurrentStep(4); // Move to step 4 after successful extraction
     } catch (error) {
       console.error("Error extracting data:", error);
       setError(error instanceof Error ? error.message : "Failed to extract data");
@@ -240,6 +242,32 @@ export default function CreateWithAiPage() {
     return missingFields;
   };
 
+  // Handle step navigation
+  const handleNextStep = () => {
+    // Validate before moving to next step
+    if (currentStep === 1) {
+      setError("");
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      if (!isIdValid) {
+        setError("Please enter and validate your ID first");
+        return;
+      }
+      setError("");
+      setCurrentStep(3);
+    } else if (currentStep === 3) {
+      // Trigger extraction instead of moving to step 4
+      handleExtract();
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      setError("");
+    }
+  };
+
   // Handle saving portfolio to database
   const handleSavePortfolio = async () => {
     if (!extractedData || !artistId) {
@@ -302,155 +330,153 @@ export default function CreateWithAiPage() {
           <p className="text-gray-600 text-sm">
             Generate your own portfolio in the click of a few buttons
           </p>
+          <div className="flex gap-2 mt-4">
+            {[1, 2, 3, 4].map((step) => (
+              <div
+                key={step}
+                className={`flex-1 h-2 rounded ${
+                  step < currentStep
+                    ? "bg-green-500"
+                    : step === currentStep
+                    ? "bg-green-500/50"
+                    : "bg-gray-700"
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Step 1: Select Portfolio Type */}
-        <Card className="p-4 bg-black text-white">
-          <h2 className="text-xl font-semibold mb-4">Step 1: Select Type</h2>
-          <RadioGroup value={portfolioType} onValueChange={(value: string) => setPortfolioType(value as PortfolioType)}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="artist" id="artist"/>
-              <Label htmlFor="artist" className="cursor-pointer">Artist (Individual)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="team" id="team" />
-              <Label htmlFor="team" className="cursor-pointer">Team/Group</Label>
-            </div>
-          </RadioGroup>
-        </Card>
-
-        {/* Step 2: Enter and Validate ID */}
-        <Card className="p-4 bg-black text-white">
-          <h2 className="text-xl font-semibold mb-4">
-            Step 2: Enter {portfolioType === "artist" ? "Artist" : "Team"} ID
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="artistId">
-                {portfolioType === "artist" ? "Artist ID" : "Team ID"}
-              </Label>
-              <div className="flex gap-2 mt-2">
-                <div className="relative flex-1">
-                  <Input
-                    id="artistId"
-                    value={artistId}
-                    onChange={(e) => {
-                      setArtistId(e.target.value);
-                      setIsIdValid(null);
-                      setIdValidationMessage("");
-                    }}
-                    placeholder={portfolioType === "artist" ? "e.g., artist001" : "e.g., team001"}
-                    disabled={isExtracting}
-                  />
-                  {isIdValid !== null && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {isIdValid ? (
-                        <CheckCircle2 className="w-5 h-5 text-green-500" />
-                      ) : (
-                        <XCircle className="w-5 h-5 text-red-500" />
-                      )}
-                    </div>
-                  )}
-                </div>
-                <Button
-                  onClick={validateArtistId}
-                  disabled={!artistId.trim() || isValidatingId || isExtracting}
-                >
-                  {isValidatingId ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Checking...
-                    </>
-                  ) : (
-                    "Validate"
-                  )}
-                </Button>
-              </div>
-              {idValidationMessage && (
-                <p className={`text-sm mt-2 ${isIdValid ? "text-green-600" : "text-red-600"}`}>
-                  {idValidationMessage}
-                </p>
-              )}
-            </div>
-          </div>
-        </Card>
-
-        {/* Step 3: Input Method Selection and Upload */}
-        <Card className="p-4 bg-black text-white">
-          <h2 className="text-xl font-semibold mb-4">Step 3: Provide Portfolio Information</h2>
-
-          <div className="space-y-4">
-            <RadioGroup value={inputMethod} onValueChange={(value: string) => setInputMethod(value as "text" | "pdf")}>
+        {currentStep === 1 && (
+          <Card className="p-4 bg-black text-white">
+            <h2 className="text-xl font-semibold mb-4">Step 1: Select Type</h2>
+            <RadioGroup value={portfolioType} onValueChange={(value: string) => setPortfolioType(value as PortfolioType)}>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="text" id="text" />
-                <Label htmlFor="text" className="cursor-pointer flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Text Input
-                </Label>
+                <RadioGroupItem value="artist" id="artist"/>
+                <Label htmlFor="artist" className="cursor-pointer">Artist (Individual)</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="pdf" id="pdf" />
-                <Label htmlFor="pdf" className="cursor-pointer flex items-center gap-2">
-                  <Upload className="w-4 h-4" />
-                  PDF Upload
-                </Label>
+                <RadioGroupItem value="team" id="team" />
+                <Label htmlFor="team" className="cursor-pointer">Team/Group</Label>
               </div>
             </RadioGroup>
+          </Card>
+        )}
 
-            {inputMethod === "text" ? (
+        {/* Step 2: Enter and Validate ID */}
+        {currentStep === 2 && (
+          <Card className="p-4 bg-black text-white">
+            <h2 className="text-xl font-semibold mb-4">
+              Step 2: Enter {portfolioType === "artist" ? "Artist" : "Team"} ID
+            </h2>
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="textInput">Portfolio Information</Label>
-                <Textarea
-                  id="textInput"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Paste your portfolio information here. Include details like name, introduction, choreography work, performances, awards, etc."
-                  className="min-h-[200px] mt-2"
-                  disabled={!isIdValid || isExtracting}
-                />
-              </div>
-            ) : (
-              <div>
-                <Label htmlFor="pdfFile">Upload PDF</Label>
-                <Input
-                  id="pdfFile"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFileChange}
-                  className="mt-2"
-                  disabled={!isIdValid || isExtracting}
-                />
-                {selectedFile && (
-                  <p className="text-sm text-gray-600 mt-2">
-                    Selected: {selectedFile.name}
+                <Label htmlFor="artistId">
+                  {portfolioType === "artist" ? "Artist ID" : "Team ID"}
+                </Label>
+                <div className="flex gap-2 mt-2">
+                  <div className="relative flex-1">
+                    <Input
+                      id="artistId"
+                      value={artistId}
+                      onChange={(e) => {
+                        setArtistId(e.target.value);
+                        setIsIdValid(null);
+                        setIdValidationMessage("");
+                      }}
+                      placeholder={portfolioType === "artist" ? "e.g., artist001" : "e.g., team001"}
+                      disabled={isExtracting}
+                    />
+                    {isIdValid !== null && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {isIdValid ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    onClick={validateArtistId}
+                    disabled={!artistId.trim() || isValidatingId || isExtracting}
+                  >
+                    {isValidatingId ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Checking...
+                      </>
+                    ) : (
+                      "Validate"
+                    )}
+                  </Button>
+                </div>
+                {idValidationMessage && (
+                  <p className={`text-sm mt-2 ${isIdValid ? "text-green-600" : "text-red-600"}`}>
+                    {idValidationMessage}
                   </p>
                 )}
               </div>
-            )}
+            </div>
+          </Card>
+        )}
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                {error}
-              </div>
-            )}
+        {/* Step 3: Input Method Selection and Upload */}
+        {currentStep === 3 && (
+          <Card className="p-4 bg-black text-white">
+            <h2 className="text-xl font-semibold mb-4">Step 3: Provide Portfolio Information</h2>
 
-            <Button
-              onClick={handleExtract}
-              disabled={!isIdValid || isExtracting || (inputMethod === "text" ? !textInput.trim() : !selectedFile)}
-              className="w-full bg-green-500"
-              size="lg"
-            >
-              {isExtracting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Extracting with AI...
-                </>
+            <div className="space-y-4">
+              <RadioGroup value={inputMethod} onValueChange={(value: string) => setInputMethod(value as "text" | "pdf")}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="text" id="text" />
+                  <Label htmlFor="text" className="cursor-pointer flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Text Input
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="pdf" id="pdf" />
+                  <Label htmlFor="pdf" className="cursor-pointer flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    PDF Upload
+                  </Label>
+                </div>
+              </RadioGroup>
+
+              {inputMethod === "text" ? (
+                <div>
+                  <Label htmlFor="textInput">Portfolio Information</Label>
+                  <Textarea
+                    id="textInput"
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    placeholder="Paste your portfolio information here. Include details like name, introduction, choreography work, performances, awards, etc."
+                    className="min-h-[200px] mt-2"
+                    disabled={isExtracting}
+                  />
+                </div>
               ) : (
-                "Extract Portfolio Data"
+                <div>
+                  <Label htmlFor="pdfFile">Upload PDF</Label>
+                  <Input
+                    id="pdfFile"
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleFileChange}
+                    className="mt-2"
+                    disabled={isExtracting}
+                  />
+                  {selectedFile && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
               )}
-            </Button>
-          </div>
-        </Card>
+            </div>
+          </Card>
+        )}
 
         {/* Step 4: Results */}
         {extractedData && (() => {
@@ -463,7 +489,7 @@ export default function CreateWithAiPage() {
               {missingFields.length > 0 ? (
                 <div className="space-y-4">
                   <div className="flex items-start gap-3 p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <h3 className="font-semibold text-greeb-500 mb-2">
                         Portfolio created succesfully
@@ -542,6 +568,49 @@ export default function CreateWithAiPage() {
             </Card>
           );
         })()}
+
+        {/* Error Display */}
+        {error && currentStep !== 4 && (
+          <div className="bg-red-900/20 border border-red-700/50 text-red-400 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        {!extractedData && (
+          <div className="flex gap-4 pt-4">
+            {currentStep > 1 && (
+              <Button
+                variant="outline"
+                onClick={handlePreviousStep}
+                disabled={isExtracting}
+                size="lg"
+              >
+                Previous
+              </Button>
+            )}
+            <Button
+              onClick={handleNextStep}
+              disabled={
+                isExtracting ||
+                (currentStep === 3 && (inputMethod === "text" ? !textInput.trim() : !selectedFile))
+              }
+              className="flex-1 bg-green-500 hover:bg-green-600"
+              size="lg"
+            >
+              {isExtracting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Extracting with AI...
+                </>
+              ) : currentStep === 3 ? (
+                "Extract Portfolio Data"
+              ) : (
+                "Next"
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
