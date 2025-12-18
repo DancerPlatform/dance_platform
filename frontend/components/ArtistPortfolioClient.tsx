@@ -354,7 +354,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                       </h3>
                       <p className="text-xs text-zinc-400 mt-1">
                         {item.role}
-                        {shouldShowDate(item.video_date) && ` · ${new Date(item.video_date!).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '.')}`}
+                        {shouldShowDate(item.video_date) && ` · ${new Date(item.video_date!).getFullYear()}.${String(new Date(item.video_date!).getMonth() + 1).padStart(2, '0')}`}
                       </p>
                     </div>
                   </button>
@@ -493,7 +493,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                         <h3 className="font-semibold text-lg mb-2">{item.performance_title}</h3>
                         {shouldShowDate(item.date) && (
                           <p className="text-sm text-gray-400">
-                            {new Date(item.date!).toLocaleDateString()}
+                            {new Date(item.date!).getFullYear()}.{String(new Date(item.date!).getMonth() + 1).padStart(2, '0')}
                           </p>
                         )}
                         {item.category && (
@@ -589,7 +589,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                         )}
                         {shouldShowDate(award.received_date) && (
                           <p className="text-xs text-gray-500 mt-1">
-                            {new Date(award.received_date!).toLocaleDateString()}
+                            {new Date(award.received_date!).getFullYear()}.{String(new Date(award.received_date!).getMonth() + 1).padStart(2, '0')}
                           </p>
                         )}
                       </div>

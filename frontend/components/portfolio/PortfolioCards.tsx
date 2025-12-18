@@ -15,11 +15,7 @@ interface ChoreographyCardProps {
 export function ChoreographyCard({ song, role, youtubeLink }: ChoreographyCardProps) {
   const shouldShowDate = song.date && new Date(song.date).getFullYear() !== 1111;
   const formattedDate = shouldShowDate && song.date
-    ? new Date(song.date).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
+    ? `${new Date(song.date).getFullYear()}.${String(new Date(song.date).getMonth() + 1).padStart(2, '0')}`
     : null;
 
   return (
@@ -54,11 +50,7 @@ interface MediaCardProps {
 export function MediaCard({ title, role, youtubeLink, videoDate }: MediaCardProps) {
   const shouldShowDate = videoDate && new Date(videoDate).getFullYear() !== 1111;
   const formattedDate = shouldShowDate && videoDate
-    ? new Date(videoDate).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
+    ? `${new Date(videoDate).getFullYear()}.${String(new Date(videoDate).getMonth() + 1).padStart(2, '0')}`
     : null;
 
   return (
@@ -90,11 +82,7 @@ interface TextCardProps {
 export function TextCard({ title, date, dateLabel }: TextCardProps) {
   const shouldShowDate = date && new Date(date).getFullYear() !== 1111;
   const formattedDate = shouldShowDate && date
-    ? new Date(date).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
+    ? `${new Date(date).getFullYear()}.${String(new Date(date).getMonth() + 1).padStart(2, '0')}`
     : null;
 
   return (

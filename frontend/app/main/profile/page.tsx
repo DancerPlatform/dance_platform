@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User } from 'lucide-react';
+import { User, Edit3, Shield, Briefcase, Users, UserPlus, Crown, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -159,41 +159,46 @@ export default function ProfilePage() {
           {/* Edit Portfolio Button */}
           <Link
             href={`/edit-portfolio/${artistUser.artist_id}`}
-            className="block w-full px-6 py-4 text-left text-md md:text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="flex items-center gap-3 w-full px-6 py-4 text-left text-md md:text-lg border-t border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            내 포트폴리오 수정하기
+            <Edit3 className="size-5 text-zinc-400" />
+            <span>내 포트폴리오 수정하기</span>
           </Link>
 
           {/* Add users that are allowed to edit my portfolio */}
           <button
             onClick={() => setIsPermissionsModalOpen(true)}
-            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="flex items-center gap-3 w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            포트폴리오 권한 설정
+            <Shield className="size-5 text-zinc-400" />
+            <span>포트폴리오 권한 설정</span>
           </button>
 
           {/* View managed portfolios */}
           <button
             onClick={() => setIsManagedPortfoliosModalOpen(true)}
-            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="flex items-center gap-3 w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            관리중인 포트폴리오 보기
+            <Briefcase className="size-5 text-zinc-400" />
+            <span>관리중인 포트폴리오 보기</span>
           </button>
 
           {/* My Teams */}
           <button
             onClick={() => setIsMyTeamsModalOpen(true)}
-            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="flex items-center gap-3 w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            내 팀 관리하기
+            <Users className="size-5 text-zinc-400" />
+            <span>내 팀 관리하기</span>
           </button>
 
           {/* Create Team */}
           <button
             onClick={() => setIsCreateTeamModalOpen(true)}
-            className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
+            className="flex items-center gap-3 w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 hover:bg-zinc-900 transition-colors"
           >
-            팀 생성하기
+            <UserPlus className="size-5 text-zinc-400" />
+            <span>팀 생성하기</span>
           </button>
 
           {/* Permissions Modal */}
@@ -225,9 +230,10 @@ export default function ProfilePage() {
           {profile.is_admin && (
             <Link
               href="/admin"
-              className="block w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
+              className="flex items-center gap-3 w-full px-6 py-4 text-left text-md md:text-lg border-b border-zinc-800 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
             >
-              관리자 페이지
+              <Crown className="size-5" />
+              <span>관리자 페이지</span>
             </Link>
           )}
 
@@ -236,9 +242,10 @@ export default function ProfilePage() {
             onClick={()=> {
               signOut()
           }}
-            className="w-full px-6 py-4 text-left text-md md:text-lg text-red-500 hover:bg-zinc-900 transition-colors"
+            className="flex items-center gap-3 w-full px-6 py-4 text-left text-md md:text-lg text-red-500 hover:bg-zinc-900 transition-colors"
           >
-            로그아웃
+            <LogOut className="size-5" />
+            <span>로그아웃</span>
           </button>
         </div>
       </div>
