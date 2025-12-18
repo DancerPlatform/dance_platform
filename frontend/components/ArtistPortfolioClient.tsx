@@ -58,6 +58,10 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
   const { modalState, openModal, closeModal } = usePortfolioModal();
   const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const nationalityCode = portfolio.nationality?.toUpperCase() || null;
+  const nationalityCountry = nationalityCode
+    ? COUNTRY_CODES.find(country => country.code === nationalityCode)
+    : null;
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
   const openItemModal = (item: PortfolioItemData) => {
@@ -325,6 +329,25 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               {portfolio.introduction}
             </p>
           </section>
+        )}
+
+        {/* Nationality */}
+        {nationalityCode && (
+          <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-lg border border-white/10 w-fit">
+            <Image
+              src={`https://flagsapi.com/${nationalityCode}/flat/48.png`}
+              alt={`${nationalityCountry?.name || nationalityCode} flag`}
+              width={48}
+              height={32}
+              className="rounded-sm"
+            />
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-400">Nationality</p>
+              <p className="text-sm font-semibold text-white">
+                {nationalityCountry?.name || nationalityCode}
+              </p>
+            </div>
+          </div>
         )}
 
         {/* Social Links */}
