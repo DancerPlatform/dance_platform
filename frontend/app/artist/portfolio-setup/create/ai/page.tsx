@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Loader2, Upload, FileText, CheckCircle2, XCircle } from "lucide-react";
 import { Header } from "@/components/header";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 type PortfolioType = "artist" | "team";
 
@@ -27,6 +28,7 @@ export default function CreateWithAiPage() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedData, setExtractedData] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
   // Validate artist ID
@@ -132,6 +134,59 @@ export default function CreateWithAiPage() {
       setError(error instanceof Error ? error.message : "Failed to extract data");
     } finally {
       setIsExtracting(false);
+    }
+  };
+
+  // Handle saving portfolio to database
+  const handleSavePortfolio = async () => {
+    if (!extractedData || !artistId) {
+      setError("No data to save");
+      return;
+    }
+
+    setIsSaving(true);
+    setError("");
+
+    try {
+      // Get the user's session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        setError("Not authenticated. Please log in.");
+        setIsSaving(false);
+        return;
+      }
+
+      const response = await fetch("/api/ai/save-portfolio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          type: portfolioType,
+          data: extractedData,
+          artist_id: artistId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save portfolio");
+      }
+
+      // Navigate to the edit page
+      if (portfolioType === "artist") {
+        router.push(`/edit-portfolio/${artistId}`);
+      } else {
+        router.push(`/edit-team/${artistId}`);
+      }
+    } catch (error) {
+      console.error("Error saving portfolio:", error);
+      setError(error instanceof Error ? error.message : "Failed to save portfolio");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -296,19 +351,35 @@ export default function CreateWithAiPage() {
 
         {/* Step 4: Results */}
         {extractedData && (
-          <Card className="p-6">
+          <Card className="p-6 bg-black text-white">
             <h2 className="text-xl font-semibold mb-4">Step 4: Review Extracted Data</h2>
-            <div className="bg-gray-50 rounded-lg p-4 max-h-[600px] overflow-auto">
-              <pre className="text-sm whitespace-pre-wrap">
+            <div className="bg-gray-900 rounded-lg p-4 max-h-[600px] overflow-auto">
+              <pre className="text-sm whitespace-pre-wrap text-gray-300">
                 {JSON.stringify(extractedData, null, 2)}
               </pre>
             </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4">
+                {error}
+              </div>
+            )}
+
             <div className="mt-4 flex gap-2">
-              <Button className="flex-1" onClick={() => {
-                // TODO: Navigate to portfolio editor with this data 
-                console.log("Edit data:", extractedData);
-              }}>
-                Continue to Edit
+              <Button
+                className="flex-1 bg-green-500 hover:bg-green-600"
+                onClick={handleSavePortfolio}
+                disabled={isSaving}
+                size="lg"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save & Go to Edit Page"
+                )}
               </Button>
               <Button variant="outline" onClick={() => {
                 const blob = new Blob([JSON.stringify(extractedData, null, 2)], { type: "application/json" });
