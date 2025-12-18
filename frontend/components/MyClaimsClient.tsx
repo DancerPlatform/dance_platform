@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, ArrowRight, Timer } from 'lucide-react'
+import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, ArrowRight, Timer, Copy, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { PortfolioClaimRequestWithArtist } from '@/lib/types/claims'
 import { useAuth } from '@/contexts/AuthContext'
@@ -17,6 +17,7 @@ export default function MyClaimsClients() {
   const [claims, setClaims] = useState<PortfolioClaimRequestWithArtist[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [copiedClaimId, setCopiedClaimId] = useState<string | null>(null)
   const router = useRouter()
   const {signOut} = useAuth();
 
@@ -125,6 +126,17 @@ export default function MyClaimsClients() {
     }
   }
 
+  const handleCopyCode = async (claimId: string, authCode: string) => {
+    try {
+      await navigator.clipboard.writeText(authCode)
+      setCopiedClaimId(claimId)
+      setTimeout(() => setCopiedClaimId(null), 3000)
+      alert("Copied to clipboard!")
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -134,8 +146,8 @@ export default function MyClaimsClients() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-30">
-      {/* <Header onBack={() => {router.replace('/main')}}/> */}
+    <div className="min-h-screen bg-black text-white pb-30 pt-10">
+      <Header onBack={() => {router.replace('/main')}}/>
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-2">
         <div className="">
@@ -182,12 +194,32 @@ export default function MyClaimsClients() {
                       <CardTitle className="text-xl font-bold">
                         {claim.artist_user.name} <span className='text-gray-400 text-sm'>Portfolio ID: {claim.artist_id}</span>
                       </CardTitle>
-                      <div className="bg-blue-500/10 border-blue-500/30 w-full border rounded-sm py-2 px-3">
-                        {/* <AlertCircle className="h-4 w-4 text-blue-400" /> */}
-                        <p className='text-white font-bold text-2xl'>{claim.authentication_code}</p>
+                      <div className="bg-blue-500/10 border-blue-500/30 w-full border rounded-sm py-2 px-3 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <p className='text-white font-bold text-2xl'>{claim.authentication_code}</p>
+                          <Button
+                            onClick={() => handleCopyCode(claim.claim_id, claim.authentication_code || '')}
+                            variant="outline"
+                            size="sm"
+                            className="bg-white/10 border-white/20 text-white hover:bg-white/20 h-10 w-10 p-0"
+                          >
+                            {copiedClaimId === claim.claim_id ? (
+                              <Check className="w-4 h-4" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
                         <p className="text-blue-400 text-sm">
-                          Send the authentication code to our instagram with your official account
+                          Send the authentication code to our instagram <span className='text-green-500'>@dancers.bio</span> with your official account
                         </p>
+                        <Link
+                          className="bg-green-500 text-white px-3 py-2 rounded-sm inline-block text-sm"
+                          href="https://www.instagram.com/direct/t/17847765594602579/"
+                          target="_blank"
+                        >
+                          Send us a message
+                        </Link>
                       </div>  
                     </div>
                     {/* {getStatusBadge(claim.status)} */}
