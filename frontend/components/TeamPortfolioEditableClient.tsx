@@ -160,6 +160,7 @@ export function TeamPortfolioEditableClient({
     instagram: string;
     twitter: string;
     youtube: string;
+    nationality?: string;
   }) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {

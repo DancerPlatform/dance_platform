@@ -5,6 +5,7 @@ interface PortfolioHeroSectionProps {
   photoUrl?: string | null;
   name: string;
   nameEng?: string | null;
+  nationalityCode?: string | null;
   heightClass?: string;
   editable?: boolean;
   onEdit?: () => void;
@@ -14,10 +15,14 @@ export function PortfolioHeroSection({
   photoUrl,
   name,
   nameEng,
+  nationalityCode,
   heightClass = 'h-[400px] sm:h-[500px]',
   editable = false,
   onEdit,
 }: PortfolioHeroSectionProps) {
+  const nationalityCodeUpper = nationalityCode?.trim().toUpperCase();
+  const showNationalityFlag = Boolean(nationalityCodeUpper);
+
   return (
     <div className={`relative ${heightClass} overflow-hidden bg-zinc-900 group`}>
       {/* Photo/Camera Area - Clickable when editable */}
@@ -68,7 +73,18 @@ export function PortfolioHeroSection({
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 text-center flex flex-col items-center pointer-events-none">
-        <h1 className="text-4xl sm:text-5xl font-bold mb-2 sm:mb-3">{name}</h1>
+        <div className="flex items-center justify-center gap-3 mb-2 sm:mb-3">
+          <h1 className="text-4xl sm:text-5xl font-bold">{name}</h1>
+          {showNationalityFlag && (
+            <Image
+              src={`https://flagsapi.com/${nationalityCodeUpper}/flat/48.png`}
+              alt={`${nationalityCodeUpper} flag`}
+              width={30}
+              height={30}
+              className="rounded-sm shadow-lg"
+            />
+          )}
+        </div>
         {nameEng && (
           <p className="text-xl sm:text-2xl text-gray-300 mb-3 sm:mb-4">{nameEng}</p>
         )}

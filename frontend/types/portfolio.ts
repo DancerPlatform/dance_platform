@@ -75,3 +75,10 @@ export interface Team {
 export interface TeamMembership {
   team?: Team;
 }
+
+export interface Visa {
+  visa_id?: string;
+  country_code: string;
+  start_date: string;
+  end_date: string;
+}

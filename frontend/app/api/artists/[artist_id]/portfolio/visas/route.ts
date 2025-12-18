@@ -8,17 +8,7 @@ export async function PUT(
   try {
     const { artist_id } = await params;
     const body = await request.json();
-
-    const {
-      artist_name,
-      artist_name_eng,
-      introduction,
-      photo,
-      instagram,
-      twitter,
-      youtube,
-      nationality,
-    } = body;
+    const { visas } = body;
 
     // Get auth token from request headers
     const authHeader = request.headers.get('authorization');
@@ -40,34 +30,24 @@ export async function PUT(
       },
     });
 
-    // Update basic artist portfolio info
-    const { error: updateError } = await authClient
-      .from('artist_portfolio')
-      .update({
-        artist_name,
-        artist_name_eng,
-        introduction,
-        photo,
-        instagram,
-        twitter,
-        youtube,
-        nationality,
-      })
-      .eq('artist_id', artist_id);
+    // Update visas column in artist_user table
+    if (visas && Array.isArray(visas)) {
+      const { error } = await authClient
+        .from('artist_user')
+        .update({ visas })
+        .eq('artist_id', artist_id);
 
-    if (updateError) {
-      console.error('Error updating artist profile:', updateError);
-      return NextResponse.json(
-        { error: updateError.message },
-        { status: 500 }
-      );
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error('Error updating visas:', error);
     return NextResponse.json(
-      { error: 'Failed to update profile' },
+      { error: 'Failed to update visas' },
       { status: 500 }
     );
   }

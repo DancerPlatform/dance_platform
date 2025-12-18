@@ -10,7 +10,7 @@ import './ArtistPortfolioClient.css';
 import { PortfolioModal } from './PortfolioModal';
 import { PortfolioItemDetailModal, PortfolioItemData } from './PortfolioItemDetailModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
-import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop, Visa } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
 import { ClaimPortfolioButton } from './ClaimPortfolioButton';
 import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
@@ -21,9 +21,10 @@ import { usePortfolioSort } from '@/hooks/usePortfolioSort';
 import { usePortfolioModal } from '@/hooks/usePortfolioModal';
 import { chunkArray } from '@/lib/portfolioUtils';
 import { useState } from 'react';
-import { Home, MoreVertical, Plus, X } from 'lucide-react';
+import { Home, MoreVertical, Pencil, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { COUNTRY_CODES } from '@/lib/countryCodes';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -34,6 +35,7 @@ export interface ArtistPortfolio {
   instagram?: string;
   twitter?: string;
   youtube?: string;
+  nationality?: string | null;
   workshops: Workshop[];
   awards: Award[];
   choreography: ChoreographyItem[];
@@ -41,6 +43,7 @@ export interface ArtistPortfolio {
   performances: PerformanceItem[];
   directing: DirectingItem[];
   teams: TeamMembership[];
+  visas?: Visa[];
   artist_user?: {
     auth_id: string | null;
     email: string;
@@ -50,11 +53,15 @@ export interface ArtistPortfolio {
 }
 
 export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfolio }) {
-  const {user} = useAuth();
+  const {user, artistUser} = useAuth();
   const { sortOrders, toggleSortOrder } = usePortfolioSort();
   const { modalState, openModal, closeModal } = usePortfolioModal();
   const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const nationalityCode = portfolio.nationality?.toUpperCase() || null;
+  const nationalityCountry = nationalityCode
+    ? COUNTRY_CODES.find(country => country.code === nationalityCode)
+    : null;
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
   const openItemModal = (item: PortfolioItemData) => {
@@ -257,12 +264,21 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
           <Link href="/" className="text-white hover:text-green-400 transition-colors">
             <Home size={24} />
           </Link>
-          <button
-            onClick={() => setIsSignupModalOpen(true)}
-            className={`${user ? "hidden" : "block"} text-white hover:text-green-400 transition-colors`}
-          >
-            <MoreVertical size={24} />
-          </button>
+          {artistUser?.artist_id === portfolio.artist_id ? (
+            <Link
+              href={`/edit-portfolio/${portfolio.artist_id}`}
+              className="text-white hover:text-green-400 transition-colors"
+            >
+              <Pencil size={24} />
+            </Link>
+          ) : (
+            <button
+              onClick={() => setIsSignupModalOpen(true)}
+              className={`${user ? "hidden" : "block"} text-white hover:text-green-400 transition-colors`}
+            >
+              <MoreVertical size={24} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -272,6 +288,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
           photoUrl={portfolio.photo}
           name={portfolio.artist_name}
           nameEng={portfolio.artist_name_eng}
+          nationalityCode={portfolio.nationality}
           heightClass="h-[500px]"
         />
       </div>
@@ -312,6 +329,25 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               {portfolio.introduction}
             </p>
           </section>
+        )}
+
+        {/* Nationality */}
+        {nationalityCode && (
+          <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-lg border border-white/10 w-fit">
+            <Image
+              src={`https://flagsapi.com/${nationalityCode}/flat/48.png`}
+              alt={`${nationalityCountry?.name || nationalityCode} flag`}
+              width={48}
+              height={32}
+              className="rounded-sm"
+            />
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-400">Nationality</p>
+              <p className="text-sm font-semibold text-white">
+                {nationalityCountry?.name || nationalityCode}
+              </p>
+            </div>
+          </div>
         )}
 
         {/* Social Links */}
@@ -555,6 +591,40 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               ))}
             </Swiper>
           </PortfolioSection>
+        )}
+
+        {/* Visas */}
+        {portfolio.visas && portfolio.visas.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold mb-4">Visas</h2>
+            <div className="flex flex-wrap gap-3">
+              {portfolio.visas.map((visa, index) => {
+                const country = COUNTRY_CODES.find(c => c.code === visa.country_code);
+                return (
+                  <div
+                    key={index}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <Image
+                      src={`https://flagsapi.com/${visa.country_code}/flat/32.png`}
+                      alt={country?.name || visa.country_code}
+                      width={32}
+                      height={24}
+                      className="rounded-sm"
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">{country?.name || visa.country_code}</p>
+                      <p className="text-xs text-gray-400">
+                        {shouldShowDate(visa.start_date) && shouldShowDate(visa.end_date) && (
+                          `${new Date(visa.start_date).getFullYear()}.${String(new Date(visa.start_date).getMonth() + 1).padStart(2, '0')} - ${new Date(visa.end_date).getFullYear()}.${String(new Date(visa.end_date).getMonth() + 1).padStart(2, '0')}`
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         )}
 
         {/* Awards */}
