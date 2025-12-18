@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Search } from 'lucide-react';
+import { PlusCircle, Search, StarsIcon } from 'lucide-react';
 import { signOut } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -17,6 +17,10 @@ export function PortfolioSetupClient() {
 
   const handleClaimExisting = () => {
     router.push('/artist/portfolio-setup/claim');
+  };
+
+  const handleCreateAI = () => {
+    router.push('/artist/portfolio-setup/create/ai');
   };
 
   return (
@@ -53,7 +57,14 @@ export function PortfolioSetupClient() {
                 onClick={handleCreateNew}
                 className="w-full bg-white text-black hover:bg-white/90"
               >
-                Create New Portfolio
+                Create from Scratch
+              </Button>
+              <Button
+                onClick={handleCreateAI}
+                className="w-full bg-white text-black hover:bg-white/90 mt-2"
+              >
+                Create with AI
+                <span><StarsIcon /></span>
               </Button>
             </CardContent>
           </Card>

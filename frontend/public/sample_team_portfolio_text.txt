@@ -1,0 +1,225 @@
+TEAM PORTFOLIO - SAMPLE DATA
+
+=== TEAM PROFILE ===
+Team Name: Urban Pulse Crew
+Team ID: (to be assigned)
+Introduction: Urban Pulse Crew is a professional dance collective founded in 2018, specializing in urban contemporary and street dance fusion. Our crew consists of 8 talented dancers who have worked with major entertainment companies and performed on stages worldwide. We're known for our powerful synchronization, innovative formations, and unique blend of traditional Korean dance elements with modern urban styles.
+
+Leader: artist001
+Sub-Leader: artist002
+
+Social Media:
+Instagram: https://instagram.com/urbanpulsecrew
+Twitter: https://twitter.com/urbanpulse_crew
+YouTube: https://youtube.com/@urbanpulsecrew
+
+=== TEAM MEMBERS ===
+artist001 - Team Leader, Main Choreographer
+artist002 - Sub-Leader, Lead Dancer
+artist003 - Main Dancer, Creative Director
+artist004 - Dancer, Media Manager
+artist005 - Dancer, Performance Director
+artist006 - Dancer, Workshop Coordinator
+artist007 - Dancer, Social Media Manager
+artist008 - Dancer, Music Director
+
+=== CHOREOGRAPHY WORKS ===
+
+1. Original Piece - "Seoul Nights"
+   Singer: Urban Pulse Crew (Original)
+   YouTube: https://www.youtube.com/watch?v=crew001
+   Date: March 15, 2023
+   Role: Group Choreographer, Performance
+   Status: Featured work - Viral video with 5M+ views
+
+2. aespa - "Savage" (Dance Cover)
+   Singer: aespa
+   YouTube: https://www.youtube.com/watch?v=crew002
+   Date: October 5, 2021
+   Role: Choreographer, Performance
+   Status: Featured work
+
+3. NCT 127 - "Kick It" (Reimagined)
+   Singer: NCT 127
+   YouTube: https://www.youtube.com/watch?v=crew003
+   Date: June 20, 2022
+   Role: Choreographer, Performance
+   Status: Regular work
+
+4. Original Piece - "Electric Dreams"
+   Singer: Urban Pulse Crew (Original)
+   YouTube: https://www.youtube.com/watch?v=crew004
+   Date: November 30, 2023
+   Role: Group Choreographer, Performance
+   Status: Featured work
+
+5. SEVENTEEN - "HOT" (Cover)
+   Singer: SEVENTEEN
+   YouTube: https://www.youtube.com/watch?v=crew005
+   Date: July 15, 2022
+   Role: Choreographer, Performance
+   Status: Regular work
+
+=== MEDIA CONTENT ===
+
+1. "Urban Pulse - Behind the Scenes Documentary"
+   YouTube: https://www.youtube.com/watch?v=media001
+   Date: January 20, 2023
+   Status: Featured video
+   Description: 30-minute documentary about our creative process and journey
+
+2. "Crew Practice Session - Unfiltered"
+   YouTube: https://www.youtube.com/watch?v=media002
+   Date: April 8, 2023
+   Status: Regular video
+   Description: Raw footage of our practice sessions
+
+3. "Urban Pulse - Year in Review 2023"
+   YouTube: https://www.youtube.com/watch?v=media003
+   Date: December 25, 2023
+   Status: Featured video
+   Description: Compilation of our best performances from 2023
+
+4. "Choreography Tutorial - Seoul Nights"
+   YouTube: https://www.youtube.com/watch?v=media004
+   Date: May 10, 2023
+   Status: Regular video
+   Description: Step-by-step breakdown of our viral routine
+
+5. "Live Performance at Olympic Park"
+   YouTube: https://www.youtube.com/watch?v=media005
+   Date: September 5, 2023
+   Status: Featured video
+
+=== PERFORMANCES ===
+
+1. Seoul International Dance Festival 2023
+   Date: May 12, 2023
+   Category: 게스트 (Guest Performance)
+   Description: Headlining performance on main stage
+
+2. K-Pop Dance World Cup
+   Date: August 15, 2023
+   Category: 수상 (Award Winner)
+   Description: First place winner in crew category
+
+3. Busan Street Dance Battle
+   Date: June 3, 2023
+   Category: 수상 (Award Winner)
+   Description: Won championship in team battle
+
+4. Asia Dance Convention
+   Date: October 28, 2023
+   Category: 참가 (Participant)
+   Description: International showcase and competition
+
+5. Seoul City Hall New Year Performance
+   Date: January 1, 2023
+   Category: 게스트 (Guest Performance)
+   Description: Official New Year's celebration performance
+
+6. Hongdae Street Festival
+   Date: April 15, 2023
+   Category: 참가 (Participant)
+   Description: Street performance and audience engagement
+
+7. K-Wave Music Festival
+   Date: July 22, 2023
+   Category: 게스트 (Guest Performance)
+
+=== DIRECTING WORKS ===
+
+1. "Next Generation Dance Showcase"
+   Date: March 25, 2023
+   Description: Produced and directed showcase featuring emerging dancers, mentored 20+ young dancers
+
+2. "Urban Fusion Festival 2023"
+   Date: August 10, 2023
+   Description: Creative directors for annual urban dance festival, coordinated 15+ performances
+
+3. "Dance for Change Charity Event"
+   Date: November 12, 2023
+   Description: Organized and directed charity performance raising funds for youth dance programs
+
+4. "Winter Dance Spectacular"
+   Date: December 15, 2023
+   Description: Co-directed year-end dance showcase featuring multiple crews
+
+=== WORKSHOPS & CLASSES ===
+
+1. Urban Pulse Intensive Training Camp
+   Role: Lead Instructors, Choreographers
+   Location: South Korea
+   Date: July 5-9, 2023
+   Description: 5-day intensive training program with 100+ participants
+
+2. K-Pop Dance Workshop Series
+   Role: Instructor, Choreographer
+   Location: Japan
+   Date: September 20, 2023
+   Description: Multi-city workshop tour across Japan
+
+3. Contemporary Urban Fusion Masterclass
+   Role: Lead Instructors
+   Location: South Korea
+   Date: October 8, 2023
+   Description: Advanced masterclass for professional dancers
+
+4. Youth Dance Mentorship Program
+   Role: Mentor, Instructor
+   Location: South Korea
+   Date: June 10-August 30, 2023
+   Description: 12-week mentorship program for aspiring young dancers
+
+5. International Dance Exchange
+   Role: Guest Instructors
+   Location: United States
+   Date: April 20-25, 2023
+   Description: Cultural exchange program in Los Angeles and New York
+
+6. Corporate Team Building Workshop
+   Role: Instructor, Choreographer
+   Location: South Korea
+   Date: November 5, 2023
+   Description: Dance-based team building sessions for companies
+
+=== AWARDS & RECOGNITION ===
+
+1. Korea Dance Association - "Crew of the Year 2023"
+   Date: April 28, 2023
+   Issuing Organization: Korea Dance Association
+   Description: Annual award recognizing outstanding crew performance and contribution
+
+2. Seoul Arts Council - "Excellence in Collaborative Performance"
+   Date: December 5, 2023
+   Issuing Organization: Seoul Arts Council
+   Description: Award for innovative group choreography
+
+3. Asia Dance Awards - "Best Urban Dance Crew"
+   Date: September 15, 2023
+   Issuing Organization: Asia Dance Federation
+   Description: Regional recognition for crew excellence
+
+4. K-Pop World Festival - "Grand Prize"
+   Date: August 16, 2023
+   Issuing Organization: Korean Cultural Center
+   Description: Top prize in international K-pop dance competition
+
+5. YouTube Creators Award - "Silver Play Button"
+   Date: February 10, 2023
+   Issuing Organization: YouTube
+   Description: Achieved 100,000+ subscribers milestone
+
+6. Busan Dance Festival - "People's Choice Award"
+   Date: June 5, 2023
+   Issuing Organization: Busan Cultural Foundation
+
+=== ADDITIONAL INFORMATION ===
+Founded: 2018
+Home Base: Seoul, South Korea
+Training Facility: Urban Pulse Studio, Gangnam
+Crew Size: 8 core members
+Specialties: Urban contemporary, Street dance fusion, K-pop choreography, Formation work
+Achievements: 5M+ YouTube subscribers, 200+ live performances, 50+ workshops conducted
+Collaborations: Major K-pop entertainment companies, International dance festivals, Corporate events
+Mission: To bridge traditional Korean dance elements with modern urban styles and inspire the next generation of dancers

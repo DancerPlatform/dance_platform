@@ -1,0 +1,173 @@
+ARTIST PORTFOLIO - SAMPLE DATA
+
+=== PROFILE INFORMATION ===
+Name: 김지원 (Kim Ji-Won)
+English Name: Kim Ji-Won
+Introduction: Professional choreographer and dancer specializing in K-pop, hip-hop, and contemporary dance. Over 10 years of experience working with major entertainment companies and performing on international stages. Known for dynamic choreography that blends street dance with contemporary elements.
+
+Social Media:
+Instagram: https://instagram.com/jiwon_dance
+Twitter: https://twitter.com/jiwon_choreo
+YouTube: https://youtube.com/@jiwondance
+
+=== CHOREOGRAPHY WORK ===
+
+1. BTS - "Dynamite"
+   Singer: BTS
+   YouTube: https://www.youtube.com/watch?v=gdZLi9oWNZg
+   Date: August 21, 2020
+   Role: Lead Choreographer, Assistant Director
+   Status: Featured/Highlight work
+
+2. BLACKPINK - "How You Like That"
+   Singer: BLACKPINK
+   YouTube: https://www.youtube.com/watch?v=ioNng23DkIM
+   Date: June 26, 2020
+   Role: Choreographer
+   Status: Regular work
+
+3. Stray Kids - "God's Menu"
+   Singer: Stray Kids
+   YouTube: https://www.youtube.com/watch?v=TQTlCHxyuu8
+   Date: June 17, 2020
+   Role: Co-Choreographer, Dancer
+   Status: Featured work
+
+4. IU - "Celebrity"
+   Singer: IU
+   YouTube: https://www.youtube.com/watch?v=0-q1KafFCLU
+   Date: January 27, 2021
+   Role: Choreographer
+   Status: Regular work
+
+=== MEDIA CONTENT ===
+
+1. "Urban Dance Class - Full Routine"
+   YouTube: https://www.youtube.com/watch?v=sample123
+   Date: March 15, 2023
+   Status: Featured video
+   Description: Teaching a full urban choreography routine to advanced students
+
+2. "Contemporary Fusion Performance"
+   YouTube: https://www.youtube.com/watch?v=sample456
+   Date: July 22, 2023
+   Status: Regular video
+   Description: Solo performance blending contemporary and street styles
+
+3. "Choreography Process Behind the Scenes"
+   YouTube: https://www.youtube.com/watch?v=sample789
+   Date: November 5, 2022
+   Status: Featured video
+   Description: Documentary-style video showing my creative process
+
+4. "Dance Cover Compilation 2023"
+   YouTube: https://www.youtube.com/watch?v=sample101
+   Date: December 1, 2023
+   Status: Regular video
+
+=== PERFORMANCES ===
+
+1. Seoul Dance Festival 2023
+   Date: May 10, 2023
+   Category: 참가 (Participant)
+   Description: Main stage performance with crew
+
+2. K-Pop World Festival
+   Date: September 15, 2023
+   Category: 수상 (Award Winner)
+   Description: Won first place in choreography category
+
+3. Asia Dance Competition
+   Date: April 5, 2022
+   Category: 참가 (Participant)
+   Description: International competition showcase
+
+4. Busan International Dance Festival
+   Date: October 20, 2023
+   Category: 게스트 (Guest Performer)
+   Description: Special guest performance and workshop
+
+5. Seoul City Dance Showcase
+   Date: February 14, 2023
+   Category: 참가 (Participant)
+
+=== DIRECTING WORK ===
+
+1. "Spring Dance Concert 2023"
+   Date: March 20, 2023
+   Description: Directed and produced annual spring concert featuring 50+ dancers
+
+2. "Urban Nights Dance Show"
+   Date: July 8, 2023
+   Description: Creative director for underground dance showcase
+
+3. "K-Wave Dance Festival"
+   Date: November 5, 2023
+   Description: Artistic director for international K-pop dance festival
+
+4. "New Year Dance Gala"
+   Date: January 1, 2023
+   Description: Co-director for New Year's celebration performance
+
+=== WORKSHOPS & CLASSES ===
+
+1. Urban Hip-Hop Masterclass
+   Role: Lead Instructor, Choreographer
+   Location: South Korea
+   Date: July 10, 2023
+   Description: Intensive 3-day workshop for advanced dancers
+
+2. Contemporary Fusion Workshop
+   Role: Instructor
+   Location: Japan
+   Date: October 15, 2023
+   Description: Cross-cultural workshop in Tokyo
+
+3. K-Pop Dance Intensive
+   Role: Lead Instructor
+   Location: South Korea
+   Date: August 5, 2023
+   Description: 5-day intensive training program
+
+4. Youth Dance Camp
+   Role: Instructor, Mentor
+   Location: South Korea
+   Date: June 20, 2023
+   Description: Summer camp for young aspiring dancers
+
+5. International Dance Exchange
+   Role: Guest Instructor
+   Location: United States
+   Date: April 12, 2023
+   Description: Cultural exchange program in Los Angeles
+
+=== AWARDS & RECOGNITION ===
+
+1. Korea Dance Association - "Best Choreographer of the Year"
+   Date: April 25, 2023
+   Issuing Organization: Korea Dance Association
+   Description: Annual award recognizing outstanding choreography work
+
+2. Seoul Arts Center - "Excellence in Performance"
+   Date: December 1, 2023
+   Issuing Organization: Seoul Arts Center
+   Description: Award for outstanding performance contribution
+
+3. Asia Dance Awards - "Rising Choreographer"
+   Date: September 10, 2022
+   Issuing Organization: Asia Dance Federation
+   Description: Recognition for emerging choreographic talent
+
+4. K-Pop Choreography Awards - "Most Innovative Choreography"
+   Date: November 18, 2023
+   Issuing Organization: Korean Entertainment Association
+
+5. Busan Dance Festival - "Audience Choice Award"
+   Date: October 22, 2023
+   Issuing Organization: Busan Cultural Foundation
+
+=== ADDITIONAL INFORMATION ===
+Education: Seoul Institute of the Arts, Dance Major
+Training: Studied under renowned choreographers in Korea and internationally
+Specialties: K-pop choreography, Hip-hop, Contemporary, Urban dance
+Languages: Korean (Native), English (Fluent), Japanese (Conversational)
