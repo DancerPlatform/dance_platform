@@ -422,7 +422,7 @@ export default function CreateWithAiPage() {
         )}
 
         {/* Step 3: Input Method Selection and Upload */}
-        {currentStep === 3 && (
+        {currentStep === 3 && !isExtracting && (
           <Card className="p-4 bg-black text-white">
             <h2 className="text-xl font-semibold mb-4">Step 3: Provide Portfolio Information</h2>
 
@@ -474,6 +474,21 @@ export default function CreateWithAiPage() {
                   )}
                 </div>
               )}
+            </div>
+          </Card>
+        )}
+
+        {/* Loading State During Extraction */}
+        {isExtracting && (
+          <Card className="p-12 bg-black text-white">
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <Loader2 className="w-16 h-16 animate-spin text-green-500" />
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-semibold">Extracting Portfolio Data</h2>
+                <p className="text-gray-400">
+                  Our AI is analyzing your information and structuring your portfolio...
+                </p>
+              </div>
             </div>
           </Card>
         )}
