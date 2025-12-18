@@ -40,8 +40,8 @@ export function ArtistCard({
             preload
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-800">
-            <User className="w-20 h-20 text-gray-600" />
+          <div className="w-full h-full flex items-center justify-center bg-black">
+            <User className="w-20 h-20 text-white" />
           </div>
         )}
       </div>
