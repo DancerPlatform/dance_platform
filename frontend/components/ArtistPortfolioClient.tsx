@@ -10,7 +10,7 @@ import './ArtistPortfolioClient.css';
 import { PortfolioModal } from './PortfolioModal';
 import { PortfolioItemDetailModal, PortfolioItemData } from './PortfolioItemDetailModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
-import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop } from '@/types/portfolio';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop, Visa } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
 import { ClaimPortfolioButton } from './ClaimPortfolioButton';
 import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
@@ -24,6 +24,7 @@ import { useState } from 'react';
 import { Home, MoreVertical, Pencil, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { COUNTRY_CODES } from '@/lib/countryCodes';
 
 export interface ArtistPortfolio {
   artist_id: string;
@@ -41,6 +42,7 @@ export interface ArtistPortfolio {
   performances: PerformanceItem[];
   directing: DirectingItem[];
   teams: TeamMembership[];
+  visas?: Visa[];
   artist_user?: {
     auth_id: string | null;
     email: string;
@@ -564,6 +566,40 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               ))}
             </Swiper>
           </PortfolioSection>
+        )}
+
+        {/* Visas */}
+        {portfolio.visas && portfolio.visas.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold mb-4">Visas</h2>
+            <div className="flex flex-wrap gap-3">
+              {portfolio.visas.map((visa, index) => {
+                const country = COUNTRY_CODES.find(c => c.code === visa.country_code);
+                return (
+                  <div
+                    key={index}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <Image
+                      src={`https://flagsapi.com/${visa.country_code}/flat/32.png`}
+                      alt={country?.name || visa.country_code}
+                      width={32}
+                      height={24}
+                      className="rounded-sm"
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">{country?.name || visa.country_code}</p>
+                      <p className="text-xs text-gray-400">
+                        {shouldShowDate(visa.start_date) && shouldShowDate(visa.end_date) && (
+                          `${new Date(visa.start_date).getFullYear()}.${String(new Date(visa.start_date).getMonth() + 1).padStart(2, '0')} - ${new Date(visa.end_date).getFullYear()}.${String(new Date(visa.end_date).getMonth() + 1).padStart(2, '0')}`
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         )}
 
         {/* Awards */}

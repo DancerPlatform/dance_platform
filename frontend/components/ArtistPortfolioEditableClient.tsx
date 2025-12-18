@@ -19,11 +19,13 @@ import {
   DirectingEditModal,
   WorkshopsEditModal,
   AwardsEditModal,
+  VisasEditModal,
 } from './portfolio/EditSectionModals';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import YouTubeThumbnail from './YoutubeThumbnail';
-import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop } from '@/types/portfolio';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop, Visa } from '@/types/portfolio';
+import { COUNTRY_CODES } from '@/lib/countryCodes';
 import SocialSection from './portfolio/SocialSection';
 import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
 import { PortfolioSection } from './portfolio/PortfolioSection';
@@ -54,6 +56,7 @@ export function ArtistPortfolioEditableClient({
   const [showDirectingEdit, setShowDirectingEdit] = useState(false);
   const [showWorkshopsEdit, setShowWorkshopsEdit] = useState(false);
   const [showAwardsEdit, setShowAwardsEdit] = useState(false);
+  const [showVisasEdit, setShowVisasEdit] = useState(false);
 
   // Sorting helper functions
   const sortChoreographyByDate = (items: { song: { title: string; singer: string; youtube_link: string | null; date: string | null }; role: string[]; is_highlight: boolean; display_order: number }[]) => {
@@ -300,6 +303,34 @@ export function ArtistPortfolioEditableClient({
 
     setPortfolio({ ...portfolio, awards });
     alert('수상 경력이 저장되었습니다.');
+    router.refresh();
+  };
+
+  const handleSaveVisas = async (visas: { country_code: string; start_date: string; end_date: string }[]) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    const response = await fetch(
+      `/api/artists/${artistId}/portfolio/visas`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ visas }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to save visas');
+    }
+
+    setPortfolio({ ...portfolio, visas });
+    alert('비자 정보가 저장되었습니다.');
     router.refresh();
   };
 
@@ -741,6 +772,55 @@ export function ArtistPortfolioEditableClient({
             <p className="text-sm text-gray-400">아직 수상 경력이 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
           )}
         </PortfolioSection>
+
+        {/* Visas */}
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold">Visas</h2>
+            <button
+              onClick={() => setShowVisasEdit(true)}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <Edit className="w-5 h-5" />
+            </button>
+          </div>
+          {!portfolio.visas || portfolio.visas.length === 0 ? (
+            <p className="text-sm text-gray-400">아직 비자 정보가 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {portfolio.visas.map((visa, index) => {
+                const country = COUNTRY_CODES.find(c => c.code === visa.country_code);
+                const shouldShowDate = (dateString: string | null): boolean => {
+                  if (!dateString) return false;
+                  const year = new Date(dateString).getFullYear();
+                  return year !== 1111;
+                };
+                return (
+                  <div
+                    key={index}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <Image
+                      src={`https://flagsapi.com/${visa.country_code}/flat/32.png`}
+                      alt={country?.name || visa.country_code}
+                      width={32}
+                      height={24}
+                      className="rounded-sm"
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">{country?.name || visa.country_code}</p>
+                      <p className="text-xs text-gray-400">
+                        {shouldShowDate(visa.start_date) && shouldShowDate(visa.end_date) && (
+                          `${new Date(visa.start_date).getFullYear()}.${String(new Date(visa.start_date).getMonth() + 1).padStart(2, '0')} - ${new Date(visa.end_date).getFullYear()}.${String(new Date(visa.end_date).getMonth() + 1).padStart(2, '0')}`
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
 
       {/* View All Modal */}
@@ -811,6 +891,13 @@ export function ArtistPortfolioEditableClient({
         onClose={() => setShowAwardsEdit(false)}
         onSave={handleSaveAwards}
         initialData={portfolio.awards}
+      />
+
+      <VisasEditModal
+        isOpen={showVisasEdit}
+        onClose={() => setShowVisasEdit(false)}
+        onSave={handleSaveVisas}
+        initialData={portfolio.visas || []}
       />
     </>
   );

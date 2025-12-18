@@ -18,7 +18,8 @@ export async function GET(
           auth_id,
           email,
           phone,
-          name
+          name,
+          visas
         )
       `)
       .eq('artist_id', artist_id)
@@ -169,6 +170,7 @@ export async function GET(
       performances: performances || [],
       directing: directing || [],
       teams: teamMemberships || [],
+      visas: artistData.artist_user?.visas || [],
     };
 
     return NextResponse.json(portfolio);

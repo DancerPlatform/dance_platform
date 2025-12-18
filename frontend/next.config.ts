@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         hostname: 'img.youtube.com',
         port: '',
         pathname: '/vi/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagsapi.com',
+        port: '',
       }
     ]
   }
