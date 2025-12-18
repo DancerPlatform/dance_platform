@@ -309,9 +309,9 @@ export default function CreateWithAiPage() {
 
       // Navigate to the edit page
       if (portfolioType === "artist") {
-        router.push(`/edit-portfolio/${artistId}`);
+        router.replace(`/edit-portfolio/${artistId}`);
       } else {
-        router.push(`/edit-team/${artistId}`);
+        router.replace(`/edit-team/${artistId}`);
       }
     } catch (error) {
       console.error("Error saving portfolio:", error);
