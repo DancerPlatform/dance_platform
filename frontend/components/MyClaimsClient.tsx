@@ -210,8 +210,8 @@ export default function MyClaimsClients() {
                             )}
                           </Button>
                         </div>
-                        <p className="text-blue-400 text-sm">
-                          Send the authentication code to our instagram <span className='text-green-500'>@dancers.bio</span> with your official account
+                        <p className="text-blue-400 text-xs">
+                          Send the authentication code to our instagram DM <span className='text-green-500'>@dancers.bio</span> with your official account
                         </p>
                         <Link
                           className="bg-green-500 text-white px-3 py-2 rounded-sm inline-block text-sm"
