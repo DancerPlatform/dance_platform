@@ -61,6 +61,7 @@ IMPORTANT INSTRUCTIONS:
 8. Do NOT make up or infer information that isn't in the text
 9. If the provided dates don't contain all the required info fill in the dates with the first day of january.
 10. Make sure none of the fields in the template are null. For example if there are no dates provided you can fill it in with the date 9999-01-01.
+11. Translate all information to english before extraction except the name of the song or singers.
 
 VALIDATION INSTRUCTIONS:
 11. Each item in the arrays contains a "_validation" object that tracks field validity

@@ -451,7 +451,11 @@ export default function CreateWithAiPage() {
                     id="textInput"
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}
-                    placeholder="Paste your portfolio information here. Include details like name, introduction, choreography work, performances, awards, etc."
+                    placeholder="
+
+Please feel free to enter your portfolio in any format. No specific template is required. Simply paste your details, including your name, bio, career history, and awards.
+
+(形式は自由ですので、経歴をそのままご記入ください。 決まった書式はありません。お名前、自己紹介、活動歴、受賞歴などを自由な形式で貼り付けてください。)"
                     className="min-h-[200px] mt-2"
                     disabled={isExtracting}
                   />
