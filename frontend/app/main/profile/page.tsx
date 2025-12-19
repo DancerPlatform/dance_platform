@@ -15,7 +15,7 @@ import { supabase } from '@/lib/supabase';
 import { Header } from '@/components/header';
 
 export default function ProfilePage() {
-  const { user, profile, artistUser, signOut, loading } = useAuth();
+  const { user, profile, artistUser, signOut, loading, refreshUser } = useAuth();
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
   const [isManagedPortfoliosModalOpen, setIsManagedPortfoliosModalOpen] = useState(false);
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
@@ -23,6 +23,10 @@ export default function ProfilePage() {
   const [hasPendingClaims, setHasPendingClaims] = useState(false);
   const [checkingClaims, setCheckingClaims] = useState(true);
 
+
+  useEffect(() => {
+    refreshUser();
+  },[])
 
   // Check for pending claims
   useEffect(() => {
