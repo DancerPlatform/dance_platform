@@ -58,6 +58,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
   const { modalState, openModal, closeModal } = usePortfolioModal();
   const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(false);
   const nationalityCode = portfolio.nationality?.toUpperCase() || null;
   const nationalityCountry = nationalityCode
     ? COUNTRY_CODES.find(country => country.code === nationalityCode)
@@ -328,9 +329,17 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
         {/* Introduction */}
         {portfolio.introduction && (
           <section>
-            <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+            <p className={`text-gray-300 leading-relaxed whitespace-pre-wrap ${!isIntroExpanded ? 'line-clamp-3' : ''}`}>
               {portfolio.introduction}
             </p>
+            {portfolio.introduction.length > 150 && (
+              <button
+                onClick={() => setIsIntroExpanded(!isIntroExpanded)}
+                className="text-green-400 text-sm mt-2 hover:underline"
+              >
+                {isIntroExpanded ? 'Show less' : 'Show more'}
+              </button>
+            )}
           </section>
         )}
 
@@ -673,16 +682,16 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </Swiper>
           </section>
         )}
-        <div className={`${user ? 'hidden' : 'flex flex-col items-center gap-4 py-6'}`}>
+        <div className={`${user ? 'hidden' : 'flex flex-col items-center gap-4 py-6'} border border-green-800 bg-green-800/20 rounded-md`}>
           <p className="text-gray-300 text-center leading-relaxed">
-            개인 프로필 제일 아래에 잘못된 정보가 있나요?<br />
-            본인 인증 후 수정하실 수 있습니다
+            잘못된 정보가 있나요?<br/>본인 인증 후 수정하실 수 있습니다<br />
+            나만의 포트폴리오를 만들어보세요
           </p>
           <Link
             href="/signup/artist"
             className="py-3 px-6 bg-green-600 text-white text-center rounded-sm hover:bg-green-700 transition-colors"
           >
-            본인 인증하기
+            회원가입 하기
           </Link>
         </div>
       </div>
@@ -717,7 +726,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
               <X size={24} />
             </button>
             <div className="mt-2">
-              <h2 className="text-2xl font-bold text-white mb-4">
+              <h2 className="text-2xl font-bold text-white mb-4 text-center">
                 Create Your Portfolio
               </h2>
               <div className='mb-6 text-center'>
