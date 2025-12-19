@@ -75,6 +75,7 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
   const { modalState, openModal, closeModal } = usePortfolioModal();
   const [selectedItem, setSelectedItem] = useState<PortfolioItemData | null>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(false);
 
   const openItemModal = (item: PortfolioItemData) => {
     setSelectedItem(item);
@@ -190,9 +191,17 @@ export function GroupPortfolioClient({ group }: { group: GroupPortfolio }) {
         {/* Introduction */}
         {group.introduction && (
           <section>
-            <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+            <p className={`text-gray-300 leading-relaxed whitespace-pre-wrap ${!isIntroExpanded ? 'line-clamp-3' : ''}`}>
               {group.introduction}
             </p>
+            {group.introduction.length > 150 && (
+              <button
+                onClick={() => setIsIntroExpanded(!isIntroExpanded)}
+                className="text-green-400 text-sm mt-2 hover:underline"
+              >
+                {isIntroExpanded ? 'Show less' : 'Show more'}
+              </button>
+            )}
           </section>
         )}
 

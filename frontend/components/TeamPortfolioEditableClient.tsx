@@ -62,6 +62,7 @@ export function TeamPortfolioEditableClient({
   });
 
   // Edit modal states
+  const [isIntroExpanded, setIsIntroExpanded] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showChoreographyEdit, setShowChoreographyEdit] = useState(false);
   const [showMediaEdit, setShowMediaEdit] = useState(false);
@@ -639,9 +640,17 @@ export function TeamPortfolioEditableClient({
         {/* Introduction */}
         {portfolio.introduction && (
           <section>
-            <p className="text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-wrap">
+            <p className={`text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-wrap ${!isIntroExpanded ? 'line-clamp-3' : ''}`}>
               {portfolio.introduction}
             </p>
+            {portfolio.introduction.length > 150 && (
+              <button
+                onClick={() => setIsIntroExpanded(!isIntroExpanded)}
+                className="text-green-400 text-sm mt-2 hover:underline"
+              >
+                {isIntroExpanded ? 'Show less' : 'Show more'}
+              </button>
+            )}
           </section>
         )}
 
