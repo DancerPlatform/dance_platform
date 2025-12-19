@@ -20,7 +20,7 @@ import {
   WorkshopsEditModal,
   AwardsEditModal,
   VisasEditModal,
-} from './portfolio/EditSectionModals';
+} from './portfolio/modals';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import YouTubeThumbnail from './YoutubeThumbnail';
