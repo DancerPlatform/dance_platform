@@ -572,7 +572,7 @@ Please feel free to enter your portfolio in any format. No specific template is 
                     "Save & Go to Edit Page"
                   )}
                 </Button>
-                <Button variant="outline" onClick={() => {
+                {/* <Button variant="outline" onClick={() => {
                   const blob = new Blob([JSON.stringify(extractedData, null, 2)], { type: "application/json" });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
@@ -582,7 +582,7 @@ Please feel free to enter your portfolio in any format. No specific template is 
                   URL.revokeObjectURL(url);
                 }}>
                   Download JSON
-                </Button>
+                </Button> */}
               </div>
             </Card>
           );

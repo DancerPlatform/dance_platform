@@ -161,7 +161,7 @@ export default function SearchPage() {
             </div>
           ) : searchResults.length > 0 ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {searchResults.map((result) => {
                   const artist = result as ArtistResult;
                   return (
@@ -203,7 +203,7 @@ export default function SearchPage() {
             </div>
           ) : searchResults.length > 0 ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {searchResults.map((result) => {
                   const crew = result as CrewResult;
                   return (

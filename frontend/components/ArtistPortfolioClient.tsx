@@ -298,7 +298,10 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         {/* Team Info */}
         {portfolio.teams && portfolio.teams.length > 0 && (
-          <div className="flex w-full items-center gap-3">
+          <Link
+            href={`/group/${portfolio.teams[0]?.team?.team_id}`}
+            className="flex w-full items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <div className="size-20 rounded-sm overflow-hidden shrink-0">
               {portfolio.teams[0]?.team?.photo && (
                 <Image
@@ -319,7 +322,7 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                 {portfolio.teams[0]?.team?.leader?.artist_id == portfolio.artist_id ? "리더" : "멤버"}
               </p>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Introduction */}
@@ -670,9 +673,18 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
             </Swiper>
           </section>
         )}
-        <Link href="/signup/artist" className={`${user ? 'hidden' : 'block'} py-3 bg-green-600 w-full text-center rounded-sm hover:bg-green-800`}>
-          Create your own portfolio
-        </Link>
+        <div className={`${user ? 'hidden' : 'flex flex-col items-center gap-4 py-6'}`}>
+          <p className="text-gray-300 text-center leading-relaxed">
+            개인 프로필 제일 아래에 잘못된 정보가 있나요?<br />
+            본인 인증 후 수정하실 수 있습니다
+          </p>
+          <Link
+            href="/signup/artist"
+            className="py-3 px-6 bg-green-600 text-white text-center rounded-sm hover:bg-green-700 transition-colors"
+          >
+            본인 인증하기
+          </Link>
+        </div>
       </div>
 
 
