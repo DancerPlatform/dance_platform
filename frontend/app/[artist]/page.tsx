@@ -12,9 +12,9 @@ export default async function ArtistPage({
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/artists/${artistId}`,
-    {
-      next: { revalidate: 60 }, // Cache for 60 seconds
-    }
+    // {
+    //   next: { revalidate: 60 }, // Cache for 60 seconds
+    // }
   );
 
   if (!response.ok) {

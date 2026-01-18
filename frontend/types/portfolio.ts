@@ -82,3 +82,10 @@ export interface Visa {
   start_date: string;
   end_date: string;
 }
+
+export interface GalleryImage {
+  image_id?: string;
+  image_url: string;
+  caption?: string;
+  display_order: number;
+}

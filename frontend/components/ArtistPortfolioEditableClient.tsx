@@ -20,11 +20,12 @@ import {
   WorkshopsEditModal,
   AwardsEditModal,
   VisasEditModal,
+  ImagesEditModal,
 } from './portfolio/modals';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import YouTubeThumbnail from './YoutubeThumbnail';
-import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop, Visa } from '@/types/portfolio';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, Workshop, Visa, GalleryImage } from '@/types/portfolio';
 import { COUNTRY_CODES } from '@/lib/countryCodes';
 import SocialSection from './portfolio/SocialSection';
 import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
@@ -58,6 +59,7 @@ export function ArtistPortfolioEditableClient({
   const [showWorkshopsEdit, setShowWorkshopsEdit] = useState(false);
   const [showAwardsEdit, setShowAwardsEdit] = useState(false);
   const [showVisasEdit, setShowVisasEdit] = useState(false);
+  const [showImagesEdit, setShowImagesEdit] = useState(false);
 
   // Sorting helper functions
   const sortChoreographyByDate = (items: { song: { title: string; singer: string; youtube_link: string | null; date: string | null }; role: string[]; is_highlight: boolean; display_order: number }[]) => {
@@ -333,6 +335,34 @@ export function ArtistPortfolioEditableClient({
 
     setPortfolio({ ...portfolio, visas });
     alert('비자 정보가 저장되었습니다.');
+    router.refresh();
+  };
+
+  const handleSaveImages = async (images: GalleryImage[]) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    const response = await fetch(
+      `/api/artists/${artistId}/portfolio/images`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ images }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to save images');
+    }
+
+    setPortfolio({ ...portfolio, images });
+    alert('갤러리가 저장되었습니다.');
     router.refresh();
   };
 
@@ -832,6 +862,43 @@ export function ArtistPortfolioEditableClient({
             </div>
           )}
         </section>
+
+        {/* Gallery */}
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold">Gallery</h2>
+            <button
+              onClick={() => setShowImagesEdit(true)}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <Edit className="w-5 h-5" />
+            </button>
+          </div>
+          {!portfolio.images || portfolio.images.length === 0 ? (
+            <p className="text-sm text-gray-400">아직 갤러리 이미지가 없습니다. 편집 버튼을 눌러 추가해보세요.</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {portfolio.images.map((image, index) => (
+                <div
+                  key={index}
+                  className="relative aspect-square rounded-lg overflow-hidden bg-zinc-900 group"
+                >
+                  <Image
+                    src={image.image_url}
+                    alt={image.caption || `Gallery image ${index + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {image.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                      <p className="text-sm text-white truncate">{image.caption}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
       {/* View All Modal */}
@@ -910,6 +977,14 @@ export function ArtistPortfolioEditableClient({
         onClose={() => setShowVisasEdit(false)}
         onSave={handleSaveVisas}
         initialData={portfolio.visas || []}
+      />
+
+      <ImagesEditModal
+        isOpen={showImagesEdit}
+        onClose={() => setShowImagesEdit(false)}
+        onSave={handleSaveImages}
+        initialData={portfolio.images || []}
+        artistId={artistId}
       />
     </>
   );

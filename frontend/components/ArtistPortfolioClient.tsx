@@ -10,7 +10,7 @@ import './ArtistPortfolioClient.css';
 import { PortfolioModal } from './PortfolioModal';
 import { PortfolioItemDetailModal, PortfolioItemData } from './PortfolioItemDetailModal';
 import YouTubeThumbnail from './YoutubeThumbnail';
-import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop, Visa } from '@/types/portfolio';
+import { Award, ChoreographyItem, DirectingItem, MediaItem, PerformanceItem, TeamMembership, Workshop, Visa, GalleryImage } from '@/types/portfolio';
 import SocialSection from './portfolio/SocialSection';
 import { ClaimPortfolioButton } from './ClaimPortfolioButton';
 import { PortfolioHeroSection } from './portfolio/PortfolioHeroSection';
@@ -44,6 +44,7 @@ export interface ArtistPortfolio {
   directing: DirectingItem[];
   teams: TeamMembership[];
   visas?: Visa[];
+  images?: GalleryImage[];
   artist_user?: {
     auth_id: string | null;
     email: string;
@@ -635,6 +636,38 @@ export function ArtistPortfolioClient({ portfolio }: { portfolio: ArtistPortfoli
                   </div>
                 );
               })}
+            </div>
+          </section>
+        )}
+
+        {/* Gallery */}
+        {portfolio.images && portfolio.images.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold mb-4">Gallery</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {portfolio.images.map((image, index) => (
+                <div
+                  key={index}
+                  className="relative aspect-square rounded-lg overflow-hidden bg-zinc-900 group cursor-pointer"
+                  onClick={() => openItemModal({
+                    type: 'image',
+                    image_url: image.image_url,
+                    caption: image.caption,
+                  })}
+                >
+                  <Image
+                    src={image.image_url}
+                    alt={image.caption || `Gallery image ${index + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {image.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                      <p className="text-sm text-white truncate">{image.caption}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </section>
         )}

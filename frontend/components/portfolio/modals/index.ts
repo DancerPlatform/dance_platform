@@ -7,6 +7,7 @@ export { DirectingEditModal } from './DirectingEditModal';
 export { WorkshopsEditModal } from './WorkshopsEditModal';
 export { AwardsEditModal } from './AwardsEditModal';
 export { VisasEditModal } from './VisasEditModal';
+export { ImagesEditModal } from './ImagesEditModal';
 
 // Re-export types
 export type {

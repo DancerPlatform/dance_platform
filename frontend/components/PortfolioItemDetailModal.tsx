@@ -8,8 +8,9 @@ import {
 } from '@/components/ui/dialog';
 import { Calendar, Play, Users, MapPin, Trophy } from 'lucide-react';
 import YoutubePlayer from './YoutubePlayer';
+import Image from 'next/image';
 
-export type PortfolioItemType = 'highlight' | 'choreography' | 'media' | 'directing' | 'workshop' | 'award';
+export type PortfolioItemType = 'highlight' | 'choreography' | 'media' | 'directing' | 'workshop' | 'award' | 'image';
 
 // Union type for all possible portfolio item data
 export type PortfolioItemData =
@@ -18,7 +19,8 @@ export type PortfolioItemData =
   | MediaItemData
   | DirectingItemData
   | WorkshopItemData
-  | AwardItemData;
+  | AwardItemData
+  | ImageItemData;
 
 interface HighlightItemData {
   type: 'highlight';
@@ -68,6 +70,12 @@ interface AwardItemData {
   received_date: string | null;
 }
 
+interface ImageItemData {
+  type: 'image';
+  image_url: string;
+  caption?: string;
+}
+
 interface PortfolioItemDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -95,6 +103,8 @@ export function PortfolioItemDetailModal({
         return renderWorkshopDetail(item);
       case 'award':
         return renderAwardDetail(item);
+      case 'image':
+        return renderImageDetail(item);
       default:
         return null;
     }
@@ -335,6 +345,30 @@ export function PortfolioItemDetailModal({
     );
   };
 
+  const renderImageDetail = (data: ImageItemData) => {
+    return (
+      <div className="space-y-3">
+        {/* Image */}
+        <div className="relative w-full max-w-lg mx-auto">
+          <Image
+            src={data.image_url}
+            alt={data.caption || 'Gallery image'}
+            width={800}
+            height={800}
+            className="w-full h-auto rounded-lg object-contain"
+          />
+        </div>
+
+        {/* Caption */}
+        {data.caption && (
+          <div className="text-center">
+            <p className="text-sm sm:text-base text-gray-300">{data.caption}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6 bg-black/20 backdrop-blur-xl border border-white/10">
@@ -345,6 +379,7 @@ export function PortfolioItemDetailModal({
              item.type === 'directing' ? 'Directing' :
              item.type === 'workshop' ? 'Class' :
              item.type === 'award' ? 'Award' :
+             item.type === 'image' ? 'Gallery' :
              'Highlight'}
           </DialogTitle>
         </DialogHeader>

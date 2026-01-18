@@ -65,7 +65,7 @@ export default function MainPage() {
         {/* Popular Artists Section */}
         <section className="space-y-4 px-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-normal">Popular Artists</h3>
+            <h3 className="text-2xl font-normal">Popular Dancers</h3>
             <Link
               href="/main/search"
               className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors text-sm"
@@ -92,7 +92,7 @@ export default function MainPage() {
                 className="max-w-xs"
               />
             ))
-            }
+          }
           </div>
         </section>
 

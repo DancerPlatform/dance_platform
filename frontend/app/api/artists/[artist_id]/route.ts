@@ -14,7 +14,7 @@ export async function GET(
       .from('artist_portfolio')
       .select(`
         *,
-        artist_user:artist_id (
+        artist_user!artist_portfolio_artist_id_fkey (
           auth_id,
           email,
           phone,
@@ -160,6 +160,15 @@ export async function GET(
 
     if (teamError) console.error('Team error:', teamError);
 
+    // Fetch gallery images
+    const { data: images, error: imagesError } = await supabase
+      .from('artist_images')
+      .select('*')
+      .eq('artist_id', artist_id)
+      .order('display_order', { ascending: true });
+
+    if (imagesError) console.error('Images error:', imagesError);
+
     // Combine all portfolio data
     const portfolio = {
       ...artistData,
@@ -171,11 +180,13 @@ export async function GET(
       directing: directing || [],
       teams: teamMemberships || [],
       visas: artistData.artist_user?.visas || [],
+      images: images || [],
     };
 
     return NextResponse.json(portfolio);
   } catch (error) {
     console.error('Error fetching artist portfolio:', error);
+    console.log("Error", error)
     return NextResponse.json(
       { error: 'Failed to fetch artist portfolio' },
       { status: 500 }
