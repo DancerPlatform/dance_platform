@@ -5,6 +5,7 @@ export type UserType = 'client' | 'artist' | 'user'
 export interface UserProfile {
   auth_id: string
   user_type: UserType
+  name?: string
   is_admin?: boolean
   created_at: string
   updated_at: string

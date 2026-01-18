@@ -23,12 +23,9 @@ export default function MainPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const fetcher = (url: string) => fetch(url).then(res => res.json())
   const router = useRouter();
-  const { artistUser, clientUser, normalUser } = useAuth();
+  const { profile } = useAuth();
   const { data: artistData, error: artistError, isLoading: artistLoading } = useSWR<{ artists: Artist[] }>('/api/artists?limit=4', fetcher)
   const { data: groupData, error: groupError, isLoading: groupLoading } = useSWR<{ groups: Group[] }>('/api/groups?limit=4', fetcher)
-
-  // Get user name from any user type
-  const userName = artistUser?.name || clientUser?.name || normalUser?.name
 
   const artists = artistData?.artists || [];
   const groups = groupData?.groups || [];
@@ -61,11 +58,11 @@ export default function MainPage() {
 
         {/* Portfolio Banner */}
         <section className="px-6">
-          {userName ? (
+          {profile ? (
             <Link href="/main/profile">
               <div className="h-14 bg-linear-to-r from-zinc-900 via-zinc-800 to-green-600/80 rounded-lg flex items-center justify-between px-4 border border-zinc-800 hover:border-green-500/50 transition-all">
                 <div>
-                  <p className="text-sm md:text-base font-bold">Welcome back, {userName}</p>
+                  <p className="text-sm md:text-base font-bold">Welcome back, {profile.name}</p>
                 </div>
                 <ArrowRight className="size-5" />
               </div>
