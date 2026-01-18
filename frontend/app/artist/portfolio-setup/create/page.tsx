@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Header } from '@/components/header'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/stores/authStore'
 import Link from 'next/link'
 
 export default function CreatePortfolioPage() {

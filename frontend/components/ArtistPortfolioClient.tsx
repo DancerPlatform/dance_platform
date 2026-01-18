@@ -23,7 +23,7 @@ import { chunkArray } from '@/lib/portfolioUtils';
 import { useState } from 'react';
 import { Home, MoreVertical, Pencil, Plus, X } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores/authStore';
 import { COUNTRY_CODES } from '@/lib/countryCodes';
 
 export interface ArtistPortfolio {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, Edit3, Shield, Briefcase, Users, UserPlus, Crown, LogOut } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores/authStore';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PermissionsModal } from '@/components/portfolio/PermissionsModal';

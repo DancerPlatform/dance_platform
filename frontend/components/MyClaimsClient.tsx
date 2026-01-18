@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, ArrowRight, Timer, Copy, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { PortfolioClaimRequestWithArtist } from '@/lib/types/claims'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/stores/authStore'
 
 export default function MyClaimsClients() {
   const [claims, setClaims] = useState<PortfolioClaimRequestWithArtist[]>([])

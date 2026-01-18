@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores/authStore';
 import { useRouter, useParams } from 'next/navigation';
 import { ArtistPortfolioEditableClient } from '@/components/ArtistPortfolioEditableClient';
 import type { ArtistPortfolio } from '@/components/ArtistPortfolioClient';

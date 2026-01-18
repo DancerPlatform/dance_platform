@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { X, Upload, Instagram, Twitter, Youtube } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores/authStore';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 

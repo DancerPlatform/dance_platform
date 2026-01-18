@@ -10,7 +10,7 @@ import { Header } from '@/components/header'
 import { Music } from 'lucide-react'
 import { signUp } from '@/lib/auth'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/stores/authStore'
 
 export default function ArtistSignupPage() {
   const { refreshUser } = useAuth();
